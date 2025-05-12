@@ -8,9 +8,9 @@ import { Drawer, styled } from "@mui/material";
 import LogoBox from "./LogoBox";
 import SimpleBar from "simplebar-react";
 import AppMenu from "./AppMenu";
-import { changeHTMLAttribute, getMenuItems } from "../../helpers/menu";
-import { useLayoutContext } from "../../states";
-import { useViewPort } from "../../hooks";
+import { changeHTMLAttribute, getMenuItems } from "@src/helpers/menu";
+import { useLayoutContext } from "@src/states";
+import { useViewPort } from "@src/hooks";
 import { useEffect } from "react";
 
 /* Sidemenu content */
@@ -19,17 +19,18 @@ const LeftSideBarWrapper = styled("div")(({
   settings
 }) => {
   return {
-    backgroundColor: settings.sidenav.theme == "light" ? "#fff " : "#192538",
+    backgroundColor: settings.sidenav.theme == "light" ? "#FFE18D  " : "#FACC45",
     width: 240,
     minWidth: 240,
     height: "100vh",
     position: "sticky",
     top: 0,
-    
     overflow: "hidden",  
     // transform: "translateX(-100%)"
     marginInlineStart: !settings.sidenav.showMobileMenu ? -240 : 0,
-    transition: "0.3s margin"
+    transition: "0.6s margin",
+ 
+    
   };
 });
 const LeftSideBarMenu = () => {

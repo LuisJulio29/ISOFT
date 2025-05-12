@@ -3,7 +3,7 @@ const PageMetaData = ({
   title
 }) => {
   return <Helmet>
-      <title> {title} | Nautiagro </title>
+      <title> {title} | Universidad de Cartagena </title>
     </Helmet>;
 };
 export default PageMetaData;

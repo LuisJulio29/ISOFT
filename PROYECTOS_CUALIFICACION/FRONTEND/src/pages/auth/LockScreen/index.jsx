@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import * as yup from "yup";
 import { Box, Button, Typography } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { PageMetaData, PasswordInput } from "../../../components";
+import { PageMetaData, PasswordInput } from "@src/components";
 import AuthLayout from "../AuthLayout";
 
 // images

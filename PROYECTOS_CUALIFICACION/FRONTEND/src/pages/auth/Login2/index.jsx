@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import AuthLayout2 from "../AuthLayout2";
 import useLogin from "../Login/useLogin";
-import { CheckboxInput, FormInput, PageMetaData, PasswordInput } from "../../../components";
+import { CheckboxInput, FormInput, PageMetaData, PasswordInput } from "@src/components";
 const BottomLink = () => {
   return <Typography variant="body2" color={"text.secondary"} sx={{
     display: "flex",

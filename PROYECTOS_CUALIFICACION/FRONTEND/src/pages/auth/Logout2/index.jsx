@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { PageMetaData } from "../../../components";
+import { PageMetaData } from "@src/components";
 import { useAuthContext } from "../../../states";
 import { LogoutIcon } from "../Logout";
 import AuthLayout2 from "../AuthLayout2";

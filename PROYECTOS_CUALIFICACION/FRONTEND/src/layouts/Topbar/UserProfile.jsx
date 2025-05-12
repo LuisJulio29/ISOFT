@@ -1,6 +1,6 @@
 import { Avatar, Box, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from "@mui/material";
-import country3 from "../../assets/images/flags/Bharat.png";
-import avatar2 from "../../assets/images/avatars/avatar2.png";
+import country3 from "@src/assets/images/flags/Bharat.png";
+import avatar2 from "@src/assets/images/avatars/avatar2.png";
 import { LuHeartHandshake, LuLock, LuLogOut, LuSettings, LuAlarmClock } from "react-icons/lu";
 import { useDropdownMenu } from "../../hooks";
 import { useLayoutContext } from "../../states";
@@ -23,7 +23,7 @@ const UserProfile = () => {
 
   // Función para abrir la página de la cuenta
   const handleOpenAccount = () => {
-    navigate('/app/cuenta');
+    navigate('/cuenta');
   };
 
   const profileDropdownOptions = [
@@ -53,21 +53,21 @@ const UserProfile = () => {
         paddingRight: "8px",
         display: "flex",
         alignItems: "center",
-        width: "170px",
+        width: "180px",
         borderLeft: 1,
         borderRight: 1,
         borderColor: theme === "dark" ? "#374151" : "divider",
         height: "70px",
-        backgroundColor: "#0000000d",
+        backgroundColor: "rgba(230, 202, 202, 0.03)",
         justifyContent: "space-around"
       }}>
-        <Avatar src={avatar2} alt="avatar" sx={{ height: 32, width: 32 }} />
+        <Avatar src={avatar2} alt="avatar" sx={{ height: 52, width: 52 }} />
         <div style={{ marginLeft: "12px" }}>
           <Typography variant="subtitle2" color={"text.primary"}>
-            {`${usuario.PrimerNombre||''} ${usuario.PrimerApellido}` || ''}
+            {`${"Eddy"||''} ` || ''}
           </Typography>
           <Typography variant="caption" color={"text.primary"}>
-            {`${usuario.RolNombre}` || ''}
+          {`${"Administrador"||''} ` || ''}
           </Typography>
         </div>
       </Box>

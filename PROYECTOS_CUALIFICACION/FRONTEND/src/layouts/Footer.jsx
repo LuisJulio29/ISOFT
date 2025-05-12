@@ -13,7 +13,7 @@ const FooterWrapper = styled("div")(({
   return {
     backgroundColor: theme.palette.background.paper,
     height: "auto",
-    minHeight: "130px",
+    minHeight: "80px",
     marginTop: "auto",
     display: "flex",
     justifyContent: "space-between",
@@ -28,7 +28,7 @@ const Footer = () => {
   } = useLayoutContext();
   return <FooterWrapper settings={settings} className="footer-do-not-remove">
       <Typography variant="subtitle2" color={"text.primary"} sx={{ fontSize: "12px" }}>
-        2024 - {new Date().getFullYear()} © NAUTIAGRO S.A.S. Powered by TISERIUM
+        2024 - {new Date().getFullYear()} © Universidad de Cartagena S.A Powered by UDC
       </Typography>
       <Stack direction={"row"} spacing={2} sx={{
       display: "flex"

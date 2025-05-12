@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import logo from "../../assets/images/UnicartagenaLogo.png";
 
 // components
-import { AuthBGLayout, PageMetaData } from "../../components";
+import { AuthBGLayout, PageMetaData } from "@src/components";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { LuFrown, LuAntenna } from "react-icons/lu";
 const Error404 = () => {

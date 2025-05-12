@@ -1,55 +1,71 @@
 :root {
-  --font-family-base: "Poppins";
+  /* Fuente base */
+  --font-family: 'Poppins', 'Roboto', sans-serif;
   --font-weight-semibold: 600;
+
+  /* Colores claro (modo light) */
   --stroke: #dee2e6;
   --border-color: #dee2e6;
   --background-color: #f1f1f1;
-  --text-color: #001930;
+  --text-color: #FACC45;
 }
 
 html[data-mode="dark"] {
   color-scheme: dark;
+
+  /* Colores oscuro (modo dark) */
   --stroke: #3d454f;
   --border-color: #3d454f;
   --background-color: #181e26;
   --text-color: #aab8c5;
 }
 
+/* ===== Base ===== */
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: "Poppins", "Roboto", sans-serif, serif;
+  font-family: var(--font-family);
 }
 
 * {
   list-style: none;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 a {
   text-decoration: none;
 }
 
-@media print {
+/* ===== Utilidades (colores) ===== */
 
+.bg-primary {
+  background-color: #095fff;
+}
+
+.bg-info {
+  background-color: #20a3ff;
+}
+
+.bg-success {
+  background-color: #00b636;
+}
+
+.bg-warning {
+  background-color: #ff8d0a;
+}
+
+.bg-error {
+  background-color: #ff2c2c;
+}
+
+/* ===== Impresión ===== */
+
+@media print {
   .app-menu-do-not-remove,
   .topbar-header-do-not-remove,
   .footer-do-not-remove {
     display: none;
   }
-}
-
-
-.bg-primary{
-  background-color: #095fff;
-}
-.bg-info{
-  background-color: #20a3ff;
-}.bg-success{
-  background-color: #00b636;
-}.bg-warning{
-  background-color: #ff8d0a;
-}.bg-error{
-  background-color: #ff2c2c;
 }

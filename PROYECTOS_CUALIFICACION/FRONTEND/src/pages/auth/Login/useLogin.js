@@ -6,7 +6,7 @@ import { useAuthContext } from "../../../states";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useSnackbar } from "notistack";
-// import { gsUrlApi } from "../../../configuracion/ConfigServer";
+import { gsUrlApi } from "@src/config/ConfigServer";
 import Swal from 'sweetalert2';
 
 export default function useLogin() {
@@ -27,8 +27,8 @@ export default function useLogin() {
   let gObjSesion = {};
 
   const loginFormSchema = yup.object({
-    email: yup.string().email("Please enter valid email").required("Please enter email"),
-    password: yup.string().required("Please enter password"),
+    email: yup.string().email("Por favor ingresa un correo válido").required("Por favor ingresa un correo"),
+    password: yup.string().required("Por favor ingresa una contraseña"),
     rememberMe: yup.boolean().oneOf([true], "Checkbox must be checked").optional()
   });
 
@@ -61,101 +61,81 @@ export default function useLogin() {
   const login = handleSubmit(async values => {
     setLoading(true);
     
-    // fetch(gsUrlApi+ "/usuariosAdministrativos/validarIngreso", {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     Login: values.email,
-    //     Clave: values.password,
-    //     // IdEmpresa: props.Empresa,
-    //   }),
-    //   headers: {
-    //     "Content-Type": "application/json; charset=UTF-8",
-    //     Accept: "application/json",
-    //   },
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => data)
-    //   .then(function Validar(data) {
-    //     if (data.error && data.error.code === 404) {
-    //       Swal.fire({
-    //         title: "Error",
-    //         text: "Error al consultar el usuario. Por favor, inténtelo nuevamente.",
-    //         icon: "question",
-    //       });
-    //       setLoading(false);
-    //     } else {
-    //       if (data.Datos.length > 0) {
-            
-    //         gObjResult = data.Datos[0];
-    //         gObjResultKey = data.DatosKey[0];
-    //         localStorage.setItem("token", JSON.stringify(data.token));
-
-    //         gsToken = gObjResult.NumeroIdentificacion;
-    //         timetemps = 30;
-    //         // eliminacion de clave por menaje de texto, se cambio por true el  setEstado(false) -----
-    //         gObjSesion.Paciente = gObjResult;
-    //         localStorage.setItem(gsToken, JSON.stringify(gObjSesion));
-    //         if (
-    //           gObjResult.EstadoCambioClave == false &&
-    //           gObjResult.CarqueAutomatico == true &&
-    //           props.ValidacionCambioClave
-    //         ) {
-    //           setEstadoCargue(gObjResult.CarqueAutomatico);
-    //         } else {
-    //           setEstado(true);
-    //         }
-
-    //         // ------------------------------
-    //         // ALertaSwal(
-    //         //   "Clave temporal de acceso enviada al Celular " + gObjResult.Celular,
-    //         //   "success"
-    //         // );
-    //         // setPreload(true)
-    //         setTime(!time);
-    //         gObjEvent = setInterval(contadorSolicitudAcceso, 1000);
-    //         if (data.token) {
-    //           saveSession({
-    //             ...(data.datos ?? {}),
-    //             token: data.token
-    //           });
-    //           navigate(redirectUrl);
-    //         }
-    //         // navigate("/ecommerce");
-    //         localStorage.setItem("Usuario", JSON.stringify(data.Datos[0]));
-    //       } else {
-    //         Swal.fire({
-    //           title: "Usuario no encontrado",
-    //           text: "El usuario ingresado no existe en el sistema.",
-    //           icon: "warning",
-    //         });
-    //         setLoading(false);
-    //       }
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err, "error");
-    //   });
+    fetch(gsUrlApi + "/login", {
+      method: "POST",
+      body: JSON.stringify({
+        Login: values.email,
+        Clave: values.password
+      }),
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+        Accept: "application/json"
+      }
+    })
+      .then((res) => res.json())
+      .then(function Validar(data) {
+        if (data.failure_message) {
+          Swal.fire({
+            title: "Error",
+            text: data.failure_message,
+            icon: "warning"
+          });
+          setLoading(false);
+          return;
+        }
+    
+        if (data.usuario && data.usuario.length > 0) {
+          gObjResult = data.usuario[0];    
+          gObjResultKey = data.datosKey?.[0];
+    
+          // Guarda token y sesión
+          localStorage.setItem("token", JSON.stringify(data.token));
+          gsToken = gObjResult.NumeroIdentificacion;
+          gObjSesion.Docente = gObjResult;
+          localStorage.setItem(gsToken, JSON.stringify(gObjSesion));
+    
+          saveSession({
+            ...(data.datos ?? {}),
+            token: data.token
+          });
+    
+          navigate(redirectUrl);
+        } else {
+          Swal.fire({
+            title: "Docente no encontrado",
+            text: "El usuario ingresado no existe en el sistema.",
+            icon: "warning"
+          });
+        }
+    
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error en login:", err);
+        setLoading(false);
+      });
+    
       
 
 
-    try {
-      const res = await HttpClient.post("/login", values);
-      if (res.data.token) {
-        saveSession({
-          ...(res.data ?? {}),
-          token: res.data.token
-        });
-        navigate(redirectUrl);
-      }
-    } catch (error) {
-      if (error.response?.data?.error) {
-        enqueueSnackbar(error.response?.data?.error, {
-          variant: "error"
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   const res = await HttpClient.post("/login", values);
+    //   if (res.data.token) {
+    //     saveSession({
+    //       ...(res.data ?? {}),
+    //       token: res.data.token
+    //     });
+    //     navigate(redirectUrl);
+    //   }
+    // } catch (error) {
+    //   if (error.response?.data?.error) {
+    //     enqueueSnackbar(error.response?.data?.error, {
+    //       variant: "error"
+    //     });
+    //   }
+    // } finally {
+    //   setLoading(false);
+    // }
   });
   return {
     loading,

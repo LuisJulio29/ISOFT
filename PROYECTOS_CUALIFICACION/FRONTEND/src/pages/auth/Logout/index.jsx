@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { PageMetaData } from "../../../components";
+import { PageMetaData } from "@src/components";
 import AuthLayout from "../AuthLayout";
 import { useAuthContext } from "../../../states";
 import { useEffect } from "react";

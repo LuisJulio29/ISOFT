@@ -1,6 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Typography } from "@mui/material";
-import { CheckboxInput, FormInput, PageMetaData, PasswordInput } from "../../../components";
+import { CheckboxInput, FormInput, PageMetaData, PasswordInput } from "@src/components";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import * as yup from "yup";

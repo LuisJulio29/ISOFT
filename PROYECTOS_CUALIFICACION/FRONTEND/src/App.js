@@ -14,11 +14,11 @@ const App = () => {
   //   ;
   // }, []);
   return <>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={createTheme(settings.theme)}>
-    <Router/>  
-     </ThemeProvider>
-      </StyledEngineProvider>
-    </>;
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={createTheme(settings.theme)}>
+        <Router />
+      </ThemeProvider>
+    </StyledEngineProvider>
+  </>;
 };
 export default App;

@@ -1,7 +1,7 @@
 import { IconButton, InputAdornment } from "@mui/material";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { useToggle } from "../../hooks";
-import { FormInput } from "../../components";
+import { FormInput } from "@src/components";
 const PasswordInput = ({
   ...other
 }) => {

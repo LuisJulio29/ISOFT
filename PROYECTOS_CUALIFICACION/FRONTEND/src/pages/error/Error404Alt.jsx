@@ -1,5 +1,5 @@
 // components
-import { PageBreadcrumb } from "../../components";
+import { PageBreadcrumb } from "@src/components";
 import { Box, Button, Typography } from "@mui/material";
 import { LuAntenna } from "react-icons/lu";
 const Error404Alt = () => {

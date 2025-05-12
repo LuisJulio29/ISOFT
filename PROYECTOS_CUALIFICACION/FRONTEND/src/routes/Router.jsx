@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import ScrollToTop from "../components/ScrollToTop";
+import ScrollToTop from "@src/components/ScrollToTop";
 import DefaultLayout from '../layouts/DefaultLayout';
 import VerticalLayout from '../layouts/VerticalLayout';
 import { defaultLayoutRoutes, verticalLayoutRoutes } from './routes';

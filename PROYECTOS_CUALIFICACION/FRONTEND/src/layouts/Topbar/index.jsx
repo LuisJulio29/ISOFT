@@ -7,7 +7,7 @@
 import { Box, FilledInput, InputAdornment } from "@mui/material";
 import { LuSearch } from "react-icons/lu";
 import { styled } from "@mui/material";
-import { useLayoutContext } from "../../states";
+import { useLayoutContext } from "@src/states";
 import MenuToggler from "./MenuToggler";
 import MaximizeScreen from "./MaximizeScreen";
 import LayoutThemeToggler from "./LayoutThemeToggler";
@@ -24,7 +24,7 @@ const TopBarWrapper = styled("div")(({
   return {
     backgroundColor: theme.palette.background.paper,
     paddingInlineStart: "16px",
-    paddingInlineEnd: "16px",
+    paddingInlineEnd: "1px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -98,7 +98,7 @@ const Topbar = () => {
           </Box>
         </Box>
 
-        {/* <ThemeCustomizerToggler /> */}
+        <ThemeCustomizerToggler />
 
         <LayoutThemeToggler />
         <Box sx={{
@@ -107,7 +107,7 @@ const Topbar = () => {
           sm: "block"
         }
       }}>
-          {/* <MaximizeScreen /> */}
+          <MaximizeScreen />
         </Box>
         <UserProfile />
       </Box>

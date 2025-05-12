@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import logo from "../../assets/images/UnicartagenaLogo.png";
+import logo from "../../assets/images/udc.png";
 import logoDark from "../../assets/images/UnicartagenaLogo.png";
-import { useLayoutContext } from "../../states";
+import { useLayoutContext } from "@src/states";
 import { styled } from "@mui/system";
 const LogoBox = ({
   defaultTheme,
@@ -19,10 +19,10 @@ const LogoBox = ({
     settings
   }) => {
     return {
-      backgroundColor: backgroundColor ? settings.sidenav.theme == "light" ? "#fff " : "#192538" : "transparent",
+      backgroundColor: backgroundColor ? settings.sidenav.theme == "light" ? "#FFE18D  " : "#FACC45" : "transparent",
       height: "70px",
       position: "sticky",
-      top: 0,
+      top: 20,
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -30,11 +30,11 @@ const LogoBox = ({
     };
   });
   return <LogoBoxWrapper settings={settings}>
-      <Link to="/" style={{
+      <Link to="/inicio" style={{
       justifyContent: "center",
       display: "flex"
     }}>
-        <img src={(defaultTheme ?? theme) == "light" ? logoDark : logo} height={72} width={190} />
+        <img src={(defaultTheme ?? theme) == "light" ? logo : logo} height={82} width={180} />
       </Link>
     </LogoBoxWrapper>;
 };

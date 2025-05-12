@@ -9,13 +9,13 @@ const PageBreadcrumb = ({ title, subName }) => {
       color="inherit"
       variant="subtitle2"
       underline="none"
-      href=""
+      href="/inicio"
       sx={{
         fontWeight: 600,
-        fontSize: { xs: "14px", sm: "16px" }, // Tamaño de fuente adaptable
+        fontSize: { xs: "13px", sm: "15px" },
       }}
     >
-      Nautiagro
+      Universidad de Cartagena
     </Link>,
     <Link
       key="2"
@@ -24,7 +24,7 @@ const PageBreadcrumb = ({ title, subName }) => {
       underline="none"
       href=""
       sx={{
-        fontSize: { xs: "12px", sm: "14px" }, // Tamaño de fuente adaptable
+        fontSize: { xs: "12px", sm: "14px" },
       }}
     >
       {subName}
@@ -33,8 +33,8 @@ const PageBreadcrumb = ({ title, subName }) => {
       key="3"
       variant="body2"
       sx={{
-        
-        fontSize: { xs: "12px", sm: "14px" }, // Tamaño de fuente adaptable
+        fontSize: { xs: "12px", sm: "14px" },
+        color: "text.primary",
       }}
     >
       {title}
@@ -46,35 +46,42 @@ const PageBreadcrumb = ({ title, subName }) => {
       <PageMetaData title={title} />
 
       <Box
-        height={75}
         display="flex"
+        flexDirection={{ xs: "column", sm: "row" }}
+        alignItems={{ xs: "flex-start", sm: "center" }}
         justifyContent="space-between"
-        alignItems="center"
-        flexDirection={{ xs: "column", sm: "row" }} // Apilar en pantallas pequeñas
-        gap={{ xs: 1, sm: 0 }} // Espaciado en pantallas pequeñas
-        sx={{ padding: { xs: "8px", sm: "16px" } }} // Padding adaptable
+        gap={1}
+        sx={{
+          px: { xs: 2, sm: 3 },
+          py: { xs: 1, sm: 2 },
+          mb: { xs: 2, sm: 3 },
+          mt: { xs: 2, sm: 3 },
+
+        }}
       >
         <Typography
           variant="h5"
           color="text.primary"
           sx={{
-            fontWeight: 950,
-            fontSize: { xs: "18px", sm: "24px" }, // Tamaño del título responsivo
-            textAlign: { xs: "center", sm: "left" }, // Centrado en pantallas pequeñas
+            fontWeight: 900,
+            fontSize: { sm: "24px" },
+            display: { xs: "none", sm: "block" }, // 🔹 Oculta en XS, muestra en SM+
+            textAlign: "left",
           }}
         >
           {title}
         </Typography>
 
+
         <Breadcrumbs
-          separator={<LuChevronRight size={12} />}
+          separator={<LuChevronRight size={14} />}
           aria-label="breadcrumb"
           sx={{
+            mt: { xs: 1, sm: 0 },
             "& ol": {
-              display: "flex",
-              gap: 1,
-              justifyContent: { xs: "center", sm: "flex-start" }, // Centrar en pantallas pequeñas
-              fontSize: { xs: "12px", sm: "14px" }, // Tamaño de las migas de pan adaptable
+              flexWrap: "wrap",
+              justifyContent: { xs: "flex-start", sm: "flex-start" },
+              fontSize: { xs: "12px", sm: "14px" },
             },
           }}
         >

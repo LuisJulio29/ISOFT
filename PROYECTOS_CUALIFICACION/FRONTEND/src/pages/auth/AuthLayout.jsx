@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import { Avatar, Box, Card, CardContent, Typography } from "@mui/material";
 import { AuthBGLayout } from "../.././components";
-
-// images
-import logo from "../.././assets/images/UnicartagenaLogo.png";
+import logo from "@src/assets/images/MarcaUniversidad.png";
 
 const AuthLayout = ({
   pageImage,
@@ -52,10 +50,10 @@ const AuthLayout = ({
                     style={{
                       display: "flex",
                       justifyContent: "center",
-                   
+
                     }}
                   >
-                    <img src={logo} alt="logo" height={90}  />
+                    <img src={logo} alt="logo" height={140} />
                   </Link>
                 </CardContent>
                 <CardContent sx={{ p: 3 }}>
@@ -82,13 +80,14 @@ const AuthLayout = ({
                       variant="h4"
                       sx={{
                         textAlign: "center",
-                        mb: "16px",
-                        mt: 4.5,
-                        fontSize: { xs: '1.5rem', md: '2rem' }, // Cambiar tamaño de fuente responsivamente
+                        fontSize: { xs: '1.rem', md: '2rem' },
+                        fontFamily: "'Poppins', sans-serif", // <- Cambia aquí la fuente
+                        fontWeight: "bold", 
                       }}
                     >
                       {authTitle}
                     </Typography>
+
                     <Typography
                       variant="body2"
                       sx={{
@@ -119,7 +118,7 @@ const AuthLayout = ({
           }}
         >
           <Link
-            to={"https://www.nautiagro.com/"}
+            to={"https://www.unicartagena.edu.co/"}
             target="_blank"
             style={{
               color: "unset",
@@ -134,7 +133,7 @@ const AuthLayout = ({
               }}
               color={"text.secondary"}
             >
-              {new Date().getFullYear()} © NAUTIAGRO S.A.S. Powered by TISERIUM
+              {new Date().getFullYear()} © Universidad de Cartagena S.A. Powered by UDC
             </Typography>
           </Link>
         </Box>

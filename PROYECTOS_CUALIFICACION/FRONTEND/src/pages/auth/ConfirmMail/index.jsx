@@ -1,6 +1,6 @@
 import { Box, Button } from "@mui/material";
 import AuthLayout from "../AuthLayout";
-import { PageMetaData } from "../../../components";
+import { PageMetaData } from "@src/components";
 
 // images
 import mailImg from "../../../assets/images/svg/mail_sent.svg";

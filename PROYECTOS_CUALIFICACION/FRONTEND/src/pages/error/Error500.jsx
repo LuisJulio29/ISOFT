@@ -5,7 +5,7 @@ import logo from "../../assets/images/UnicartagenaLogo.png";
 import startMan from "../../assets/images/svg/startman.svg";
 
 // components
-import { AuthBGLayout, PageMetaData } from "../../components";
+import { AuthBGLayout, PageMetaData } from "@src/components";
 import { Avatar, Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { LuAntenna } from "react-icons/lu";
 const Error404 = () => {

@@ -3,7 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
-import { CheckboxInput, FormInput, PageMetaData, PasswordInput } from "../../../components";
+import { CheckboxInput, FormInput, PageMetaData, PasswordInput } from "@src/components";
 import AuthLayout2 from "../AuthLayout2";
 const BottomLink = () => {
   return <Box sx={{

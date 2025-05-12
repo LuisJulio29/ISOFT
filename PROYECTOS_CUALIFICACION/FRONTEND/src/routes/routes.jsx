@@ -111,7 +111,7 @@ const authRoutes = [
   },
   {
     path: "/auth/recover-password2",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/ResetPassword"))} />
+    element: <LoadComponent component={lazy(() => import("../pages/auth/ResetPassword2"))} />
   },
   {
     path: "/auth/lock-screen2",
@@ -129,14 +129,42 @@ const adminRoutes = [
     path: "error-404-alt",
     element: <LoadComponent component={lazy(() => import("../pages/error/Error404Alt"))} />
   },
-  // {
-  //   path: "/inicio",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/inicio/Starter"))} />
-  // },
-  // {
-  //   path: "/app/cuenta",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/cuenta/index.jsx"))} />
-  // }
+  {
+    path: "/inicio",
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/inicio"))} />
+  },
+  {
+    path: "/miCuenta",
+    element: <LoadComponent component={lazy(() => import("@src/pages/miCuenta"))} />
+  },
+  {
+    path: "/CaracterizacionDocentes",
+    element: <LoadComponent component={lazy(() => import("@src/pages/CaraterizacionDocentes"))} />
+  },
+  {
+    path: "/DocentesForm",
+    element: <LoadComponent component={lazy(() => import("@src/pages/CaraterizacionDocentes/DocentesForm"))} />
+  },
+  {
+    path: "/GestionFormaciones",
+    element: <LoadComponent component={lazy(() => import("@src/pages/gestionFormaciones"))} />
+  },
+  {
+    path: "/FormacionesForm",
+    element: <LoadComponent component={lazy(() => import("@src/pages/gestionFormaciones/FormacionesForm"))} />
+  },
+  {
+    path: "/Usuarios",
+    element: <LoadComponent component={lazy(() => import("@src/pages/seguridad/usuarios"))} />
+  },
+  {
+    path: "/Roles",
+    element: <LoadComponent component={lazy(() => import("@src/pages/seguridad/roles"))} />
+  },
+  {
+    path: "/misCualificaciones",
+    element: <LoadComponent component={lazy(() => import("@src/pages/misCualificaciones"))} />
+  },
 ];
 
 // Rutas agrupadas por layout
