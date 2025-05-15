@@ -89,14 +89,14 @@ const Error404 = () => {
         left: 0,
         right: 0
       }}>
-        <Link to={"https://coderthemes.com/"} target="_blank" style={{
+        <Link  target="_blank" style={{
           textDecoration: "none"
         }}>
           <Typography variant="body2" sx={{
             textAlign: "center",
             p: "24px"
           }} color={"text.secondary"}>
-            {new Date().getFullYear()} © Attex - Coderthemes.com
+            {new Date().getFullYear()} © Universidad de cartagena - UDC
           </Typography>
         </Link>
       </Box>

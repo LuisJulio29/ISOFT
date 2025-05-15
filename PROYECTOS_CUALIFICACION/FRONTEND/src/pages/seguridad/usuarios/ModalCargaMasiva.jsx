@@ -91,7 +91,7 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed }) => {
 
         <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
           Elegir archivo
-          <input hidden type="file" accept=".xlsx,.xls" onChange={handleArchivoExcel} />
+          <input hidden type="file" accept=".xlsx,.xls,csv" onChange={handleArchivoExcel} />
         </Button>
 
         <Typography variant="body2" color="text.secondary" mb={3}>

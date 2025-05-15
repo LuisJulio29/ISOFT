@@ -9,6 +9,8 @@ import {
   Divider,
   FormGroup
 } from "@mui/material";
+import { Cancel } from "@mui/icons-material";
+import { DoneAll } from "@mui/icons-material";
 
 const permisosList = [
   "Caracterización de docentes",
@@ -71,10 +73,10 @@ const RolForm = ({ rol, reset }) => {
       </FormGroup>
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-        <Button variant="outlined" onClick={reset}>
+        <Button variant="contained" onClick={reset} color="error" startIcon={<Cancel />}> 
           Cancelar
         </Button>
-        <Button variant="contained" color="success" type="submit">
+        <Button variant="contained" color="success" type="submit" startIcon={<DoneAll />}>
           Guardar
         </Button>
       </Box>

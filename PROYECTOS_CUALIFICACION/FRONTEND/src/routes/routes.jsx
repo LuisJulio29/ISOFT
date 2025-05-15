@@ -92,30 +92,10 @@ const authRoutes = [
   {
     path: "/auth/lock-screen",
     element: <LoadComponent component={lazy(() => import("../pages/auth/LockScreen"))} />
-  },
-  {
-    path: "/auth/confirm-mail",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/ConfirmMail"))} />
-  },
-  {
-    path: "/auth/login2",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/Login2"))} />
-  },
-  {
-    path: "/auth/register2",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/Register2"))} />
-  },
-  {
-    path: "/auth/logout2",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/Logout2"))} />
-  },
+  }, 
   {
     path: "/auth/recover-password2",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/ResetPassword2"))} />
-  },
-  {
-    path: "/auth/lock-screen2",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/LockScreen"))} />
+    element: <LoadComponent component={lazy(() => import("../pages/auth/ResetPassword"))} />
   },
   {
     path: "/auth/confirm-mail2",

@@ -11,7 +11,7 @@ import {
     Button,
     Divider,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import Cancel from "@mui/icons-material/Cancel";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { PageBreadcrumb } from "components";
 
@@ -183,7 +183,7 @@ const UsuariosForm = ({ onCancel, data = {} }) => {
                 <Divider sx={{ my: 4 }} />
 
                 <Box display="flex" justifyContent="center" gap={2} flexDirection={{ xs: "column", sm: "row" }}>
-                    <Button variant="contained" color="error" startIcon={<DeleteIcon />} onClick={onCancel}>
+                    <Button variant="contained" color="error" startIcon={<Cancel />} onClick={onCancel}>
                         Cancelar
                     </Button>
                     <Button variant="contained" color="success" startIcon={<DoneAllIcon />} onClick={handleSubmit}>

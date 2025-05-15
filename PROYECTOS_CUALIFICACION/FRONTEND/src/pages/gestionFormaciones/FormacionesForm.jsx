@@ -6,6 +6,10 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
+import {
+  Cancel,
+  DoneAll
+} from '@mui/icons-material';
 import { PageBreadcrumb } from "components";
 
 const FormacionesForm = ({ data = {}, onCancel }) => {
@@ -129,10 +133,10 @@ const FormacionesForm = ({ data = {}, onCancel }) => {
 
             {/* Botones */}
             <Box display="flex" justifyContent="flex-end" mt={4} gap={2}>
-            <Button variant="outlined" color="inherit" onClick={onCancel}>
-    Cancelar
-  </Button>
-              <Button type="submit" variant="contained" color="success">
+              <Button variant="contained"  onClick={onCancel} color="error" startIcon={<Cancel />}>
+                Cancelar
+              </Button>
+              <Button type="submit" variant="contained" color="success" startIcon={<DoneAll />}>
                 Guardar
               </Button>
             </Box>
