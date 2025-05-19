@@ -187,118 +187,172 @@ const AppMenu =  ({
     }
   }, [location.pathname, menuItems]);
 
-  useEffect(() => {
-    var objSesion = JSON.parse(localStorage.getItem('token'));
-    let accessToken = objSesion;
-    console.log(accessToken)
+  // useEffect(() => {
+  //   var objSesion = JSON.parse(localStorage.getItem('token'));
+  //   let accessToken = objSesion;
+  //   console.log(accessToken)
 
-    fetch("http://localhost:8080/interfaces", {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Accept': 'application/json',
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.interfaces.length > 0) {
-        let lstData = data.interfaces.sort((a, b) => a.Orden - b.Orden);
-
-
-        let lstMenus = lstData.filter(obj => obj.parent === "#").sort((a, b) => a.Orden - b.Orden);
+  //   fetch("http://localhost:8080/interfaces", {
+  //     method: 'GET',
+  //     headers: {
+  //       'Authorization': `Bearer ${accessToken}`,
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //       'Accept': 'application/json',
+  //     }
+  //   })
+  //   .then(res => res.json())
+  //   .then(data => {
+  //     if (data.interfaces.length > 0) {
+  //       let lstData = data.interfaces.sort((a, b) => a.Orden - b.Orden);
 
 
-        let array = [];
-
-        // Agregar títulos solo una vez antes del bucle
-        let title = lstData.filter(obj => obj.isTitle === true).sort((a, b) => a.Orden - b.Orden);
-        if (title.length > 0) {
-          let data = title.map(item => ({
-            Orden: item.Orden,
-            key: item.key,
-            label: item.label,
-            isTitle: item.isTitle,
-          }));
-          console.log("title", data);
-          array.push(...data); // Agregar títulos al array
-        }
-
-        // Agregar menuitems solo una vez antes del bucle
-        let menuitem = lstData.filter(obj => obj.Type == "item" && obj.parent === undefined).sort((a, b) => a.Orden - b.Orden);
-        console.log("menuitem", menuitem);
-        if (menuitem.length > 0) {
-          let menuindivudual = menuitem.map(item => ({
-            Orden: item.Orden,
-            key: item.key,
-            label: item.label,
-            translate: item.label,
-            type: item.Type,
-            icon: item.icon,
-            url: item.url,
-            parentKey: item.parent
-          }));
-          console.log("menuindivudual", menuindivudual);
-          array.push(...menuindivudual); // Agregar menuitems al array
-        }
-
-        lstMenus.forEach(menu => {
-          let objDataMenu = {
-            Orden: menu.Orden,
-            key: menu.key,
-            label: menu.label,
-            isTitle: menu.isTitle,
-            type: "collapse",
-            icon: menu.icon,
-            children: [],
-          };
-
-          let lstSubMenu = lstData.filter(obj => obj.parent === menu.key).sort((a, b) => a.Orden - b.Orden);
-
-          if (lstSubMenu.length > 0) {
-            objDataMenu.children = lstSubMenu.map(sub => ({
-              Orden: sub.Orden,
-              key: sub.key,
-              label: sub.label,
-              translate: sub.label,
-              type: sub.Type,
-              icon: sub.icon,
-              url: sub.url,
-              parentKey: sub.parent
-            }));
-          }
-
-          array.push(objDataMenu); // Agregar el menú con sus submenús
-        });
-
-        array = array.sort((a, b) => a.Orden - b.Orden); // Ordenar todo el array al final
-
-        console.log("objDataMenu", array);
-        setMenuItems(array); // Actualiza el estado de menuItems
-      }
+  //       let lstMenus = lstData.filter(obj => obj.parent === "#").sort((a, b) => a.Orden - b.Orden);
 
 
+  //       let array = [];
 
-    })
-    .catch(err => console.log("err", err));
-  }, []);
+  //       // Agregar títulos solo una vez antes del bucle
+  //       let title = lstData.filter(obj => obj.isTitle === true).sort((a, b) => a.Orden - b.Orden);
+  //       if (title.length > 0) {
+  //         let data = title.map(item => ({
+  //           Orden: item.Orden,
+  //           key: item.key,
+  //           label: item.label,
+  //           isTitle: item.isTitle,
+  //         }));
+  //         console.log("title", data);
+  //         array.push(...data); // Agregar títulos al array
+  //       }
+
+  //       // Agregar menuitems solo una vez antes del bucle
+  //       let menuitem = lstData.filter(obj => obj.Type == "item" && obj.parent === undefined).sort((a, b) => a.Orden - b.Orden);
+  //       console.log("menuitem", menuitem);
+  //       if (menuitem.length > 0) {
+  //         let menuindivudual = menuitem.map(item => ({
+  //           Orden: item.Orden,
+  //           key: item.key,
+  //           label: item.label,
+  //           translate: item.label,
+  //           type: item.Type,
+  //           icon: item.icon,
+  //           url: item.url,
+  //           parentKey: item.parent
+  //         }));
+  //         console.log("menuindivudual", menuindivudual);
+  //         array.push(...menuindivudual); // Agregar menuitems al array
+  //       }
+
+  //       lstMenus.forEach(menu => {
+  //         let objDataMenu = {
+  //           Orden: menu.Orden,
+  //           key: menu.key,
+  //           label: menu.label,
+  //           isTitle: menu.isTitle,
+  //           type: "collapse",
+  //           icon: menu.icon,
+  //           children: [],
+  //         };
+
+  //         let lstSubMenu = lstData.filter(obj => obj.parent === menu.key).sort((a, b) => a.Orden - b.Orden);
+
+  //         if (lstSubMenu.length > 0) {
+  //           objDataMenu.children = lstSubMenu.map(sub => ({
+  //             Orden: sub.Orden,
+  //             key: sub.key,
+  //             label: sub.label,
+  //             translate: sub.label,
+  //             type: sub.Type,
+  //             icon: sub.icon,
+  //             url: sub.url,
+  //             parentKey: sub.parent
+  //           }));
+  //         }
+
+  //         array.push(objDataMenu); // Agregar el menú con sus submenús
+  //       });
+
+  //       array = array.sort((a, b) => a.Orden - b.Orden); // Ordenar todo el array al final
+
+  //       console.log("objDataMenu", array);
+  //       setMenuItems(array); // Actualiza el estado de menuItems
+  //     }
+
+
+
+  //   })
+  //   .catch(err => console.log("err", err));
+  // }, []);
+useEffect(() => {
+  const staticMenu = [
+    // {
+    //   key: 'caracterizacion',
+    //   label: 'Caracterización de docentes',
+    //   icon: null,
+    //   url: '/CaracterizacionDocentes',
+    //   type: 'item'
+    // },
+    // {
+    //   key: 'formaciones',
+    //   label: 'Gestión de formaciones',
+    //   icon: null,
+    //   url: '/gestionFormaciones',
+    //   type: 'item'
+    // },
+    {
+      key: 'misCualificaciones',
+      label: 'Mis Cualificaciones',
+      icon: null,
+      url: '/misCualificaciones',
+      type: 'item'
+    },
+    {
+      key: 'micuenta',
+      label: 'Mi cuenta',
+      icon: null,
+      url: '/micuenta',
+      type: 'item'
+    }
+    // {
+    //   key: 'seguridad',
+    //   label: 'Seguridad',
+    //   icon: null,
+    //   type: 'collapse',
+    //   children: [
+    //     {
+    //       key: 'usuarios',
+    //       label: 'Usuarios',
+    //       url: '/usuarios',
+    //       type: 'item'
+    //     },
+    //     {
+    //       key: 'roles',
+    //       label: 'Roles y permisos',
+    //       url: '/roles',
+    //       type: 'item'
+    //     }
+    //   ]
+    // }
+  ];
+  setMenuItems(staticMenu);
+}, []);
 
   useEffect(() => {
     if (menuItems && menuItems.length > 0) activeMenu();
   }, [activeMenu, menuItems]);
   return <>
       <ul ref={menuRef} id="main-side-menu" style={{
-      marginTop: 0,
+      marginTop: 60,
       marginBottom: 24,
       padding: "0 8px",
-      listStyle: "none"
+      listStyle: "none", 
+      color: theme.label.color,
     }}>
         {(menuItems || []).map((item, idx) => {
         return <Fragment key={idx}>
               {item.isTitle ? <li style={{
             padding: "12px 16px"
           }}>
-                  <Typography fontWeight={500} variant={"subtitle2"} color={theme.label.color}>
+                  <Typography fontWeight={500} variant={"subtitle2"} color={"#001930"}>
                     {item.label}
                   </Typography>
                 </li> : <>

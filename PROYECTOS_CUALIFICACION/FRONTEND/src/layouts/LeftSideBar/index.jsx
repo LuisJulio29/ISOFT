@@ -22,6 +22,7 @@ const LeftSideBarWrapper = styled("div")(({
     backgroundColor: settings.sidenav.theme == "light" ? "#FFE18D  " : "#FACC45",
     width: 240,
     minWidth: 240,
+   
     height: "100vh",
     position: "sticky",
     top: 0,
