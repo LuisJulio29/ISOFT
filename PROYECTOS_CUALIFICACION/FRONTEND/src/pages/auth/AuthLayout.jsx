@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Avatar, Box, Card, CardContent, Typography } from "@mui/material";
-import { AuthBGLayout } from "../.././components";
+import { AuthBGLayout } from "../../components";
 import logo from "@src/assets/images/MarcaUniversidad.png";
 
 const AuthLayout = ({

@@ -2,7 +2,7 @@ import { Avatar, Box, Card, CardContent, IconButton, Typography } from "@mui/mat
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import { useLayoutContext } from "../.././states";
+import { useLayoutContext } from "../../states";
 
 //images
 import logo from "../.././assets/images/UnicartagenaLogo.png";
