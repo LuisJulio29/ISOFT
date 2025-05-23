@@ -30,8 +30,10 @@
     "react-scripts": "5.0.1",
     "reselect": "^4.1.8",
     "simplebar-react": "^3.3.0",
+    "sweetalert2": "^11.21.2",
     "swiper": "^11.2.6",
     "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5",
     "yup": "^1.6.1"
   },
   "scripts": {
