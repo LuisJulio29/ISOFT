@@ -284,20 +284,20 @@ const AppMenu =  ({
   // }, []);
 useEffect(() => {
   const staticMenu = [
-    // {
-    //   key: 'caracterizacion',
-    //   label: 'Caracterización de docentes',
-    //   icon: null,
-    //   url: '/CaracterizacionDocentes',
-    //   type: 'item'
-    // },
-    // {
-    //   key: 'formaciones',
-    //   label: 'Gestión de formaciones',
-    //   icon: null,
-    //   url: '/gestionFormaciones',
-    //   type: 'item'
-    // },
+    {
+      key: 'caracterizacion',
+      label: 'Caracterización de docentes',
+      icon: null,
+      url: '/CaracterizacionDocentes',
+      type: 'item'
+    },
+    {
+      key: 'formaciones',
+      label: 'Gestión de formaciones',
+      icon: null,
+      url: '/gestionFormaciones',
+      type: 'item'
+    },
     {
       key: 'misCualificaciones',
       label: 'Mis Cualificaciones',
@@ -311,27 +311,27 @@ useEffect(() => {
       icon: null,
       url: '/micuenta',
       type: 'item'
+    },
+    {
+      key: 'seguridad',
+      label: 'Seguridad',
+      icon: null,
+      type: 'collapse',
+      children: [
+        {
+          key: 'usuarios',
+          label: 'Usuarios',
+          url: '/usuarios',
+          type: 'item'
+        },
+        {
+          key: 'roles',
+          label: 'Roles y permisos',
+          url: '/roles',
+          type: 'item'
+        }
+      ]
     }
-    // {
-    //   key: 'seguridad',
-    //   label: 'Seguridad',
-    //   icon: null,
-    //   type: 'collapse',
-    //   children: [
-    //     {
-    //       key: 'usuarios',
-    //       label: 'Usuarios',
-    //       url: '/usuarios',
-    //       type: 'item'
-    //     },
-    //     {
-    //       key: 'roles',
-    //       label: 'Roles y permisos',
-    //       url: '/roles',
-    //       type: 'item'
-    //     }
-    //   ]
-    // }
   ];
   setMenuItems(staticMenu);
 }, []);
