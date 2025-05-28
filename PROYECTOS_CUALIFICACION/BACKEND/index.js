@@ -1,6 +1,20 @@
+require('dotenv').config(); // Cargar variables de entorno
+
 const app = require('./App');
+const sequelize = require('./src/config/db');
+
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost: ${PORT}`);
-});
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Conectado a la base de datos');
+
+    app.listen(PORT, () => {
+      console.log(`Servidor escuchando`);
+    });
+
+  } catch (error) {
+    console.error('Error al conectar a la base de datos:', error.message);
+  }
+})();
