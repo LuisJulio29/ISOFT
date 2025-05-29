@@ -39,7 +39,7 @@ export default function useLogin() {
       password: ""
     }
   });
-  const redirectUrl = useMemo(() => (location.state?.from.pathname, "/"), [location.state]);
+  const redirectUrl = useMemo(() => (location.state?.from.pathname, "/inicio"), [location.state]);
 
   
   const contadorSolicitudAcceso = () => {
