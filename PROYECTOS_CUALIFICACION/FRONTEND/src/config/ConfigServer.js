@@ -1,14 +1,14 @@
 export var gsUrlApi = "";
 export var gsUrlApiS3 = "";
 var sAmbiente = "dev";
-export var gsUpFiles = "https://api-interfazarchivos.tiserium.com"
+export var gsUpFiles = ""
 
 switch (sAmbiente) {
     case "PRODUCCION":
-        gsUrlApi = 'http://localhost:3001';
+        gsUrlApi = 'http://localhost:3001';//<----Cambiar por ruta real
         break;
     default:
-        gsUrlApi = 'http://localhost:3001';
+        gsUrlApi = 'http://localhost:3030';
         break;
 }
 

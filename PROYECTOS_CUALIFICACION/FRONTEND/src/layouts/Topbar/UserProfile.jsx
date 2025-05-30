@@ -23,7 +23,7 @@ const UserProfile = () => {
 
   // Función para abrir la página de la cuenta
   const handleOpenAccount = () => {
-    navigate('/cuenta');
+    navigate('/miCuenta');
   };
 
   const profileDropdownOptions = [
@@ -64,10 +64,10 @@ const UserProfile = () => {
         <Avatar src={avatar2} alt="avatar" sx={{ height: 52, width: 52 }} />
         <div style={{ marginLeft: "12px" }}>
           <Typography variant="subtitle2" color={"text.primary"}>
-            {`${"Eddy"||''} ` || ''}
+            {`${usuario.nombre_usuario||''} ` || ''}
           </Typography>
           <Typography variant="caption" color={"text.primary"}>
-          {`${"Administrador"||''} ` || ''}
+          {`${usuario.rol_nombre||''} ` || ''}
           </Typography>
         </div>
       </Box>

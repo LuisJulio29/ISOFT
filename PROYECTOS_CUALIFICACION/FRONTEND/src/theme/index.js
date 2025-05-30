@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: index.ts
- * Author: Coderthemes
- */
+
+ * File Name: index.tsAuthor: Miguel Ángel Noel García*/
 import { createTheme as muiCreateTheme } from "@mui/material";
 import componentOverrides from "./components";
 import gridTheme from "./grid";

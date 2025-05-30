@@ -79,6 +79,7 @@ const CualificacionesPage = () => {
                         <Button
                             fullWidth
                             variant="contained"
+                            color="warning"
                             startIcon={<MenuIcon />}
                             onClick={() => setMenuAbierto(!menuAbierto)}
                         >
@@ -109,7 +110,7 @@ const CualificacionesPage = () => {
                                             p: 2,
                                             cursor: "pointer",
                                             borderColor: seleccionada?.id === cual.id ? "primary.main" : "grey.300",
-                                            bgcolor: seleccionada?.id === cual.id ? "#f0f4ff" : "white",
+                                            bgcolor: seleccionada?.id === cual.id ? "rgba(253, 253, 16, 0.5)" : "transparent",
                                         }}
                                         onClick={() => handleSeleccion(cual)}
                                     >
@@ -133,7 +134,6 @@ const CualificacionesPage = () => {
                             width: "35%",
                             borderRight: "1px solid #e0e0e0",
                             p: 3,
-                            bgcolor: "#f9fafb",
                             display: "flex",
                             flexDirection: "column",
                             gap: 3,
@@ -163,7 +163,7 @@ const CualificacionesPage = () => {
                                         p: 2,
                                         cursor: "pointer",
                                         borderColor: seleccionada?.id === cual.id ? "primary.main" : "grey.300",
-                                        bgcolor: seleccionada?.id === cual.id ? "#f0f4ff" : "white",
+                                        bgcolor: seleccionada?.id === cual.id ? "rgba(253, 253, 16, 0.5)" : "transparent",
                                     }}
                                     onClick={() => handleSeleccion(cual)}
                                 >

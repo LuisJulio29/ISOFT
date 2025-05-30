@@ -1,16 +1,13 @@
-// const listar = require('./listar');
+const listar = require('./listar');
 // const buscar = require('./buscar');
-// const insertar = require('./insertar');
-// const actualizar = require('./actualizar');
+const insertar = require('./insertar');
+const actualizar = require('./actualizar');
 // const eliminar = require('./eliminar');
-const validarIngreso = require('./validarIngreso');
 
 module.exports = {
-//   listar,
+  listar,
 //   buscar,
-//   insertar,
-//   actualizar,
-//   eliminar,
-  validarIngreso,
-  
+  insertar,
+  actualizar,
+//   eliminar,  
 }

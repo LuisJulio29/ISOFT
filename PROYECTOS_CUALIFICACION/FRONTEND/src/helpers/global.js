@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: global.ts
- * Author: Coderthemes
- */
+
+ * File Name: global.tsAuthor: Miguel Ángel Noel García*/
 
 export const deepMergeObjects = list => {
   let object = {};

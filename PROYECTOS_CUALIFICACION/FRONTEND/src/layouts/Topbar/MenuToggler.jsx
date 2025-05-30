@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: MenuToggler.tsx
- * Author: Coderthemes
- */
+
+ * File Name: MenuToggler.tsxAuthor: Miguel Ángel Noel García*/
 
 import { IconButton } from "@mui/material";
 import { useLayoutContext } from "../../states";

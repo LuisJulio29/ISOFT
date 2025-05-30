@@ -3,40 +3,56 @@ import {
   Box,
   TextField,
   Typography,
-  FormControlLabel,
-  Checkbox,
   Button,
-  Divider,
-  FormGroup
+  Divider
 } from "@mui/material";
-import { Cancel } from "@mui/icons-material";
-import { DoneAll } from "@mui/icons-material";
+import { Cancel, DoneAll } from "@mui/icons-material";
+import CheckboxTree from "react-checkbox-tree";
+import "react-checkbox-tree/lib/react-checkbox-tree.css";
+import "font-awesome/css/font-awesome.min.css";
 
-const permisosList = [
-  "Caracterización de docentes",
-  "Gestión de formaciones",
-  "Mi cuenta",
-  "Seguridad",
-  "Roles y permisos",
+const treeData = [
+  {
+    value: "vistas",
+    label: "Vistas",
+    children: [
+      { value: "caracterizacion", label: "Caracterización de docentes" },
+      { value: "formaciones", label: "Gestión de formaciones" },
+      { value: "cuenta", label: "Mi cuenta" },
+      { value: "cualificaciones", label: "Mis cualificaciones" },
+      {
+        value: "seguridad",
+        label: "Seguridad",
+        children: [
+          { value: "usuarios", label: "Usuarios" },
+          { value: "roles", label: "Roles y permisos" },
+        ],
+      },
+    ],
+  },
 ];
 
 const RolForm = ({ rol, reset }) => {
   const [formData, setFormData] = useState(rol);
-  const [permisos, setPermisos] = useState({});
+  const [checked, setChecked] = useState([]);
+  const [expanded, setExpanded] = useState(["vistas", "seguridad"]);
 
   useEffect(() => {
     setFormData(rol);
   }, [rol]);
 
-  const handleCheckboxChange = (permiso) => {
-    setPermisos((prev) => ({
-      ...prev,
-      [permiso]: !prev[permiso],
-    }));
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const payload = {
+      ...formData,
+      permisos: checked,
+    };
+    console.log("Rol a guardar:", payload);
+    // Aquí podrías llamar a un método para guardar el rol con sus permisos
   };
 
   return (
-    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
       <Typography variant="h6">Editar {formData.nombre}</Typography>
 
       <TextField
@@ -57,23 +73,18 @@ const RolForm = ({ rol, reset }) => {
         Permisos por vista
       </Divider>
 
-      <FormGroup row>
-        {permisosList.map((permiso) => (
-          <FormControlLabel
-            key={permiso}
-            control={
-              <Checkbox
-                checked={!!permisos[permiso]}
-                onChange={() => handleCheckboxChange(permiso)}
-              />
-            }
-            label={permiso}
-          />
-        ))}
-      </FormGroup>
+      <CheckboxTree
+        nodes={treeData}
+        checked={checked}
+        expanded={expanded}
+        onCheck={(c) => setChecked(c)}
+        onExpand={(e) => setExpanded(e)}
+        iconsClass="fa5"
+        showExpandAll
+      />
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-        <Button variant="contained" onClick={reset} color="error" startIcon={<Cancel />}> 
+        <Button variant="contained" onClick={reset} color="error" startIcon={<Cancel />}>
           Cancelar
         </Button>
         <Button variant="contained" color="success" type="submit" startIcon={<DoneAll />}>

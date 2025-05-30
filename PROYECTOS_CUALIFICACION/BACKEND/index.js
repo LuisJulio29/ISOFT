@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3001;
     console.log('Conectado a la base de datos');
 
     app.listen(PORT, () => {
-      console.log(`Servidor escuchando`);
+      console.log(`Servidor escuchando ${PORT}`);
     });
 
   } catch (error) {

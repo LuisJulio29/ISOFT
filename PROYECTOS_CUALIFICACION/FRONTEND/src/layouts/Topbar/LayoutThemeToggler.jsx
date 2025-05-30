@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: LayoutThemeToggler.tsx
- * Author: Coderthemes
- */
+
+ * File Name: LayoutThemeToggler.tsxAuthor: Miguel Ángel Noel García*/
 
 import { IconButton } from "@mui/material";
 import { useLayoutContext } from "../../states";

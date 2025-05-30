@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: typography.ts
- * Author: Coderthemes
- */
+
+ * File Name: typography.tsAuthor: Miguel Ángel Noel García*/
 import themeGrid from "./grid";
 const grid = themeGrid().values;
 const responsiveFontSizes = props => {

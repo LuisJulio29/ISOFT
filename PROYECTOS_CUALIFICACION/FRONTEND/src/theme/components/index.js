@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: index.ts
- * Author: Coderthemes
- */
+
+ * File Name: index.tsAuthor: Miguel Ángel Noel García*/
 
 import { deepMergeObjects } from "../../helpers/global";
 import getTableOverWrites from "./table";

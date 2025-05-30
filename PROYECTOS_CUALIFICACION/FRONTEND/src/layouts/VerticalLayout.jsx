@@ -21,6 +21,7 @@ const VerticalLayout = ({
     display: "flex"
   }}>
     <Suspense fallback={<div />}>
+    
       <LeftSideBar />
     </Suspense>
     <div style={{

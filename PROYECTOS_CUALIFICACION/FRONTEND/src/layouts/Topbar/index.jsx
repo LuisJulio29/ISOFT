@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: index.tsx
- * Author: Coderthemes
- */
+
+ * File Name: index.tsxAuthor: Miguel Ángel Noel García*/
 
 import { Box, FilledInput, InputAdornment } from "@mui/material";
 import { LuSearch } from "react-icons/lu";
@@ -23,6 +21,7 @@ const TopBarWrapper = styled("div")(({
 }) => {
   return {
     backgroundColor: theme.palette.background.paper,
+    color: theme.palette.mode === "dark" ? "#fff" : "#000",
     paddingInlineStart: "16px",
     paddingInlineEnd: "1px",
     display: "flex",
@@ -42,14 +41,14 @@ const Topbar = () => {
     settings
   } = useLayoutContext();
   return <TopBarWrapper settings={settings} className="topbar-header-do-not-remove">
-      <Box sx={{
+    <Box sx={{
       display: "flex",
       alignItems: "center",
       gap: 2
     }}>
-        <MenuToggler />
+      <MenuToggler />
 
-        {/* <Box sx={{
+      {/* <Box sx={{
         maxWidth: "203px",
         display: {
           xs: "none",
@@ -73,44 +72,44 @@ const Topbar = () => {
           }
         }} />
         </Box> */}
-      </Box>
+    </Box>
 
-      <Box sx={{
+    <Box sx={{
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
       gap: 1.5
     }} alignItems={"center"}>
-        <Box sx={{
+      <Box sx={{
         display: {
           lg: "block",
           xs: "block"
         }
       }}>
-          <Box sx={{
+        <Box sx={{
           display: "flex",
           alignItems: "center",
           gap: 1.5
         }}>
-            {/* <LanguageDropdown /> */}
-            <NotificationsDropdown notifications={notifications} />
-            {/* <AppsDropdown /> */}
-          </Box>
+          {/* <LanguageDropdown /> */}
+          <NotificationsDropdown notifications={notifications} />
+          {/* <AppsDropdown /> */}
         </Box>
+      </Box>
 
-        <ThemeCustomizerToggler />
+      <ThemeCustomizerToggler />
 
-        <LayoutThemeToggler />
-        <Box sx={{
+      <LayoutThemeToggler />
+      <Box sx={{
         display: {
           xs: "none",
           sm: "block"
         }
       }}>
-          <MaximizeScreen />
-        </Box>
-        <UserProfile />
+        <MaximizeScreen />
       </Box>
-    </TopBarWrapper>;
+      <UserProfile />
+    </Box>
+  </TopBarWrapper>;
 };
 export default Topbar;

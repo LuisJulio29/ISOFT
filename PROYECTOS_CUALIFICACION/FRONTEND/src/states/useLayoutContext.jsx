@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: useLayoutContext.tsx
- * Author: Coderthemes
- */
+
+ * File Name: useLayoutContext.tsxAuthor: Miguel Ángel Noel García*/
 
 import { createContext, useContext } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";

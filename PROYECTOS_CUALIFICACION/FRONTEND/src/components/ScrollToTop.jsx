@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: ScrollToTop.tsx
- * Author: Coderthemes
- */
+
+ * File Name: ScrollToTop.tsxAuthor: Miguel Ángel Noel García*/
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 const ScrollToTop = () => {

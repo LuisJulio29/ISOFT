@@ -97,12 +97,12 @@ const UsuariosForm = ({ onCancel, data = {} }) => {
                             onChange={handleChange}
                             sx={{ flex: 1, minWidth: { xs: "100%", sm: "200px" } }}
                         />
-                        <TextField fullWidth label="Teléfono" name="telefono" value={formData.telefono} onChange={handleChange} sx={{ flex: 1, minWidth: { xs: "100%", sm: "200px" } }} />
-                        <TextField fullWidth label="Correo Electrónico" name="correo" type="email" value={formData.correo} onChange={handleChange} sx={{ flex: 1, minWidth: { xs: "100%", sm: "200px" } }} />
+                        {/* <TextField fullWidth label="Teléfono" name="telefono" value={formData.telefono} onChange={handleChange} sx={{ flex: 1, minWidth: { xs: "100%", sm: "200px" } }} />
+                        <TextField fullWidth label="Correo Electrónico" name="correo" type="email" value={formData.correo} onChange={handleChange} sx={{ flex: 1, minWidth: { xs: "100%", sm: "200px" } }} /> */}
                     </Box>
 
                     {/* Fila 3 - Información académica/laboral */}
-                    <Box
+                    {/* <Box
                         display="flex"
                         flexDirection={{ xs: "column", sm: "row" }}
                         flexWrap="wrap"
@@ -158,7 +158,7 @@ const UsuariosForm = ({ onCancel, data = {} }) => {
                         </FormControl>
                         <TextField fullWidth label="Categoría" name="categoria" value={formData.categoria} onChange={handleChange} sx={{ flex: 1 }} />
                    
-                    </Box>
+                    </Box> */}
 
                     {/* Fila 4 - Nivel formación */}
                     <Box

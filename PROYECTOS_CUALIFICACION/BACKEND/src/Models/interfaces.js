@@ -1,12 +1,23 @@
-const mongoose = require('mongoose');
-const schema = mongoose.Schema;
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-const rolSchema = schema({
- 	text: String,
- 	type: String,
- 	state: Object,
-	children: Array
+const Interface = sequelize.define('Interface', {
+  id_interface: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    allowNull: false
+  },
+  nombre: {
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  ruta: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, {
+  tableName: 'Interface',
+  timestamps: false
 });
 
-const rol = mongoose.model('interfaces', rolSchema);
-module.exports = rol;
+module.exports = Interface;

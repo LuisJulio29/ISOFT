@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: Footer.tsx
- * Author: Coderthemes
- */
+
+ * File Name: Footer.tsxAuthor: Miguel Ángel Noel García*/
 
 import { Stack, Typography, styled } from "@mui/material";
 import { useLayoutContext } from "../states";
@@ -33,15 +31,6 @@ const Footer = () => {
       <Stack direction={"row"} spacing={2} sx={{
       display: "flex"
     }}>
-        {/* <Typography variant="subtitle2" color={"text.primary"}>
-          Acerca de
-        </Typography>
-        <Typography variant="subtitle2" color={"text.primary"}>
-          Soporte
-        </Typography>
-        <Typography variant="subtitle2" color={"text.primary"}>
-          Contactenos
-        </Typography> */}
       </Stack>
     </FooterWrapper>;
 };

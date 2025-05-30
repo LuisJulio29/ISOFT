@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: grid.ts
- * Author: Coderthemes
- */
+
+ * File Name: grid.tsAuthor: Miguel Ángel Noel García*/
 
 const themeGrid = () => {
   return {

@@ -1,29 +1,27 @@
-const inputValidation = require('../../middlewares/inputValidation');
-const usuariosRepository = require('../../repositories/usuarios');
+const formacionRepository = require('../../repositories/formaciones');
 const constants = require('../../../constants');
 
 async function handler(req, res, next) {
   try {
-    const findObject = req.body;
+    const formacion = req.body;
 
-    // Validar ingreso
-    const response = await usuariosRepository.validarIngreso(findObject);
+    const response = await formacionRepository.insertar(formacion);
 
-    if (response.usuario) {
+    if (response.formacion) {
       res.status(200).json({
         status: response.status,
-        token: response.token,
-        usuario: response.usuario,
+        mensaje: 'Formación creada correctamente.',
       });
     } else {
-      res.status(401).json({
+      res.status(409).json({
         status: response.status,
         error: {
-          code: response.failure_code || 401,
-          message: response.failure_message || 'Usuario o contraseña incorrectos.',
+          code: response.failure_code || 409,
+          message: response.failure_message || 'No se pudo crear la formación.',
         },
       });
     }
+
   } catch (error) {
     res.status(500).json({
       status: constants.INTERNAL_ERROR_MESSAGE,

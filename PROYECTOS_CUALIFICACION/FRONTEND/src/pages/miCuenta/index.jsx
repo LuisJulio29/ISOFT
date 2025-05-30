@@ -44,7 +44,7 @@ const MiCuenta = () => {
                     sx={{
                         display: 'grid',
                         gap: 3,
-                        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' },
+                        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
                         mb: 4
                     }}
                 >
@@ -52,42 +52,56 @@ const MiCuenta = () => {
                         label="Nombre completo"
                         placeholder="Escriba su nombre completo"
                         fullWidth
-                        InputProps={{ startAdornment: <InputAdornment position="start"><AccountCircle /></InputAdornment> }}
-                    />
-                    <TextField
-                        label="Documento de identidad"
-                        placeholder="Escriba su documento"
-                        fullWidth
-                        InputProps={{ startAdornment: <InputAdornment position="start"><Badge /></InputAdornment> }}
-                    />
-                    <TextField
-                        label="Correo electrónico"
-                        placeholder="Escriba su correo electrónico"
-                        fullWidth
-                        InputProps={{ startAdornment: <InputAdornment position="start"><Email /></InputAdornment> }}
-                    />
-                    <TextField
-                        label="Teléfono"
-                        placeholder="Escriba su número de teléfono"
-                        fullWidth
-                        InputProps={{ startAdornment: <InputAdornment position="start"><Phone /></InputAdornment> }}
-                    />
-                    <TextField
-                        label="Dirección"
-                        placeholder="Escriba su dirección"
-                        fullWidth
-                        InputProps={{ startAdornment: <InputAdornment position="start"><Home /></InputAdornment> }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <AccountCircle />
+                                </InputAdornment>
+                            )
+                        }}
                     />
                     <TextField
                         label="Rol"
                         placeholder="Rol"
                         fullWidth
-                        InputProps={{ startAdornment: <InputAdornment position="start"><AssignmentInd /></InputAdornment> }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <AssignmentInd />
+                                </InputAdornment>
+                            )
+                        }}
+                    />
+                    <TextField
+                        label="Tipo de documento"
+                        placeholder="Cédula, Pasaporte, etc."
+                        fullWidth
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Badge />
+                                </InputAdornment>
+                            )
+                        }}
+                    />
+                    <TextField
+                        label="Número de documento"
+                        placeholder="Número"
+                        editable={false}
+                        fullWidth
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Badge />
+                                </InputAdornment>
+                            )
+                        }}
                     />
                 </Box>
 
+
                 {/* DATOS DE CUENTA */}
-                <Divider sx={{ mb: 3, fontWeight: 'bold', fontSize: '1rem'}}/>
+                <Divider sx={{ mb: 3, fontWeight: 'bold', fontSize: '1rem' }} />
 
                 <Box
                     sx={{

@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: SidenavModeToggler.tsx
- * Author: Coderthemes
- */
+
+ * File Name: SidenavModeToggler.tsxAuthor: Miguel Ángel Noel García*/
 
 import { Stack, Typography } from "@mui/material";
 import { Box } from "@mui/system";

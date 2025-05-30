@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: accordion.ts
- * Author: Coderthemes
- */
+
+ * File Name: accordion.tsAuthor: Miguel Ángel Noel García*/
 
 const getTableOverWrites = theme => {
   return {

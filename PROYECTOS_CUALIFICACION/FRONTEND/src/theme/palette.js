@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: palette.ts
- * Author: Coderthemes
- */
+
+ * File Name: palette.tsAuthor: Miguel Ángel Noel García*/
 import { darken, lighten } from "@mui/material";
 export const getColorVariants = (color, contrastText) => {
   return {

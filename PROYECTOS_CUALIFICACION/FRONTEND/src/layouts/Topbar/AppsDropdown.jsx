@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: AppsDropdown.tsx
- * Author: Coderthemes
- */
+
+ * File Name: AppsDropdown.tsxAuthor: Miguel Ángel Noel García*/
 
 import { Box, Grid, IconButton, Menu, Typography } from "@mui/material";
 import { useDropdownMenu } from "../../hooks";

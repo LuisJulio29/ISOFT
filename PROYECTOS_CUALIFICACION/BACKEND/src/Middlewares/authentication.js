@@ -1,21 +1,20 @@
-const constants = require('../../constants');
 const jwt = require('jsonwebtoken');
+const constants = require('../../constants');
 
-const authenticateJWT = (req, res, next) => {
-    const token = req.header('Authorization')?.split(" ")[1];
-    
-    if (!token) {
-        return res.status(401).json({ mensaje: 'Acceso denegado', status: 401 });
-    }
-    
-    jwt.verify(token, constants.TOKEN_SECRET, (err, user) => {
-        if (err) {
-            // Si el token ha expirado o es inválido, devuelve un mensaje apropiado
-            return res.status(403).json({ mensaje: 'Token no válido o expirado', status: 403 });
-        }
-        req.user = user;
-        next();
-    });
-};
+function verifyToken(req, res, next) {
+  const token = req.headers['authorization']?.split(' ')[1]; // Bearer TOKEN
 
-module.exports = { authenticateJWT };
+  if (!token) {
+    return res.status(403).json({ message: 'Token no proporcionado.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, constants.TOKEN_SECRET);
+    req.user = decoded; // Adjunta datos del usuario al request
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Token inválido o expirado.' });
+  }
+}
+
+module.exports = verifyToken;

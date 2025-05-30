@@ -16,18 +16,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { PageBreadcrumb } from "components";
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from "@mui/icons-material/Edit";
-import FormacionesForm from "./FormacionesForm"; // ajusta la ruta según tu estructura
-
-const formacionesIniciales = Array.from({ length: 23 }, (_, i) => ({
-  id: i + 1,
-  titulo: `Formación ${i + 1}`,
-  institucion: `Institución ${i + 1}`,
-  año: 2020 + (i % 5),
-  modalidad: i % 2 === 0 ? "Presencial" : "Virtual",
-}));
+import FormacionesForm from "./FormacionesForm"; 
+import { useFormaciones } from "./useFormaciones";
 
 const GestionFormaciones = () => {
-  const [formaciones, setFormaciones] = useState(formacionesIniciales);
+  const { formaciones, crearFormacion } = useFormaciones();
+  const [setFormaciones] = useState(formaciones);
   const [modalOpen, setModalOpen] = useState(false);
   const [formacionSeleccionada, setFormacionSeleccionada] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -38,9 +32,10 @@ const GestionFormaciones = () => {
 
   const itemsPerPage = 10;
   const formacionesFiltradas = formaciones.filter((f) =>
-    f.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-    f.institucion.toLowerCase().includes(busqueda.toLowerCase())
+    (f.nombre_formacion?.toLowerCase() || '').includes(busqueda.toLowerCase()) ||
+    (f.linea_cualificacion?.toLowerCase() || '').includes(busqueda.toLowerCase())
   );
+
 
   const totalPages = Math.ceil(formacionesFiltradas.length / itemsPerPage);
   const startIndex = (page - 1) * itemsPerPage;
@@ -75,14 +70,16 @@ const GestionFormaciones = () => {
         <FormacionesForm
           data={formacionEditando || {}}
           onCancel={() => setMostrarFormulario(false)}
+          onSaveSuccess={() => {
+            setMostrarFormulario(false);
+          }}
+          crearFormacion={crearFormacion}
         />
-
       ) : (
         <>
           <PageBreadcrumb title="Gestión de Formaciones" subName="App" />
 
-          <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "50vh", display: "flex", flexDirection: "column" }}>
-            {/* Filtros y acciones */}
+          <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "50vh", display: "flex", flexDirection: "column", }}>
             <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2} mb={4}>
               <TextField
                 label="Buscar formación"
@@ -175,11 +172,29 @@ const GestionFormaciones = () => {
             </Box>
 
             {/* Contenedor con scroll vertical */}
-            <Box sx={{ maxHeight: 500, overflowY: "auto", pr: 1 }}>
+            <Box
+              sx={{
+                maxHeight: 500, overflowY: "auto", pr: 1, scrollbarWidth: "thin",scrollbarColor: "#ccc transparent", 
+                "&::-webkit-scrollbar": {
+                  width: "6px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "#b0b0b0",
+                  borderRadius: "4px",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  backgroundColor: "#888",
+                },
+              }}
+            >
+
               {formacionesPaginadas.length > 0 ? (
                 formacionesPaginadas.map((formacion) => (
                   <Paper
-                    key={formacion.id}
+                    key={formacion.id_formacion}
                     variant="outlined"
                     sx={{
                       p: 3,
@@ -193,17 +208,18 @@ const GestionFormaciones = () => {
                   >
                     <Box>
                       <Typography variant="h6" fontWeight="bold">
-                        {formacion.titulo}
+                        {formacion.nombre_formacion}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        <strong>Institución:</strong> {formacion.institucion}
+                        <strong>Periodo:</strong> {formacion.periodo}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        <strong>Año:</strong> {formacion.año}
+                        <strong>Línea:</strong> {formacion.linea_cualificacion}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        <strong>Modalidad:</strong> {formacion.modalidad}
+                        <strong>Horas:</strong> {formacion.numero_horas}
                       </Typography>
+
                     </Box>
 
                     <Box display="flex" gap={1}>
@@ -253,7 +269,7 @@ const GestionFormaciones = () => {
             }}>
               <Typography variant="h6" mb={2}>Confirmar eliminación</Typography>
               <Typography variant="body2" mb={3}>
-                ¿Deseas eliminar la formación "{formacionSeleccionada?.titulo}"?
+                ¿Deseas eliminar la formación {formacionSeleccionada?.nombre_formacion}"?
               </Typography>
               <Box display="flex" justifyContent="flex-end" gap={2}>
                 <Button onClick={cerrarModal} variant="outlined">Cancelar</Button>
@@ -264,10 +280,6 @@ const GestionFormaciones = () => {
         </>
       )}
     </Box>
-
-
-
-
   );
 };
 

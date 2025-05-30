@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: index.tsx
- * Author: Coderthemes
- */
+
+ * File Name: index.tsxAuthor: Miguel Ángel Noel García*/
 
 import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
 import { LuX } from "react-icons/lu";

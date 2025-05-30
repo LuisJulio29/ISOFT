@@ -12,15 +12,14 @@ import {
 } from '@mui/icons-material';
 import { PageBreadcrumb } from "components";
 
-const FormacionesForm = ({ data = {}, onCancel }) => {
+const FormacionesForm = ({ data = {}, onCancel, onSaveSuccess, crearFormacion }) => {
   const [formData, setFormData] = useState({
-    nombre: data.nombre || data.titulo || "",
-    periodo: "",
-    desarrolladoPor: data.desarrolladoPor || data.institucion || "",
-    linea: data.linea || "",
-    horas: data.horas || "",
-    fechaInicio: data.fechaInicio || "",
-    fechaFin: data.fechaFin || "",
+    nombre_formacion: data.nombre_formacion || "",
+    periodo: data.periodo || "",
+    linea_cualificacion: data.linea_cualificacion || "",
+    numero_horas: data.numero_horas || "",
+    fecha_inicio: data.fecha_inicio || "",
+    fecha_terminacion: data.fecha_terminacion || "",
     observaciones: data.observaciones || "",
   });
 
@@ -29,9 +28,28 @@ const FormacionesForm = ({ data = {}, onCancel }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Datos enviados:", formData);
+
+    const nueva = {
+      nombre_formacion: formData.nombre_formacion,
+      periodo: formData.periodo,
+      linea_cualificacion: formData.linea_cualificacion,
+      numero_horas: parseInt(formData.numero_horas, 10),
+      fecha_inicio: formData.fecha_inicio,
+      fecha_terminacion: formData.fecha_terminacion,
+      observaciones: formData.observaciones,
+    };
+
+
+    const result = await crearFormacion(nueva);
+
+    if (result.success) {
+      alert("Formación creada correctamente.");
+      if (onSaveSuccess) onSaveSuccess();
+    } else {
+      alert("Error al guardar: " + result.mensaje);
+    }
   };
 
   return (
@@ -46,41 +64,31 @@ const FormacionesForm = ({ data = {}, onCancel }) => {
                 display: "grid",
                 gap: 3,
                 gridTemplateColumns: {
-                  xs: "1fr",     // Una columna en móviles
-                  md: "1fr 1fr", // Dos columnas desde pantallas medianas
+                  xs: "1fr",
+                  md: "1fr 1fr",
                 },
               }}
             >
               <TextField
                 fullWidth
                 label="Nombre de la formación"
-                name="nombre"
-                placeholder="Ej. Diplomado en TIC"
-                value={formData.nombre}
+                name="nombre_formacion"
+                value={formData.nombre_formacion}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth
                 label="Período"
                 name="periodo"
-                placeholder="2023-2"
                 value={formData.periodo}
-                onChange={handleChange}
-              />
-              <TextField
-                fullWidth
-                label="Desarrollado por"
-                name="desarrolladoPor"
-                placeholder="Ej. Universidad"
-                value={formData.desarrolladoPor}
                 onChange={handleChange}
               />
               <TextField
                 select
                 fullWidth
                 label="Línea de cualificación"
-                name="linea"
-                value={formData.linea}
+                name="linea_cualificacion"
+                value={formData.linea_cualificacion}
                 onChange={handleChange}
               >
                 <MenuItem value="">Seleccione</MenuItem>
@@ -92,30 +100,31 @@ const FormacionesForm = ({ data = {}, onCancel }) => {
               <TextField
                 fullWidth
                 label="Número de horas"
-                name="horas"
+                name="numero_horas"
                 type="number"
-                value={formData.horas}
+                value={formData.numero_horas}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth
                 label="Fecha de inicio"
-                name="fechaInicio"
+                name="fecha_inicio"
                 type="date"
                 InputLabelProps={{ shrink: true }}
-                value={formData.fechaInicio}
+                value={formData.fecha_inicio}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth
                 label="Fecha de terminación"
-                name="fechaFin"
+                name="fecha_terminacion"
                 type="date"
                 InputLabelProps={{ shrink: true }}
-                value={formData.fechaFin}
+                value={formData.fecha_terminacion}
                 onChange={handleChange}
               />
             </Box>
+
 
             {/* Observaciones en toda la fila */}
             <Box sx={{ mt: 3 }}>
@@ -133,7 +142,7 @@ const FormacionesForm = ({ data = {}, onCancel }) => {
 
             {/* Botones */}
             <Box display="flex" justifyContent="flex-end" mt={4} gap={2}>
-              <Button variant="contained"  onClick={onCancel} color="error" startIcon={<Cancel />}>
+              <Button variant="contained" onClick={onCancel} color="error" startIcon={<Cancel />}>
                 Cancelar
               </Button>
               <Button type="submit" variant="contained" color="success" startIcon={<DoneAll />}>

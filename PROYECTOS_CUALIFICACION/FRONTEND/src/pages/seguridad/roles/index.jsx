@@ -1,21 +1,18 @@
 // Roles.jsx
-import React, { useState } from "react";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import {
   Box,
-  Typography,
   Paper,
-  Divider
+  Typography
 } from "@mui/material";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import SchoolIcon from "@mui/icons-material/School";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import { PageBreadcrumb } from "components";
+import { useState } from "react";
 import RolForm from "./RolesForm"; // componente separado
 
 const rolesData = {
   admin: { codigo: "R001", nombre: "Administrador", icon: <AdminPanelSettingsIcon /> },
-  docente: { codigo: "R002", nombre: "Docente", icon: <SchoolIcon /> },
-  master: { codigo: "R003", nombre: "Master", icon: <SupervisorAccountIcon /> },
+  docente: { codigo: "R002", nombre: "Docente", icon: <SupervisorAccountIcon /> },
 };
 
 const Roles = () => {
@@ -29,7 +26,7 @@ const Roles = () => {
   };
 
   return (
-    <Box component="main" sx={{ flexGrow: 1,  }}>
+    <Box component="main" sx={{ flexGrow: 1 }}>
       <PageBreadcrumb title="Roles" subName="App" />
       <Paper
         elevation={3}
@@ -54,10 +51,11 @@ const Roles = () => {
               sx={{
                 p: 2,
                 mb: 2,
-                border: rolSeleccionado === key ? "2px solid #1976d2" : "1px solid #ccc",
+                border: rolSeleccionado === key ? "2px solid rgb(193, 205, 27)" : "1px solid #ccc",
                 borderRadius: 2,
                 cursor: "pointer",
-                bgcolor: rolSeleccionado === key ? "#e3f2fd" : "#f9f9f9",
+                bgcolor: rolSeleccionado === key ? "rgba(161, 192, 26, 0.67)" : "inherit",
+              
                 display: "flex",
                 alignItems: "center",
                 gap: 1,

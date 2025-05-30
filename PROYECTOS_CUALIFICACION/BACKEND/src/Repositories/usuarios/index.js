@@ -2,69 +2,32 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const requests = require("request");
 const constants = require('../../../constants');
-const objModel = require( '../../Models/usuarios/usuarios');
+const objModel = require( '../../Models/usuario');
 
 const repo = {
 
-  validarIngreso: async (findObject) => {
+  insertar: async (usuario) => {
     try {
-      const { Login, Clave } = findObject;
-
-      // Buscar usuario por Login (Usuario)
-      const user = await objModel.findOne(
-        { Usuario: { $regex: Login, $options: "i" } },
-        {
-          _id: 1,
-          Correo: 1,
-          PrimerNombre: 1,
-          NombreCompleto: 1,
-          NumeroIdentificacion: 1,
-          TipoIdentificacion: 1,
-          IdRol: 1,
-          RolNombre: 1,
-          PrimerApellido: 1,
-        }
-      ).populate("IdRol");
-
-      // Usuario no encontrado
-      if (!user) {
+      const existente = await objModel.findOne({ where: { nombre_usuario: usuario.nombre_usuario } });
+      if (existente) {
         return {
           status: constants.SUCCEEDED_MESSAGE,
-          usuario: [],
-          token: null,
-          failure_code: null,
-          failure_message: "Usuario o contraseña incorrectos."
+          mensaje: "El usuario ya existe.",
+          failure_code: 409,
+          failure_message: "El usuario ya existe."
         };
       }
 
-      // Validar contraseña
-      const isPasswordValid = await bcrypt.compare(Clave, user.Clave);
-      if (!isPasswordValid) {
-        return {
-          status: constants.SUCCEEDED_MESSAGE,
-          usuario: [],
-          token: null,
-          failure_code: null,
-          failure_message: "Usuario o contraseña incorrectos."
-        };
-      }
+      const hashedPassword = await bcrypt.hash(usuario.contraseña, 10);
+      const nuevo = await objModel.create({
+        nombre_usuario: usuario.nombre_usuario,
+        contraseña: hashedPassword,
+        id_rol: usuario.id_rol
+      });
 
-      // Generar token JWT
-      const token = jwt.sign(
-        {
-          id: user._id,
-          usuario: user.Usuario,
-          rol: user.RolNombre
-        },
-        constants.TOKEN_SECRET,
-        { expiresIn: "6h" }
-      );
-
-      // Retornar respuesta
       return {
         status: constants.SUCCEEDED_MESSAGE,
-        usuario: [user],
-        token,
+        usuario: nuevo,
         failure_code: null,
         failure_message: null
       };
@@ -72,13 +35,59 @@ const repo = {
     } catch (error) {
       return {
         status: constants.INTERNAL_ERROR_MESSAGE,
-        usuario: [],
-        token: null,
+        mensaje: "Error al crear el usuario.",
         failure_code: error.code || 500,
         failure_message: error.message || "Error interno del servidor."
       };
     }
-  }
+  },
 
-}
-module.exports = repo
+  listar: async () => {
+    try {
+      const usuarios = await objModel.findAll();
+      return {
+        status: constants.SUCCEEDED_MESSAGE,
+        usuarios
+      };
+    } catch (error) {
+      return {
+        status: constants.INTERNAL_ERROR_MESSAGE,
+        failure_code: error.code || 500,
+        failure_message: error.message || "Error al listar usuarios."
+      };
+    }
+  },
+
+  actualizar: async (id_usuario, datos) => {
+    try {
+      const user = await objModel.findByPk(id_usuario);
+      if (!user) {
+        return {
+          status: 'error',
+          mensaje: 'Usuario no encontrado.',
+          failure_code: 404
+        };
+      }
+
+      if (datos.contraseña) {
+        datos.contraseña = await bcrypt.hash(datos.contraseña, 10);
+      }
+
+      await user.update(datos);
+
+      return {
+        status: constants.SUCCEEDED_MESSAGE,
+        usuario: user
+      };
+
+    } catch (error) {
+      return {
+        status: constants.INTERNAL_ERROR_MESSAGE,
+        failure_code: error.code || 500,
+        failure_message: error.message || "Error al actualizar el usuario."
+      };
+    }
+  }
+};
+
+module.exports = repo;

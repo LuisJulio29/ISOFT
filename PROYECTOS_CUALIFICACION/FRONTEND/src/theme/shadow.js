@@ -1,8 +1,6 @@
 /*
- * Copyright (c) 2023.
- * File Name: shadow.ts
- * Author: Coderthemes
- */
+
+ * File Name: shadow.tsAuthor: Miguel Ángel Noel García*/
 import { alpha } from "@mui/material";
 export const createShadowVariants = (color = "#38414a") => {
   const color1 = alpha(color, 0.15);

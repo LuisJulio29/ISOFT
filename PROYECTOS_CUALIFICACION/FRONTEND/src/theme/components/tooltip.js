@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2023.
- * File Name: tooltip.ts
- * Author: Coderthemes
- */
+
 
 const getTooltipOverWrites = theme => {
   return {
