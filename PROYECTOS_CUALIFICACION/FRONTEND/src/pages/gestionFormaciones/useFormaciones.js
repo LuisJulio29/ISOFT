@@ -19,15 +19,15 @@ export const useFormaciones = () => {
                 }
             });
 
-
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
-
             const data = await response.json();
 
-            setFormaciones(data.formaciones || []);
-            setError(null);
+            if (response.ok && data.status === "SUCCEEDED") {
+                setFormaciones(data.formaciones || []);
+                setError(null);
+            } else {
+                const mensaje =data.mensaje || data.error?.message |"Error al listar formaciones.";
+                setError(mensaje);
+            }
         } catch (err) {
             console.error('Error al listar formaciones:', err);
             setError(err.message || 'Error desconocido');
@@ -51,15 +51,52 @@ export const useFormaciones = () => {
 
             const data = await response.json();
 
-            if (response.ok) {
-                await listarFormaciones(); // para refrescar
+            if (response.ok && data.status === "SUCCEEDED") {
+                await listarFormaciones();
+                setError(null);
                 return { success: true, mensaje: data.mensaje };
             } else {
-                return { success: false, mensaje: data.failure_message || "Error desconocido" };
+                const mensaje = data.mensaje || data.error?.message | "Error al crear la formación.";
+                setError(mensaje);
+                return { success: false, mensaje };
             }
         } catch (err) {
             console.error("Error en crearFormacion:", err);
-            return { success: false, mensaje: err.message || "Error inesperado" };
+            const mensaje = err.message || "Error inesperado";
+            setError(mensaje);
+            return { success: false, mensaje };
+        }
+    };
+
+    const actualizarFormacion = async (idFormacion, datosActualizados) => {
+        try {
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`${gsUrlApi}/formacion/actualizar/${idFormacion}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(datosActualizados)
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.status === "SUCCEEDED") {
+                await listarFormaciones();
+                setError(null);
+                return { success: true, mensaje: data.mensaje };
+            } else {
+                const mensaje = data.mensaje || data.error?.message | "Error al actualizar la formación.";
+                setError(mensaje);
+                return { success: false, mensaje };
+            }
+        } catch (err) {
+            console.error("Error en actualizarFormacion:", err);
+            const mensaje = err.message || "Error inesperado";
+            setError(mensaje);
+            return { success: false, mensaje };
         }
     };
 
@@ -68,7 +105,7 @@ export const useFormaciones = () => {
             const token = localStorage.getItem('token');
 
             const response = await fetch(`${gsUrlApi}/formacion/eliminar/${idFormacion}`, {
-                method: 'POST',
+                method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -76,15 +113,20 @@ export const useFormaciones = () => {
 
             const data = await response.json();
 
-            if (response.ok) {
-                await listarFormaciones(); // refresca la lista después de eliminar
+            if (response.ok && data.status === "SUCCEEDED") {
+                await listarFormaciones();
+                setError(null);
                 return { success: true, mensaje: data.mensaje };
             } else {
-                return { success: false, mensaje: data.error?.message || "Error al eliminar" };
+                const mensaje = data.mensaje || data.error?.message | "Error al eliminar la formación.";
+                setError(mensaje);
+                return { success: false, mensaje };
             }
         } catch (err) {
             console.error("Error en eliminarFormacion:", err);
-            return { success: false, mensaje: err.message || "Error inesperado" };
+            const mensaje = err.message || "Error inesperado";
+            setError(mensaje);
+            return { success: false, mensaje };
         }
     };
 
@@ -92,5 +134,13 @@ export const useFormaciones = () => {
         listarFormaciones();
     }, []);
 
-    return { formaciones, loading, error, listarFormaciones, crearFormacion, eliminarFormacion };
+    return {
+        formaciones,
+        loading,
+        error,
+        listarFormaciones,
+        crearFormacion,
+        eliminarFormacion,
+        actualizarFormacion
+    };
 };

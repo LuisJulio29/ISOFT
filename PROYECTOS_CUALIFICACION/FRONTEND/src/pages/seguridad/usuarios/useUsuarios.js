@@ -39,7 +39,7 @@ export const useUsuarios = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${gsUrlApi}/usuarios/eliminar/${id_usuario}`, {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`

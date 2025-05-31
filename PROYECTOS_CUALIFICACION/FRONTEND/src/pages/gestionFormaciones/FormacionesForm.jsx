@@ -11,8 +11,10 @@ import {
   DoneAll
 } from '@mui/icons-material';
 import { PageBreadcrumb } from "components";
+import Swal from "sweetalert2";
 
-const FormacionesForm = ({ data = {}, onCancel, onSaveSuccess, crearFormacion }) => {
+const FormacionesForm = ({ data = {}, onCancel, cerrarFormulario, crearFormacion, actualizarFormacion }) => {
+
   const [formData, setFormData] = useState({
     nombre_formacion: data.nombre_formacion || "",
     periodo: data.periodo || "",
@@ -31,7 +33,7 @@ const FormacionesForm = ({ data = {}, onCancel, onSaveSuccess, crearFormacion })
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const nueva = {
+    const datos = {
       nombre_formacion: formData.nombre_formacion,
       periodo: formData.periodo,
       linea_cualificacion: formData.linea_cualificacion,
@@ -41,16 +43,34 @@ const FormacionesForm = ({ data = {}, onCancel, onSaveSuccess, crearFormacion })
       observaciones: formData.observaciones,
     };
 
-
-    const result = await crearFormacion(nueva);
+    let result;
+    if (data.id_formacion) {
+      // Actualizar
+      result = await actualizarFormacion(data.id_formacion, datos);
+    } else {
+      // Crear
+      result = await crearFormacion(datos);
+    }
 
     if (result.success) {
-      alert("Formación creada correctamente.");
-      if (onSaveSuccess) onSaveSuccess();
+      await Swal.fire({
+        icon: 'success',
+        title: data.id_formacion ? 'Formación actualizada' : 'Formación creada',
+        text: result.mensaje || (data.id_formacion ? 'Actualización exitosa.' : 'Registro exitoso.'),
+        confirmButtonColor: '#3085d6'
+      });
+      if (cerrarFormulario) cerrarFormulario();
+
     } else {
-      alert("Error al guardar: " + result.mensaje);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: result.mensaje || 'Ocurrió un error.',
+        confirmButtonColor: '#d33'
+      });
     }
   };
+
 
   return (
     <Box sx={{ display: "flex", minHeight: "40vh" }}>

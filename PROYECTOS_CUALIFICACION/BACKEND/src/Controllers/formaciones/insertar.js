@@ -1,36 +1,35 @@
 const formacionRepository = require('../../repositories/formaciones');
 const constants = require('../../../constants');
 
-async function handler(req, res, next) {
+async function handler(req, res) {
   try {
     const formacion = req.body;
-
     const response = await formacionRepository.insertar(formacion);
 
-    if (response.formacion) {
-      res.status(200).json({
+    if (response.status === constants.SUCCEEDED_MESSAGE && response.formacion) {
+      return res.status(200).json({
         status: response.status,
-        mensaje: 'Formación creada correctamente.',
-      });
-    } else {
-      res.status(409).json({
-        status: response.status,
-        error: {
-          code: response.failure_code || 409,
-          message: response.failure_message || 'No se pudo crear la formación.',
-        },
+        mensaje: 'Formación creada correctamente.'
       });
     }
 
+    return res.status(409).json({
+      status: response.status,
+      error: {
+        code: response.failure_code || 409,
+        message: response.failure_message || 'No se pudo crear la formación.'
+      }
+    });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: constants.INTERNAL_ERROR_MESSAGE,
       error: {
         code: error.code || 500,
-        message: error.message || 'Error interno del servidor.',
-      },
+        message: error.message || 'Error interno del servidor.'
+      }
     });
   }
 }
+
 
 module.exports = [handler];
