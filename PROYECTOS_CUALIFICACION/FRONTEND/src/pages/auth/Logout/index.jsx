@@ -37,6 +37,9 @@ const Logout = () => {
   const {removeSession} = useAuthContext();
   useEffect(() => {
     removeSession();
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    window.location.href = "/auth/login"; 
   }, []);
   return <>
       <PageMetaData title={"Fin de sesión"} />

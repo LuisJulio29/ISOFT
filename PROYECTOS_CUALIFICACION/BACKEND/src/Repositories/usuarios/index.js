@@ -22,7 +22,8 @@ const repo = {
       const nuevo = await Usuario.create({
         nombre_usuario: usuario.nombre_usuario,
         contraseña: hashedPassword,
-        id_rol: usuario.id_rol
+        id_rol: usuario.id_rol,
+        nombre_completo: usuario.nombre_completo
       });
 
       return {

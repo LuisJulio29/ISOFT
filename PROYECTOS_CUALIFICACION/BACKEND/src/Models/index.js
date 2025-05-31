@@ -21,6 +21,7 @@ fs.readdirSync(modelsPath)
 const model = require(path.join(modelsPath, file));
     db[model.name] = model;
   });
+  
 
 // Asociaciones (Relaciones entre modelos)
 const { Usuario, Rol, Interface, Rol_Interface, Docente, Administrador, Formacion, Cualificacion } = db;

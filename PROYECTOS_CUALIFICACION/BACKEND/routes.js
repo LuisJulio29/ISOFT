@@ -8,11 +8,12 @@ const rutas = () => {
   const storage = multer.memoryStorage();
   const upload = multer({ storage });
 
-  // Controladores
-  const interfacesController = require("./src/Controllers/interfaces");
-  const usuariosController = require("./src/Controllers/usuarios");
+  // Controladores}
+  const usuariosController = require("./src/Controllers/usuarios"); 
   const loginController = require("./src/Controllers/login");
   const formacionesController = require('./src/Controllers/formaciones')
+  const interfacesControllerBuscar = require('./src/controllers/interfaces/buscar');
+  const interfacesControllerActualizar = require('./src/controllers/interfaces/actualizar');
 
   // Ruta base
   router.get("/", (req, res) => {
@@ -23,7 +24,8 @@ const rutas = () => {
   router.post("/login", loginController.login);
 
   // Interfaces
-  router.get("/interfaces", verifyToken, interfacesController.buscar);
+  router.get('/interfaces/buscar', verifyToken, interfacesControllerBuscar);
+  router.put('/interfaces/actualizar', verifyToken, interfacesControllerActualizar);
 
   // Usuarios
   router.post("/usuarios/insertar", usuariosController.insertar);

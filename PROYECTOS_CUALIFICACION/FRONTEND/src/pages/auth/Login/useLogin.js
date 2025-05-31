@@ -71,7 +71,11 @@ localStorage.setItem("Usuario", JSON.stringify(data.usuario));
         usuario: data.usuario
       });
 
-      navigate(redirectUrl);
+      // Espera unos milisegundos para que se actualicen las rutas permitidas
+      setTimeout(() => {
+        window.location.href = redirectUrl; 
+      }, 100);
+
     } else {
       Swal.fire({
         title: "Usuario no encontrado",

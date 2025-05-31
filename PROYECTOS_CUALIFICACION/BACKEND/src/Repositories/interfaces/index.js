@@ -1,44 +1,71 @@
 const constants = require('../../../constants');
-const interfacesModel = require('../../Models/interfaces');
-const uuidv1 = require('../../../node_modules/uuid/v1');
-
-const v1options = {
-  node: [0x01, 0x23, 0x45, 0x67, 0x89, 0xab],
-  clockseq: 0x1234,
-  msecs: new Date().getTime(),
-  nsecs: 5678
-};
-
-uuidv1(v1options);
+const { Usuario, Interface, Rol_Interface } = require('../../Models');
 
 const repo = {
 
-  buscar: async () => {
+  buscarPorUsuario: async (id_usuario) => {
     try {
-      //find object
-      let response = await interfacesModel.find().sort({ Orden: 1 });
+      const usuario = await Usuario.findByPk(id_usuario);
+      if (!usuario) {
+        return {
+          status: constants.NOT_FOUND_ERROR_MESSAGE,
+          failure_code: 404,
+          failure_message: 'Usuario no encontrado',
+          interfaces: []
+        };
+      }
 
-      //set values
-      let status, failure_code, failure_message;
+      const relaciones = await Rol_Interface.findAll({
+        where: { id_rol: usuario.id_rol },
+        include: {
+          model: Interface,
+          attributes: ['id_interface', 'nombre', 'ruta', 'parent', 'Orden']
+        }
+      });
 
-      status = constants.SUCCEEDED_MESSAGE;
+      const interfaces = relaciones.map(rel => rel.Interface);
 
-      //return response
       return {
-        status: status,
-        interfaces: response,
-        failure_code: failure_code,
-        failure_message: failure_message,
+        status: constants.SUCCEEDED_MESSAGE,
+        interfaces
       };
-
-    } catch (e2) {
+    } catch (error) {
       return {
         status: constants.INTERNAL_ERROR_MESSAGE,
-        failure_code: e2.code,
-        failure_message: e2.message,
+        failure_code: error.code || 500,
+        failure_message: error.message,
+        interfaces: []
       };
     }
+  },
+  actualizar: async (interfaces) => {
+  try {
+    for (const item of interfaces) {
+      await Interface.update(
+        {
+          nombre: item.nombre,
+          ruta: item.ruta,
+          parent: item.parent || null,
+          Orden: item.Orden
+        },
+        {
+          where: { id_interface: item.id_interface }
+        }
+      );
+    }
+
+    return {
+      status: constants.SUCCEEDED_MESSAGE
+    };
+  } catch (error) {
+    return {
+      status: constants.INTERNAL_ERROR_MESSAGE,
+      failure_code: error.code || 500,
+      failure_message: error.message
+    };
   }
+}
 
 };
+
 module.exports = repo;

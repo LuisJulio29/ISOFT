@@ -8,7 +8,7 @@ switch (sAmbiente) {
         gsUrlApi = 'http://localhost:3001';//<----Cambiar por ruta real
         break;
     default:
-        gsUrlApi = 'http://localhost:3030';
+        gsUrlApi = 'http://localhost:3001';
         break;
 }
 

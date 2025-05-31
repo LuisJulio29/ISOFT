@@ -1,3 +1,4 @@
+// authentication.js
 const jwt = require('jsonwebtoken');
 const constants = require('../../constants');
 
@@ -10,7 +11,8 @@ function verifyToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, constants.TOKEN_SECRET);
-    req.user = decoded; // Adjunta datos del usuario al request
+    req.usuario = decoded; 
+
     next();
   } catch (error) {
     return res.status(401).json({ message: 'Token inválido o expirado.' });

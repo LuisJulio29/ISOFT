@@ -5,6 +5,8 @@ import { LuChevronRight } from "react-icons/lu";
 import { Link, useLocation } from "react-router-dom";
 import { useLayoutContext } from "@src/states";
 import { getLeftbarTheme } from "@src/layouts/LeftSideBar/helpers";
+import useAppMenu from './useappmenu';
+
 const MenuItemWithChildren = ({
   item,
   activeMenuItems,
@@ -129,7 +131,7 @@ const MenuItem = ({
 const AppMenu =  ({ 
 
 }) => {
-  const [menuItems, setMenuItems] = useState([]); // Estado inicial vacío 
+  const menuItems = useAppMenu();
   const location = useLocation();
   const {
     settings
@@ -282,59 +284,7 @@ const AppMenu =  ({
   //   })
   //   .catch(err => console.log("err", err));
   // }, []);
-useEffect(() => {
-  const staticMenu = [
-    {
-      key: 'caracterizacion',
-      label: 'Caracterización de docentes',
-      icon: null,
-      url: '/CaracterizacionDocentes',
-      type: 'item'
-    },
-    {
-      key: 'formaciones',
-      label: 'Gestión de formaciones',
-      icon: null,
-      url: '/gestionFormaciones',
-      type: 'item'
-    },
-    {
-      key: 'misCualificaciones',
-      label: 'Mis Cualificaciones',
-      icon: null,
-      url: '/misCualificaciones',
-      type: 'item'
-    },
-    {
-      key: 'micuenta',
-      label: 'Mi cuenta',
-      icon: null,
-      url: '/micuenta',
-      type: 'item'
-    },
-    {
-      key: 'seguridad',
-      label: 'Seguridad',
-      icon: null,
-      type: 'collapse',
-      children: [
-        {
-          key: 'usuarios',
-          label: 'Usuarios',
-          url: '/usuarios',
-          type: 'item'
-        },
-        {
-          key: 'roles',
-          label: 'Roles y permisos',
-          url: '/roles',
-          type: 'item'
-        }
-      ]
-    }
-  ];
-  setMenuItems(staticMenu);
-}, []);
+
 
   useEffect(() => {
     if (menuItems && menuItems.length > 0) activeMenu();
