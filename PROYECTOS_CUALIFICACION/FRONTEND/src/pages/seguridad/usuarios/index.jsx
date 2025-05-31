@@ -18,54 +18,57 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import ModalCargaMasiva from "./ModalCargaMasiva";
 import UsuariosForm from "./UsuariosForm";
+import FiltrosUsuarios from "./filtrosUsuarios";
+import { useUsuarios } from "./useUsuarios"; // Ajusta la ruta según tu proyecto
+import Swal from 'sweetalert2';
 
-const usuariosIniciales = [
-    { id: "U001", nombre: "Laura Pérez", rol: "Administrador" },
-    { id: "U002", nombre: "Carlos Díaz", rol: "Docente" },
-];
 
 const GestionUsuarios = () => {
-    const [usuarios, setUsuarios] = useState(usuariosIniciales);
-    const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);
+    const { usuarios, eliminarUsuario } = useUsuarios();
     const [busqueda, setBusqueda] = useState("");
     const [page, setPage] = useState(1);
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorAddUser, setAnchorAddUser] = useState(null);
     const [modalCargaMasivaOpen, setModalCargaMasivaOpen] = useState(false);
-    const [datosExcel, setDatosExcel] = useState([]);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [usuarioEditando, setUsuarioEditando] = useState(null);
     const itemsPerPage = 10;
 
     const usuariosFiltrados = usuarios.filter(
         (u) =>
-            u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-            u.id.toLowerCase().includes(busqueda.toLowerCase())
+            u.nombre_completo?.toLowerCase().includes(busqueda.toLowerCase()) ||
+            u.nombre_usuario?.toLowerCase().includes(busqueda.toLowerCase())
     );
+
 
     const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
     const startIndex = (page - 1) * itemsPerPage;
     const usuariosPaginados = usuariosFiltrados.slice(startIndex, startIndex + itemsPerPage);
 
-    const abrirModal = (usuario) => {
-        setUsuarioSeleccionado(usuario);
-        setModalOpen(true);
+
+    const confirmarEliminacion = (usuario) => {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `¿Deseas eliminar el usuario "${usuario.nombre_completo}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const resultDelete = await eliminarUsuario(usuario.id_usuario);
+
+                if (resultDelete.success) {
+                    Swal.fire('Eliminado', resultDelete.mensaje, 'success');
+                } else {
+                    Swal.fire('Error', resultDelete.error, 'error');
+                }
+            }
+        });
     };
 
-    const cerrarModal = () => {
-        setUsuarioSeleccionado(null);
-        setModalOpen(false);
-    };
-
-    const eliminarUsuario = () => {
-        setUsuarios((prev) => prev.filter((u) => u.id !== usuarioSeleccionado.id));
-        cerrarModal();
-    };
-    const handleCrear = () => {
-        setUsuarioEditando(null);
-        setMostrarFormulario(true);
-    };
 
     const handleEditar = (usuario) => {
         setUsuarioEditando(usuario);
@@ -76,7 +79,6 @@ const GestionUsuarios = () => {
         setUsuarioEditando(null);
         setMostrarFormulario(false);
     };
-
 
     const handlePageChange = (_, value) => setPage(value);
     const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
@@ -110,21 +112,7 @@ const GestionUsuarios = () => {
                                 >
                                     Filtros
                                 </Button>
-                                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
-                                    <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2, width: 250 }}>
-                                        <TextField select label="Rol" defaultValue="Todos" size="small">
-                                            <MenuItem value="Todos">Todos</MenuItem>
-                                            <MenuItem value="Administrador">Administrador</MenuItem>
-                                            <MenuItem value="Docente">Docente</MenuItem>
-                                        </TextField>
-                                        <TextField select label="Estado" defaultValue="Todos" size="small">
-                                            <MenuItem value="Todos">Todos</MenuItem>
-                                            <MenuItem value="Activo">Activo</MenuItem>
-                                            <MenuItem value="Inactivo">Inactivo</MenuItem>
-                                        </TextField>
-                                        <Button variant="contained" onClick={handleCloseMenu}>Aplicar</Button>
-                                    </Box>
-                                </Menu>
+                                <FiltrosUsuarios anchorEl={anchorEl} handleClose={handleCloseMenu} />
 
                                 <Button
                                     variant="contained"
@@ -151,7 +139,7 @@ const GestionUsuarios = () => {
                             {usuariosPaginados.length > 0 ? (
                                 usuariosPaginados.map((user) => (
                                     <Paper
-                                        key={user.id}
+                                        key={user.id_usuario}
                                         variant="outlined"
                                         sx={{
                                             p: 3,
@@ -164,20 +152,20 @@ const GestionUsuarios = () => {
                                     >
                                         <Box>
                                             <Typography variant="h6" fontWeight="bold">
-                                                {user.nombre}
+                                                {user.nombre_completo}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                ID: {user.id}
+                                                Usuario: {user.nombre_usuario}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                Rol: {user.rol}
+                                                Rol: {user.rol_nombre}
                                             </Typography>
                                         </Box>
                                         <Box display="flex" gap={1}>
-                                            <IconButton color="primary" onClick={() => handleEditar(usuarios)}>
+                                            <IconButton color="primary" onClick={() => handleEditar(user)}>
                                                 <EditIcon />
                                             </IconButton>
-                                            <IconButton color="error" onClick={() => abrirModal(usuarios)}>
+                                            <IconButton color="error" onClick={() => confirmarEliminacion(user)}>
                                                 <DeleteIcon />
                                             </IconButton>
                                         </Box>
@@ -199,22 +187,6 @@ const GestionUsuarios = () => {
                 </>
             )}
 
-            <Modal open={modalOpen} onClose={cerrarModal}>
-                <Box sx={{
-                    position: "absolute", top: "50%", left: "50%",
-                    transform: "translate(-50%, -50%)", width: 400,
-                    bgcolor: "background.paper", p: 4, borderRadius: 2, boxShadow: 24
-                }}>
-                    <Typography variant="h6" mb={2}>Confirmar eliminación</Typography>
-                    <Typography variant="body2" mb={3}>
-                        ¿Deseas eliminar el usuario "{usuarioSeleccionado?.nombre}"?
-                    </Typography>
-                    <Box display="flex" justifyContent="flex-end" gap={2}>
-                        <Button onClick={cerrarModal} variant="outlined">Cancelar</Button>
-                        <Button onClick={eliminarUsuario} variant="contained" color="error">Eliminar</Button>
-                    </Box>
-                </Box>
-            </Modal>
             <ModalCargaMasiva
                 open={modalCargaMasivaOpen}
                 onClose={() => setModalCargaMasivaOpen(false)}

@@ -1,7 +1,3 @@
-/*
-
- * File Name: index.tsxAuthor: Miguel Ángel Noel García*/
-
 import { Box, FilledInput, InputAdornment } from "@mui/material";
 import { LuSearch } from "react-icons/lu";
 import { styled } from "@mui/material";
@@ -10,10 +6,7 @@ import MenuToggler from "./MenuToggler";
 import MaximizeScreen from "./MaximizeScreen";
 import LayoutThemeToggler from "./LayoutThemeToggler";
 import ThemeCustomizerToggler from "./ThemeCustomizerToggler";
-import AppsDropdown from "./AppsDropdown";
-import NotificationsDropdown from "./NotificationsDropdown";
 import LanguageDropdown from "./LanguageDropdown";
-import { notifications } from "./data";
 import UserProfile from "./UserProfile";
 const TopBarWrapper = styled("div")(({
   theme,
@@ -92,12 +85,10 @@ const Topbar = () => {
           gap: 1.5
         }}>
           {/* <LanguageDropdown /> */}
-          <NotificationsDropdown notifications={notifications} />
-          {/* <AppsDropdown /> */}
         </Box>
       </Box>
 
-      <ThemeCustomizerToggler />
+      {/* <ThemeCustomizerToggler /> */}
 
       <LayoutThemeToggler />
       <Box sx={{
@@ -106,7 +97,7 @@ const Topbar = () => {
           sm: "block"
         }
       }}>
-        <MaximizeScreen />
+        {/* <MaximizeScreen /> */}
       </Box>
       <UserProfile />
     </Box>

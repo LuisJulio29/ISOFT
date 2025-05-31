@@ -5,23 +5,19 @@ const constants = require('../../../constants');
 async function handler(req, res, next) {
   try {
     const Datos = req.body;
-
-    // Validar ingreso
     const response = await loginRepository.loginInfo(Datos);
-    
-    if (response.usuario) {
+
+    if (response.status === constants.SUCCEEDED_MESSAGE && response.token) {
       res.status(200).json({
         status: response.status,
         token: response.token,
         usuario: response.usuario,
       });
     } else {
-      res.status(401).json({
+      res.status(response.failure_code || 401).json({
         status: response.status,
-        error: {
-          code: response.failure_code || 401,
-          message: response.failure_message || 'Usuario o contraseña incorrectos.',
-        },
+        message: response.failure_message || 'Usuario o contraseña incorrectos.',
+
       });
     }
   } catch (error) {

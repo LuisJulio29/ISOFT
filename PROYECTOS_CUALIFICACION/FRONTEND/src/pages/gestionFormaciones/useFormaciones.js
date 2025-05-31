@@ -63,10 +63,34 @@ export const useFormaciones = () => {
         }
     };
 
+    const eliminarFormacion = async (idFormacion) => {
+        try {
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`${gsUrlApi}/formacion/eliminar/${idFormacion}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                await listarFormaciones(); // refresca la lista después de eliminar
+                return { success: true, mensaje: data.mensaje };
+            } else {
+                return { success: false, mensaje: data.error?.message || "Error al eliminar" };
+            }
+        } catch (err) {
+            console.error("Error en eliminarFormacion:", err);
+            return { success: false, mensaje: err.message || "Error inesperado" };
+        }
+    };
 
     useEffect(() => {
         listarFormaciones();
     }, []);
 
-    return { formaciones, loading, error, listarFormaciones, crearFormacion };
+    return { formaciones, loading, error, listarFormaciones, crearFormacion, eliminarFormacion };
 };

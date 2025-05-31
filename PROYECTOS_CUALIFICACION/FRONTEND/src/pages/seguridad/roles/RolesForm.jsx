@@ -53,7 +53,9 @@ const RolForm = ({ rol, reset }) => {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-      <Typography variant="h6">Editar {formData.nombre}</Typography>
+      <Divider sx={{ fontFamily: "'Poppins','Roboto',sans-serif" }}>
+        Editar {formData.nombre}
+      </Divider>
 
       <TextField
         fullWidth

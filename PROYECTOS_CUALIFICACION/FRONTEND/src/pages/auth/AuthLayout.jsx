@@ -109,7 +109,7 @@ const AuthLayout = ({
           </Box>
         </Box>
 
-        <Box
+        {/* <Box
           sx={{
             position: "absolute",
             bottom: 0,
@@ -118,7 +118,7 @@ const AuthLayout = ({
           }}
         >
           <Link
-            to={"https://www.unicartagena.edu.co/"}
+            // to={"https://www.unicartagena.edu.co/"}
             target="_blank"
             style={{
               color: "unset",
@@ -128,7 +128,7 @@ const AuthLayout = ({
               variant="body2"
               sx={{
                 textAlign: "center",
-                p: "24px",
+                p: "14px",
                 fontSize: { xs: '0.75rem', md: '0.875rem' }, // Cambiar tamaño de fuente responsivamente
               }}
               color={"text.secondary"}
@@ -136,7 +136,7 @@ const AuthLayout = ({
               {new Date().getFullYear()} © Universidad de Cartagena S.A. Powered by UDC
             </Typography>
           </Link>
-        </Box>
+        </Box> */}
       </AuthBGLayout>
     </>
   );

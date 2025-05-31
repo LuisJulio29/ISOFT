@@ -1,6 +1,5 @@
 import { Suspense, lazy } from "react";
 import { Navigate } from "react-router-dom";
-import { PrivateRouteWrapper } from "./PrivateRoute";
 
 const LoadComponent = ({ component: Component }) => (
   <Suspense fallback={null}>
@@ -8,70 +7,12 @@ const LoadComponent = ({ component: Component }) => (
   </Suspense>
 );
 
-// Layout principal (aunque no se usa directamente)
-const VerticalLayout = lazy(() => import("../layouts/VerticalLayout"));
+const PrivateRouteWrapper = ({ component: Component }) => {
+  const isAuthenticated = localStorage.getItem("token");
+  return isAuthenticated ? <Component /> : <Navigate to="/auth/login" replace />;
+};
 
-// Rutas privadas para módulos de la app
-const uiComponentRoutes = [
-  // {
-  //   path: "/app/seguridad/roles",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/seguridad/roles/roles.jsx"))} />
-  // },
-  // {
-  //   path: "/app/seguridad/usuarios",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/seguridad/usuarios/usuarios.jsx"))} />
-  // },
-  // {
-  //   path: "/app/informes/hdv",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/informes/hdv"))} />
-  // },
-  // {
-  //   path: "/app/configuracion/inventarios",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/configuracion/inventarios/inventarios.jsx"))} />
-  // },
-  // {
-  //   path: "/app/ordenes",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/ordenes/ordenesList.jsx"))} />
-  // },
-  // {
-  //   path: "/app/tablero",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/tablero/tablero.jsx"))} />
-  // },
-  // {
-  //   path: "/app/configuracion/clientes",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/configuracion/clientes/clientes.jsx"))} />
-  // },
-  // {
-  //   path: "/app/configuracion/servicios",
-  //   element: <PrivateRouteWrapper component={lazy(() => import("../pages/configuracion/servicios/servicios.jsx"))} />
-  // },
-  // {
-  //   path: "/app/dashboard/procesos",
-  //   element: <LoadComponent component={lazy(() => import("../pages/dashboard/Kanban/index.jsx"))} />
-  // },
-  // {
-  //   path: "/app/notificaciones/inbox",
-  //   element: <LoadComponent component={lazy(() => import("../pages/notificaciones/emails/Inbox"))} />
-  // }
-];
-
-// Rutas de error y fallback
-const otherRotes = [
-  {
-    path: "/error-404",
-    element: <LoadComponent component={lazy(() => import("../pages/error/Error404"))} />
-  },
-  {
-    path: "/error-500",
-    element: <LoadComponent component={lazy(() => import("../pages/error/Error500"))} />
-  },
-  {
-    path: "*",
-    element: <LoadComponent component={lazy(() => import("../pages/error/Error404"))} />
-  }
-];
-
-// Rutas de autenticación
+// RUTAS PÚBLICAS (AUTH)
 const authRoutes = [
   {
     path: "/auth/login",
@@ -90,65 +31,88 @@ const authRoutes = [
     element: <LoadComponent component={lazy(() => import("../pages/auth/ResetPassword"))} />
   },
   {
-    path: "/auth/lock-screen",
-    element: <LoadComponent component={lazy(() => import("../pages/auth/LockScreen"))} />
-  }, 
-  {
     path: "/auth/recover-password2",
     element: <LoadComponent component={lazy(() => import("../pages/auth/ResetPassword"))} />
   },
   {
     path: "/auth/confirm-mail2",
     element: <LoadComponent component={lazy(() => import("../pages/auth/ConfirmMail"))} />
+  },
+  {
+    path: "/auth/lock-screen",
+    element: <LoadComponent component={lazy(() => import("../pages/auth/LockScreen"))} />
   }
 ];
 
-// Rutas administrativas
-const adminRoutes = [
+// RUTAS DE ERROR Y FALLBACK
+const errorRoutes = [
   {
-    path: "error-404-alt",
+    path: "/error-404",
+    element: <LoadComponent component={lazy(() => import("../pages/error/Error404"))} />
+  },
+  {
+    path: "/error-500",
+    element: <LoadComponent component={lazy(() => import("../pages/error/Error500"))} />
+  },
+  {
+    path: "/error-404-alt",
     element: <LoadComponent component={lazy(() => import("../pages/error/Error404Alt"))} />
   },
+  {
+    path: "*",
+    element: <LoadComponent component={lazy(() => import("../pages/error/Error404"))} />
+  }
+];
+
+// RUTAS PRIVADAS (ADMIN)
+const adminRoutes = [
   {
     path: "/inicio",
     element: <PrivateRouteWrapper component={lazy(() => import("../pages/inicio"))} />
   },
   {
     path: "/miCuenta",
-    element: <LoadComponent component={lazy(() => import("@src/pages/miCuenta"))} />
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/miCuenta"))} />
   },
   {
     path: "/CaracterizacionDocentes",
-    element: <LoadComponent component={lazy(() => import("@src/pages/CaraterizacionDocentes"))} />
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/CaraterizacionDocentes"))} />
   },
   {
     path: "/DocentesForm",
-    element: <LoadComponent component={lazy(() => import("@src/pages/CaraterizacionDocentes/DocentesForm"))} />
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/CaraterizacionDocentes/DocentesForm"))} />
   },
   {
     path: "/GestionFormaciones",
-    element: <LoadComponent component={lazy(() => import("@src/pages/gestionFormaciones"))} />
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/gestionFormaciones"))} />
   },
   {
     path: "/FormacionesForm",
-    element: <LoadComponent component={lazy(() => import("@src/pages/gestionFormaciones/FormacionesForm"))} />
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/gestionFormaciones/FormacionesForm"))} />
   },
   {
     path: "/Usuarios",
-    element: <LoadComponent component={lazy(() => import("@src/pages/seguridad/usuarios"))} />
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/seguridad/usuarios"))} />
   },
   {
     path: "/Roles",
-    element: <LoadComponent component={lazy(() => import("@src/pages/seguridad/roles"))} />
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/seguridad/roles"))} />
   },
   {
     path: "/misCualificaciones",
-    element: <LoadComponent component={lazy(() => import("@src/pages/misCualificaciones"))} />
-  },
+    element: <PrivateRouteWrapper component={lazy(() => import("../pages/misCualificaciones"))} />
+  }
 ];
 
-// Rutas agrupadas por layout
-export const defaultLayoutRoutes = [...otherRotes, ...authRoutes];
+
+const uiComponentRoutes = [
+
+];
+
+export const defaultLayoutRoutes = [
+  ...authRoutes,
+  ...errorRoutes
+];
 
 export const verticalLayoutRoutes = [
   {

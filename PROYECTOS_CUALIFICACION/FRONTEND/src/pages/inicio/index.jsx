@@ -7,9 +7,9 @@ const Inicio = () => {
       container
       justifyContent="center"
       alignItems="center"
-      style={{ minHeight: "60vh", padding: "1rem" }}
+      style={{ minHeight: "70vh", padding: "1rem" }}
     >
-      <Grid item xs={12} sm={6} mt={10} md={4} lg={3} textAlign="center">
+      <Grid item xs={12} sm={6} mt={10} md={9} lg={6} textAlign="center">
         <img
           src={logo}
           alt="Logo"

@@ -12,6 +12,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import { PageMetaData } from "@src/components";
 import useLogin from "./useLogin";
 import AuthLayout from "../AuthLayout";
+import PasswordInput from "@src/components/form/PasswordInput";
 
 const BottomLink = () => (
   <Box sx={{ my: 2, display: "flex", justifyContent: "center" }}>
@@ -65,34 +66,17 @@ const Login = () => {
           />
 
           {/* Campo de Contraseña con icono */}
-          <Controller
+          <PasswordInput
             name="password"
             control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                type="password"
-                label="Contraseña"
-                placeholder="Escribe tu contraseña"
-                fullWidth
-                variant="outlined"
-                sx={{
-                  mb: 2,
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: "30px",
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "30px",
+              },
+            }}
           />
+
 
           {/* Botón de Ingreso */}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>

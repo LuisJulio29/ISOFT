@@ -22,15 +22,24 @@ import {
     Cancel,
     DoneAll
 } from '@mui/icons-material';
+import { MdOutlinePassword } from "react-icons/md";
+import { useMiCuenta } from '@src/pages/miCuenta/useCuenta';
 import { PageBreadcrumb } from "components";
 
 const MiCuenta = () => {
     const [mostrarCambioPassword, setMostrarCambioPassword] = useState(false);
-    const [usuario, setUsuario] = useState("usuario_actual");
+    const usuario = JSON.parse(localStorage.getItem('Usuario'));
     const [usuarioEditado, setUsuarioEditado] = useState(usuario);
-
     const seHaEditado = mostrarCambioPassword || usuarioEditado !== usuario;
+    const { actualizarUsuario, loading, error, successMessage } = useMiCuenta();
 
+    const handleGuardarCambios = async () => {
+        const resultado = await actualizarUsuario(usuarioEditado);
+        if (resultado.success) {
+            setMostrarCambioPassword(false);
+            setUsuarioEditado(resultado.usuario);
+        }
+    };
     return (
         <Box component="main" sx={{ flexGrow: 1 }}>
             <PageBreadcrumb title="Mi cuenta" subName="App" />
@@ -52,6 +61,8 @@ const MiCuenta = () => {
                         label="Nombre completo"
                         placeholder="Escriba su nombre completo"
                         fullWidth
+                        disabled
+                        value={usuario.nombre_completo}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -64,6 +75,8 @@ const MiCuenta = () => {
                         label="Rol"
                         placeholder="Rol"
                         fullWidth
+                        value={usuario.rol_nombre}
+                        disabled
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -76,6 +89,7 @@ const MiCuenta = () => {
                         label="Tipo de documento"
                         placeholder="Cédula, Pasaporte, etc."
                         fullWidth
+                        disabled
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -87,7 +101,7 @@ const MiCuenta = () => {
                     <TextField
                         label="Número de documento"
                         placeholder="Número"
-                        editable={false}
+                        disabled
                         fullWidth
                         InputProps={{
                             startAdornment: (
@@ -115,7 +129,7 @@ const MiCuenta = () => {
                         label="Usuario"
                         placeholder="Nombre de usuario"
                         fullWidth
-                        value={usuarioEditado}
+                        value={usuario.nombre_usuario}
                         onChange={(e) => setUsuarioEditado(e.target.value)}
                         InputProps={{ startAdornment: <InputAdornment position="start"><Person /></InputAdornment> }}
                     />
@@ -124,6 +138,7 @@ const MiCuenta = () => {
                             variant="outlined"
                             color={mostrarCambioPassword ? 'error' : 'primary'}
                             onClick={() => setMostrarCambioPassword(!mostrarCambioPassword)}
+                            startIcon={<MdOutlinePassword />}
                         >
                             {mostrarCambioPassword ? 'Mantener contraseña actual' : 'Cambiar contraseña'}
                         </Button>
@@ -182,9 +197,12 @@ const MiCuenta = () => {
                             variant="contained"
                             color="success"
                             startIcon={<DoneAll />}
+                            onClick={handleGuardarCambios}
+                            disabled={loading}
                         >
-                            Guardar cambios
+                            {loading ? 'Guardando...' : 'Guardar cambios'}
                         </Button>
+
                     </Box>
                 )}
             </Paper>

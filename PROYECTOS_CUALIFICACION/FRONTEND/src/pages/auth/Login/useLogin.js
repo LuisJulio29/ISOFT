@@ -1,30 +1,20 @@
-import { useMemo, useState } from "react";
-import { useLocation, useNavigate, Navigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { HttpClient } from "../../../helpers";
-import { useAuthContext } from "../../../states";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { useSnackbar } from "notistack";
 import { gsUrlApi } from "@src/config/ConfigServer";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useLocation, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
+import * as yup from "yup";
+import { useAuthContext } from "../../../states";
 
 export default function useLogin() {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const {isAuthenticated, saveSession} = useAuthContext();
-  const {enqueueSnackbar} = useSnackbar();
-  const [EstadoCargue, setEstadoCargue] = useState(false);
-  const [EstadoConfirmacion, setEstado] = useState(false);
-  const [EstadoBoton, setEstadoDisabled] = useState(true);
-  const [time, setTime] = useState(false);
-  let gObjResult = "";
-  let gObjResultKey = null;
-  let gsToken = null;
+
   let gObjEvent = null;
   let timetemps = 30;
-  let gObjSesion = {};
 
   const loginFormSchema = yup.object({
     email: yup.string().email("Por favor ingresa un correo válido").required("Por favor ingresa un correo"),
@@ -40,22 +30,6 @@ export default function useLogin() {
     }
   });
   const redirectUrl = useMemo(() => (location.state?.from.pathname, "/inicio"), [location.state]);
-
-  
-  const contadorSolicitudAcceso = () => {
-    timetemps--;
-
-    if (timetemps <= 0) {
-      setTime("---");
-      if (gObjEvent !== null) {
-        clearInterval(gObjEvent);
-        gObjEvent = null;
-        setEstadoDisabled(false);
-      }
-    } else {
-      setTime(timetemps);
-    }
-  };
 
 
   const login = handleSubmit(async values => {

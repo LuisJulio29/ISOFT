@@ -28,12 +28,13 @@ const login = {
       const validPassword = await bcrypt.compare(Clave, user.contraseña);
       if (!validPassword) {
         return {
-          status: constants.SUCCEEDED_MESSAGE,
-          usuario: [],
+          status: 'error',
+          usuario: null,
           token: null,
           failure_code: 401,
           failure_message: "Usuario o contraseña incorrectos."
         };
+
       }
 
       // Generar token JWT
@@ -44,7 +45,7 @@ const login = {
           rol: user.id_rol
         },
         constants.TOKEN_SECRET,
-        { expiresIn: "6h" }
+        { expiresIn: "2h" }
       );
       const { contraseña, Rol: rolData, ...userSinPassword } = user.toJSON();
 

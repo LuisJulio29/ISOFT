@@ -13,6 +13,7 @@ const rutas = () => {
   const usuariosController = require("./src/Controllers/usuarios");
   const loginController = require("./src/Controllers/login");
   const formacionesController = require('./src/Controllers/formaciones')
+
   // Ruta base
   router.get("/", (req, res) => {
     res.status(200).json({ response: "El back está backeando" });
@@ -27,14 +28,15 @@ const rutas = () => {
   // Usuarios
   router.post("/usuarios/insertar", usuariosController.insertar);
   router.get("/usuarios/listar", verifyToken, usuariosController.listar);
-  router.put("/usuarios/actualizar/:id", usuariosController.actualizar);
+  router.put("/usuarios/actualizar/:id",verifyToken, usuariosController.actualizar);
+  router.post("/usuarios/eliminar/:id", usuariosController.eliminar)
 
   //Formaciones
-  router.post("/formacion/insertar", formacionesController.insertar);
-  router.get("/formacion/listar",  formacionesController.listar);
-  router.put("/formacion/actualizar/:id", formacionesController.actualizar);
+  router.post("/formacion/insertar", verifyToken, formacionesController.insertar);
+  router.get("/formacion/listar", verifyToken, formacionesController.listar);
+  router.put("/formacion/actualizar/:id", verifyToken, formacionesController.actualizar);
   router.post("/formacion/eliminar/:id", formacionesController.eliminar)
-  
+
   return router;
 };
 

@@ -4,7 +4,7 @@
 
 import { IconButton } from "@mui/material";
 import { useLayoutContext } from "../../states";
-import { LuMenu } from "react-icons/lu";
+import { LuListMinus  } from "react-icons/lu";
 const MenuToggler = () => {
   const {
     settings,
@@ -16,7 +16,7 @@ const MenuToggler = () => {
     });
   };
   return <IconButton color={"inherit"} onClick={showSideNavMobile}>
-      <LuMenu />
-    </IconButton>;
+    <LuListMinus />
+  </IconButton>;
 };
 export default MenuToggler;

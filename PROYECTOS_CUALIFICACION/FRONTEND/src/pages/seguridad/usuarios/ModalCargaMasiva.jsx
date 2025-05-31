@@ -12,11 +12,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  Divider
 } from "@mui/material";
 import * as XLSX from "xlsx";
 
-const rolesDisponibles = ["Administrador", "Docente", "Estudiante"];
+const rolesDisponibles = ["Administrador", "Docente"];
 
 const ModalCargaMasiva = ({ open, onClose, onDataParsed }) => {
   const [archivoNombre, setArchivoNombre] = useState("");
@@ -60,17 +61,33 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed }) => {
 
   return (
     <Modal open={open} onClose={onClose}>
-      <Box sx={{
-        position: "absolute", top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)", width: 600,
-        bgcolor: "background.paper", p: 4, borderRadius: 2, boxShadow: 24,
-        maxHeight: '90vh', overflowY: 'auto'
-      }}>
-        <Typography variant="h6" mb={1}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: '60%', sm: 500, md: 600 }, // Responsive
+          bgcolor: "background.paper", // se adapta a tema claro/oscuro
+          color: "text.primary",
+          p: 4,
+          borderRadius: 2,
+          boxShadow: 14,
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+      >
+        <Typography
+          variant="h6"
+          textAlign="center"
+          mb={2}
+          fontWeight="bold"
+        >
           Carga masiva de usuarios
         </Typography>
+
         <Typography variant="body2" color="text.secondary" mb={2}>
-          Sube un archivo <b>.xlsx</b> o <b>.xls</b> con los datos de los usuarios.
+          Sube un archivo <b>.csv</b>  con los datos de los usuarios.
         </Typography>
 
         <TextField
@@ -89,9 +106,20 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed }) => {
           ))}
         </TextField>
 
-        <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
+        <Button
+          variant="outlined"
+          component="label"
+          fullWidth
+          sx={{ mb: 2 }}
+          disabled={!rolSeleccionado}
+        >
           Elegir archivo
-          <input hidden type="file" accept=".xlsx,.xls,csv" onChange={handleArchivoExcel} />
+          <input
+            hidden
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            onChange={handleArchivoExcel}
+          />
         </Button>
 
         <Typography variant="body2" color="text.secondary" mb={3}>
@@ -99,7 +127,10 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed }) => {
         </Typography>
 
         {datosExcel.length > 0 && (
-          <TableContainer component={Paper} sx={{ maxHeight: 200, overflow: "auto", mb: 2 }}>
+          <TableContainer
+            component={Paper}
+            sx={{ maxHeight: 200, overflow: "auto", mb: 2 }}
+          >
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
@@ -136,6 +167,7 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed }) => {
         </Box>
       </Box>
     </Modal>
+
   );
 };
 

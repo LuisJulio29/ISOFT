@@ -1,66 +1,64 @@
-import React, { useState } from "react";
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import {
   Box,
-  Typography,
-  Paper,
   Button,
-  TextField,
-  MenuItem,
   IconButton,
-  Modal,
-  Menu,
   Pagination,
+  Paper,
+  TextField,
+  Typography
 } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { PageBreadcrumb } from "components";
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from "@mui/icons-material/Edit";
-import FormacionesForm from "./FormacionesForm"; 
+import { useState } from "react";
+import Swal from 'sweetalert2';
+import FiltrosFormaciones from './filtrosFormaciones';
+import FormacionesForm from "./FormacionesForm";
 import { useFormaciones } from "./useFormaciones";
 
 const GestionFormaciones = () => {
-  const { formaciones, crearFormacion } = useFormaciones();
-  const [setFormaciones] = useState(formaciones);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [formacionSeleccionada, setFormacionSeleccionada] = useState(null);
+  const { formaciones, crearFormacion, eliminarFormacion } = useFormaciones();
   const [anchorEl, setAnchorEl] = useState(null);
   const [page, setPage] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [formacionEditando, setFormacionEditando] = useState(null);
-
   const itemsPerPage = 10;
   const formacionesFiltradas = formaciones.filter((f) =>
     (f.nombre_formacion?.toLowerCase() || '').includes(busqueda.toLowerCase()) ||
     (f.linea_cualificacion?.toLowerCase() || '').includes(busqueda.toLowerCase())
   );
-
-
   const totalPages = Math.ceil(formacionesFiltradas.length / itemsPerPage);
   const startIndex = (page - 1) * itemsPerPage;
   const formacionesPaginadas = formacionesFiltradas.slice(startIndex, startIndex + itemsPerPage);
 
-  const abrirModal = (formacion) => {
-    setFormacionSeleccionada(formacion);
-    setModalOpen(true);
-  };
-
-  const cerrarModal = () => {
-    setModalOpen(false);
-    setFormacionSeleccionada(null);
-  };
-
-  const eliminarFormacion = () => {
-    setFormaciones((prev) => prev.filter((f) => f.id !== formacionSeleccionada.id));
-    cerrarModal();
-  };
-
-
   const handlePageChange = (_, value) => setPage(value);
   const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
+  const confirmarEliminacion = (formacion) => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar la formación "${formacion.nombre_formacion}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const respuesta = await eliminarFormacion(formacion.id_formacion);
 
+        if (respuesta.success) {
+          Swal.fire('Eliminado', 'La formación fue eliminada correctamente.', 'success');
+        } else {
+          Swal.fire('Error', respuesta.mensaje || 'No se pudo eliminar.', 'error');
+        }
+      }
+    });
+  };
 
 
   return (
@@ -101,60 +99,8 @@ const GestionFormaciones = () => {
                 >
                   Filtros
                 </Button>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleCloseMenu}
-                  slotProps={{
-                    paper: {
-                      elevation: 3,
-                      sx: {
-                        mt: 1.5,
-                        minWidth: 600, // más ancho
-                        px: 2,
-                        py: 2,
-                      },
-                    },
-                  }}
-                >
-                  <Box
-                    component="form"
-                    autoComplete="off"
-                    noValidate
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row", // en fila
-                      alignItems: "center",
-                      gap: 2,
-                      flexWrap: "wrap", // por si se reduce la pantalla
-                    }}
-                  >
-                    <TextField select label="Tipo de Titulación" defaultValue="Todos" size="small" sx={{ minWidth: 180 }}>
-                      <MenuItem value="Todos">Todos</MenuItem>
-                      <MenuItem value="Pregrado">Pregrado</MenuItem>
-                      <MenuItem value="Maestría">Maestría</MenuItem>
-                      <MenuItem value="Doctorado">Doctorado</MenuItem>
-                    </TextField>
+                <FiltrosFormaciones anchorEl={anchorEl} handleClose={handleCloseMenu} />
 
-                    <TextField select label="Año" defaultValue="Todos" size="small" sx={{ minWidth: 120 }}>
-                      <MenuItem value="Todos">Todos</MenuItem>
-                      <MenuItem value="2024">2024</MenuItem>
-                      <MenuItem value="2023">2023</MenuItem>
-                      <MenuItem value="2022">2022</MenuItem>
-                    </TextField>
-
-                    <TextField select label="Línea de Cualificación" defaultValue="Todos" size="small" sx={{ minWidth: 180 }}>
-                      <MenuItem value="Todos">Todos</MenuItem>
-                      <MenuItem value="Docencia">Docencia</MenuItem>
-                      <MenuItem value="Investigación">Investigación</MenuItem>
-                      <MenuItem value="TIC">TIC</MenuItem>
-                    </TextField>
-
-                    <Button variant="contained" color="primary" onClick={handleCloseMenu}>
-                      Aplicar
-                    </Button>
-                  </Box>
-                </Menu>
 
                 <Button
                   startIcon={<AddIcon />}
@@ -174,7 +120,7 @@ const GestionFormaciones = () => {
             {/* Contenedor con scroll vertical */}
             <Box
               sx={{
-                maxHeight: 500, overflowY: "auto", pr: 1, scrollbarWidth: "thin",scrollbarColor: "#ccc transparent", 
+                maxHeight: 500, overflowY: "auto", pr: 1, scrollbarWidth: "thin", scrollbarColor: "#ccc transparent",
                 "&::-webkit-scrollbar": {
                   width: "6px",
                 },
@@ -232,9 +178,13 @@ const GestionFormaciones = () => {
                       >
                         <EditIcon />
                       </IconButton>
-                      <IconButton onClick={() => abrirModal(formacion)} color="error">
+                      <IconButton
+                        onClick={() => confirmarEliminacion(formacion)}
+                        color="error"
+                      >
                         <DeleteIcon />
                       </IconButton>
+
                     </Box>
                   </Paper>
                 ))
@@ -255,28 +205,11 @@ const GestionFormaciones = () => {
 
 
             {/* Paginación */}
-            <Box display="flex" justifyContent="center">
+            <Box display="flex" justifyContent="center" mt={3}>
               <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
             </Box>
           </Paper>
 
-          {/* Modal */}
-          <Modal open={modalOpen} onClose={cerrarModal}>
-            <Box sx={{
-              position: "absolute", top: "50%", left: "50%",
-              transform: "translate(-50%, -50%)", width: 400,
-              bgcolor: "background.paper", p: 4, borderRadius: 2, boxShadow: 24
-            }}>
-              <Typography variant="h6" mb={2}>Confirmar eliminación</Typography>
-              <Typography variant="body2" mb={3}>
-                ¿Deseas eliminar la formación {formacionSeleccionada?.nombre_formacion}"?
-              </Typography>
-              <Box display="flex" justifyContent="flex-end" gap={2}>
-                <Button onClick={cerrarModal} variant="outlined">Cancelar</Button>
-                <Button onClick={eliminarFormacion} variant="contained" color="error">Eliminar</Button>
-              </Box>
-            </Box>
-          </Modal>
         </>
       )}
     </Box>
