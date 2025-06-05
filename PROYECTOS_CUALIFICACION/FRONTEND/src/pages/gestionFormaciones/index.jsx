@@ -19,7 +19,7 @@ import FormacionesForm from "./FormacionesForm";
 import { useFormaciones } from "./useFormaciones";
 
 const GestionFormaciones = () => {
-  const { formaciones, crearFormacion, eliminarFormacion } = useFormaciones();
+  const { formaciones, crearFormacion, eliminarFormacion, actualizarFormacion } = useFormaciones();
   const [anchorEl, setAnchorEl] = useState(null);
   const [page, setPage] = useState(1);
   const [busqueda, setBusqueda] = useState("");
@@ -68,11 +68,11 @@ const GestionFormaciones = () => {
         <FormacionesForm
           data={formacionEditando || {}}
           onCancel={() => setMostrarFormulario(false)}
-          onSaveSuccess={() => {
-            setMostrarFormulario(false);
-          }}
+          cerrarFormulario={() => setMostrarFormulario(false)}
           crearFormacion={crearFormacion}
+          actualizarFormacion={actualizarFormacion}
         />
+
       ) : (
         <>
           <PageBreadcrumb title="Gestión de Formaciones" subName="App" />

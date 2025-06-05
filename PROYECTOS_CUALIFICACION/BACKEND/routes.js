@@ -31,13 +31,13 @@ const rutas = () => {
   router.post("/usuarios/insertar", usuariosController.insertar);
   router.get("/usuarios/listar", verifyToken, usuariosController.listar);
   router.put("/usuarios/actualizar/:id",verifyToken, usuariosController.actualizar);
-  router.post("/usuarios/eliminar/:id", usuariosController.eliminar)
+  router.delete("/usuarios/eliminar/:id", usuariosController.eliminar)
 
   //Formaciones
   router.post("/formacion/insertar", verifyToken, formacionesController.insertar);
   router.get("/formacion/listar", verifyToken, formacionesController.listar);
   router.put("/formacion/actualizar/:id", verifyToken, formacionesController.actualizar);
-  router.post("/formacion/eliminar/:id", formacionesController.eliminar)
+  router.delete("/formacion/eliminar/:id", formacionesController.eliminar)
 
   return router;
 };
