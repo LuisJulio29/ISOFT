@@ -1,29 +1,23 @@
-// Roles.jsx
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import React, { useState } from "react";
 import {
   Box,
   Paper,
   Typography
 } from "@mui/material";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import { PageBreadcrumb } from "components";
-import { useState } from "react";
-import RolForm from "./RolesForm"; // componente separado
-
-const rolesData = {
-  admin: { codigo: "R001", nombre: "Administrador", icon: <AdminPanelSettingsIcon /> },
-  docente: { codigo: "R002", nombre: "Docente", icon: <SupervisorAccountIcon /> },
-};
+import RolForm from "./RolesForm";
+import { useRoles } from "./useRoles";
 
 const Roles = () => {
+  const { roles, loading, error } = useRoles();
   const [rolSeleccionado, setRolSeleccionado] = useState(null);
-  const [formData, setFormData] = useState({ codigo: "", nombre: "" });
 
-  const seleccionarRol = (rolKey) => {
-    const datos = rolesData[rolKey];
-    setRolSeleccionado(rolKey);
-    setFormData({ codigo: datos.codigo, nombre: datos.nombre });
-  };
+  const iconoPorRol = (nombre) =>
+    nombre.toLowerCase().includes("admin")
+      ? <AdminPanelSettingsIcon />
+      : <SupervisorAccountIcon />;
 
   return (
     <Box component="main" sx={{ flexGrow: 1 }}>
@@ -40,42 +34,41 @@ const Roles = () => {
           margin: "0 auto",
         }}
       >
-        {/* Lista de roles */}
         <Box sx={{ flex: 1, borderRight: { md: "1px solid #ddd" }, pr: { md: 2 } }}>
           <Typography variant="h6" fontWeight="bold" mb={2}>Roles disponibles</Typography>
-          {Object.keys(rolesData).map((key) => (
+          {loading && <Typography>Cargando roles...</Typography>}
+          {error && <Typography color="error">{error}</Typography>}
+          {roles.map((rol) => (
             <Paper
-              key={key}
-              onClick={() => seleccionarRol(key)}
-              elevation={rolSeleccionado === key ? 4 : 1}
+              key={rol.id_rol}
+              onClick={() => setRolSeleccionado(rol)}
+              elevation={rolSeleccionado?.id_rol === rol.id_rol ? 4 : 1}
               sx={{
                 p: 2,
                 mb: 2,
-                border: rolSeleccionado === key ? "2px solid rgb(193, 205, 27)" : "1px solid #ccc",
+                border: rolSeleccionado?.id_rol === rol.id_rol ? "2px solid rgb(193, 205, 27)" : "1px solid #ccc",
                 borderRadius: 2,
                 cursor: "pointer",
-                bgcolor: rolSeleccionado === key ? "rgba(161, 192, 26, 0.67)" : "inherit",
-              
+                bgcolor: rolSeleccionado?.id_rol === rol.id_rol ? "rgba(161, 192, 26, 0.67)" : "inherit",
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
                 fontWeight: 500,
               }}
             >
-              {rolesData[key].icon} {rolesData[key].nombre}
+              {iconoPorRol(rol.nombre)} {rol.nombre}
             </Paper>
           ))}
         </Box>
 
-        {/* Panel de edición */}
         <Box sx={{ flex: 2 }}>
           {rolSeleccionado ? (
-            <RolForm rol={formData} reset={() => setRolSeleccionado(null)} />
+            <RolForm rol={rolSeleccionado} reset={() => setRolSeleccionado(null)} />
           ) : (
             <Box
               sx={{
                 height: "100%",
-                minHeight:200,
+                minHeight: 200,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
