@@ -66,7 +66,7 @@ const usuario = JSON.parse(localStorage.getItem('Usuario')) || {};
         <Avatar src={avatar2} alt="avatar" sx={{ height: 52, width: 52 }} />
         <div style={{ marginLeft: "12px" }}>
           <Typography variant="subtitle2" color={"text.primary"}>
-            {`${usuario.nombre_completo || 'user'} ` || ''}
+            {`${usuario.nombres|| 'user'} ` || ''}
           </Typography>
           <Typography variant="caption" color={"text.primary"}>
             {`${usuario.rol_nombre || ''} ` || ''}
