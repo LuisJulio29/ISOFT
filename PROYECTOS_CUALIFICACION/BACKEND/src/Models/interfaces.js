@@ -3,7 +3,7 @@ const sequelize = require('../config/db');
 
 const Interface = sequelize.define('Interface', {
   id_interface: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
     allowNull: false
   },

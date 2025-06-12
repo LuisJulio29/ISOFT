@@ -9,8 +9,6 @@ const PORT = process.env.PORT || 3001;
   try {
     await sequelize.authenticate();
     console.log('Conectado a la base de datos');
-    await sequelize.sync({ alter: true });   // crea/actualiza tablas según modelos
-    console.log('Base de datos sincronizada');
 
     app.listen(PORT, () => {
       console.log(`Servidor escuchando ${PORT}`);
