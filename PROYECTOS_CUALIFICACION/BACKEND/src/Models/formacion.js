@@ -3,10 +3,10 @@ const sequelize = require('../config/db');
 
 const Formacion = sequelize.define('Formacion', {
   id_formacion: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
-    defaultValue: DataTypes.UUIDV4
+    autoIncrement: true
   },
   nombre_formacion: DataTypes.STRING(100),
   periodo: DataTypes.STRING(20),

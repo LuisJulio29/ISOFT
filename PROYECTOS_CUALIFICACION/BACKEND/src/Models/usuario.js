@@ -3,10 +3,10 @@ const sequelize = require('../config/db');
 
 const Usuario = sequelize.define('Usuario', {
   id_usuario: {
-    type: DataTypes.UUIDV4,
+    type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
-    defaultValue: DataTypes.UUIDV4
+    autoIncrement: true
   },
   nombre_usuario: {
     type: DataTypes.STRING(100),
