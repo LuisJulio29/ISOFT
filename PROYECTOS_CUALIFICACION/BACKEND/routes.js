@@ -8,13 +8,16 @@ const rutas = () => {
   const storage = multer.memoryStorage();
   const upload = multer({ storage });
 
-  // Controladores}
+  // Controladores
   const usuariosController = require("./src/Controllers/usuarios"); 
   const loginController = require("./src/Controllers/login");
   const formacionesController = require('./src/Controllers/formaciones')
   const interfacesControllerBuscar = require('./src/controllers/interfaces/buscar');
   const interfacesControllerActualizar = require('./src/controllers/interfaces/actualizar');
-
+  const rolesInterfacesController = require('./src/controllers/roles/buscar');
+  const listarRolesController = require("./src/controllers/roles/listar");
+  const guardarInterfacesRolController = require("./src/Controllers/roles/guardar");
+  
   // Ruta base
   router.get("/", (req, res) => {
     res.status(200).json({ response: "El back está backeando" });
@@ -31,13 +34,18 @@ const rutas = () => {
   router.post("/usuarios/insertar", usuariosController.insertar);
   router.get("/usuarios/listar", verifyToken, usuariosController.listar);
   router.put("/usuarios/actualizar/:id",verifyToken, usuariosController.actualizar);
-  router.post("/usuarios/eliminar/:id", usuariosController.eliminar)
+  router.delete("/usuarios/eliminar/:id", usuariosController.eliminar)
 
   //Formaciones
   router.post("/formacion/insertar", verifyToken, formacionesController.insertar);
   router.get("/formacion/listar", verifyToken, formacionesController.listar);
   router.put("/formacion/actualizar/:id", verifyToken, formacionesController.actualizar);
-  router.post("/formacion/eliminar/:id", formacionesController.eliminar)
+  router.delete("/formacion/eliminar/:id", formacionesController.eliminar)
+
+  //Roles
+  router.post('/roles/:idRol/interfaces', verifyToken, guardarInterfacesRolController);
+  router.get('/roles/:idRol/interfaces', verifyToken, rolesInterfacesController);
+  router.get("/roles", verifyToken, listarRolesController);
 
   return router;
 };

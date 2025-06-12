@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   TextField,
-  Typography,
   Button,
   Divider
 } from "@mui/material";
@@ -10,45 +9,78 @@ import { Cancel, DoneAll } from "@mui/icons-material";
 import CheckboxTree from "react-checkbox-tree";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
 import "font-awesome/css/font-awesome.min.css";
-
-const treeData = [
-  {
-    value: "vistas",
-    label: "Vistas",
-    children: [
-      { value: "caracterizacion", label: "Caracterización de docentes" },
-      { value: "formaciones", label: "Gestión de formaciones" },
-      { value: "cuenta", label: "Mi cuenta" },
-      { value: "cualificaciones", label: "Mis cualificaciones" },
-      {
-        value: "seguridad",
-        label: "Seguridad",
-        children: [
-          { value: "usuarios", label: "Usuarios" },
-          { value: "roles", label: "Roles y permisos" },
-        ],
-      },
-    ],
-  },
-];
+import { useRoles } from "./useRoles";
+import { gsUrlApi } from "@src/config/ConfigServer";
 
 const RolForm = ({ rol, reset }) => {
+  const { obtenerInterfacesPorRol, guardarInterfacesPorRol } = useRoles();
   const [formData, setFormData] = useState(rol);
+  const [treeData, setTreeData] = useState([]);
   const [checked, setChecked] = useState([]);
   const [expanded, setExpanded] = useState(["vistas", "seguridad"]);
 
   useEffect(() => {
+    if (rol?.id_rol) {
+      obtenerInterfacesPorRol(rol.id_rol)
+        .then((data) => {
+          setChecked(data.map((i) => i.id_interface));
+        })
+        .catch((err) => console.error("Error al cargar interfaces:", err));
+    }
     setFormData(rol);
   }, [rol]);
 
-  const handleSubmit = (e) => {
+useEffect(() => {
+  fetch(`${gsUrlApi}/interfaces/buscar`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const interfaces = data.interfaces || [];
+
+      const vistas = interfaces.filter(
+        (i) => i.parent === null && i.nombre !== "Inicio"
+      );
+
+      const tree = [
+        {
+          value: "vistas",
+          label: "Vistas",
+          children: vistas.map((vista) => {
+            const hijos = interfaces.filter(
+              (hijo) => hijo.parent === vista.id_interface
+            );
+            return {
+              value: vista.id_interface,
+              label: vista.nombre,
+              ...(hijos.length > 0 && {
+                children: hijos.map((hijo) => ({
+                  value: hijo.id_interface,
+                  label: hijo.nombre,
+                })),
+              }),
+            };
+          }),
+        },
+      ];
+
+      setTreeData(tree);
+    })
+    .catch((err) => console.error("Error cargando interfaces:", err));
+}, []);
+
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      ...formData,
-      permisos: checked,
-    };
-    console.log("Rol a guardar:", payload);
-    // Aquí podrías llamar a un método para guardar el rol con sus permisos
+    try {
+      await guardarInterfacesPorRol(rol.id_rol, checked);
+      alert("Permisos guardados correctamente");
+    } catch (error) {
+      alert("Error al guardar permisos",error);
+    }
   };
 
   return (
@@ -60,15 +92,19 @@ const RolForm = ({ rol, reset }) => {
       <TextField
         fullWidth
         label="Código del rol"
-        value={formData.codigo}
-        onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+        value={`R${String(formData.id_rol).padStart(3, '0')}`}
+        variant="outlined"
+        disabled
+        InputLabelProps={{ shrink: true }}
       />
+
 
       <TextField
         fullWidth
         label="Nombre del rol"
         value={formData.nombre}
         onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+        disabled
       />
 
       <Divider sx={{ fontFamily: "'Poppins','Roboto',sans-serif" }}>

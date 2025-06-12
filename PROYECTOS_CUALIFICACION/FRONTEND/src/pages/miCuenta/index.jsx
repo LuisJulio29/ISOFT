@@ -62,7 +62,7 @@ const MiCuenta = () => {
                         placeholder="Escriba su nombre completo"
                         fullWidth
                         disabled
-                        value={usuario.nombre_completo}
+                        value={usuario.nombres + ' ' + usuario.apellidos}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">

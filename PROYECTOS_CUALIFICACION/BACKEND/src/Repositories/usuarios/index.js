@@ -23,7 +23,8 @@ const repo = {
         nombre_usuario: usuario.nombre_usuario,
         contraseña: hashedPassword,
         id_rol: usuario.id_rol,
-        nombre_completo: usuario.nombre_completo
+        nombres: usuario.nombres,
+        apellidos: usuario.apellidos,
       });
 
       return {
@@ -92,8 +93,11 @@ const repo = {
         cambios.nombre_usuario = datos.nombre_usuario;
       }
 
-      if (datos.nombre_completo && datos.nombre_completo !== user.nombre_completo) {
-        cambios.nombre_completo = datos.nombre_completo;
+      if (datos.nombres && datos.nombres!== user.nombres) {
+        cambios.nombres = datos.nombres;
+      }
+      if (datos.apellidos && datos.apellidos !== user.apellidos) {
+        cambios.apellidos = datos.apellidos;
       }
 
       // Solo actualiza contraseña si fue enviada y es distinta

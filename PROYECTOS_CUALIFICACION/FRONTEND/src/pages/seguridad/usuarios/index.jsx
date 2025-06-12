@@ -36,7 +36,7 @@ const GestionUsuarios = () => {
 
     const usuariosFiltrados = usuarios.filter(
         (u) =>
-            u.nombre_completo?.toLowerCase().includes(busqueda.toLowerCase()) ||
+            u.nombres?.toLowerCase().includes(busqueda.toLowerCase()) ||
             u.nombre_usuario?.toLowerCase().includes(busqueda.toLowerCase())
     );
 
@@ -49,7 +49,7 @@ const GestionUsuarios = () => {
     const confirmarEliminacion = (usuario) => {
         Swal.fire({
             title: '¿Estás seguro?',
-            text: `¿Deseas eliminar el usuario "${usuario.nombre_completo}"?`,
+            text: `¿Deseas eliminar el usuario "${usuario.nombres}"?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -152,7 +152,7 @@ const GestionUsuarios = () => {
                                     >
                                         <Box>
                                             <Typography variant="h6" fontWeight="bold">
-                                                {user.nombre_completo}
+                                                {user.nombres}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
                                                 Usuario: {user.nombre_usuario}
