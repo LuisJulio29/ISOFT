@@ -1,5 +1,7 @@
 const buscar = require('./buscar');
+const actualizar = require('./actualizar')
 
 module.exports = {
-  buscar
+  buscar,
+  actualizar
 }

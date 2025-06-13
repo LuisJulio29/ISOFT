@@ -1,6 +1,6 @@
 const rolRepo = require("../../Repositories/roles");
 
-const listarRolesController = async (req, res) => {
+async function handler (req, res) {
   try {
     const roles = await rolRepo.listarRoles();
     res.status(200).json(roles);
@@ -10,4 +10,4 @@ const listarRolesController = async (req, res) => {
   }
 };
 
-module.exports = listarRolesController;
+module.exports = [handler];

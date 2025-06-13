@@ -130,6 +130,40 @@ export const useFormaciones = () => {
         }
     };
 
+    const cargarFormacionesMasivo = async (archivo) => {
+        const formData = new FormData();
+        formData.append("archivo", archivo);
+
+        try {
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(`${gsUrlApi}/formacion/cargaMasiva`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.message) {
+                await listarFormaciones();
+                return { success: true, mensaje: data.message };
+            } else {
+                const mensaje = data.error || "Error al cargar el archivo";
+                setError(mensaje);
+                return { success: false, mensaje };
+            }
+        } catch (err) {
+            console.error("Error en carga masiva:", err);
+            const mensaje = err.message || "Error inesperado en la carga";
+            setError(mensaje);
+            return { success: false, mensaje };
+        }
+    };
+   
+
     useEffect(() => {
         listarFormaciones();
     }, []);
@@ -141,6 +175,7 @@ export const useFormaciones = () => {
         listarFormaciones,
         crearFormacion,
         eliminarFormacion,
-        actualizarFormacion
+        actualizarFormacion,
+        cargarFormacionesMasivo
     };
 };
