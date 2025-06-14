@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
-const sequelize = require('../config/db'); // Asegúrate de que esta ruta sea correcta
+const sequelize = require('../config/db');
 
 const db = {};
 
@@ -18,14 +18,23 @@ fs.readdirSync(modelsPath)
     );
   })
   .forEach(file => {
-const model = require(path.join(modelsPath, file));
+    const model = require(path.join(modelsPath, file));
     db[model.name] = model;
   });
-  
 
-// Asociaciones (Relaciones entre modelos)
-const { Usuario, Rol, Interface, Rol_Interface, Docente, Administrador, Formacion, Cualificacion } = db;
+// Desestructurar modelos
+const {
+  Usuario,
+  Usuario_Docente,
+  Rol,
+  Interface,
+  Rol_Interface,
+  Docente,
+  Formacion,
+  Cualificacion
+} = db;
 
+// --- Relaciones básicas ---
 if (Usuario && Rol) {
   Usuario.belongsTo(Rol, { foreignKey: 'id_rol' });
   Rol.hasMany(Usuario, { foreignKey: 'id_rol' });
@@ -39,26 +48,41 @@ if (Rol_Interface && Rol && Interface) {
   Interface.hasMany(Rol_Interface, { foreignKey: 'id_interface' });
 }
 
-if (Docente && Usuario) {
-  Docente.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-  Usuario.hasOne(Docente, { foreignKey: 'id_usuario' });
-}
+// --- Usuario ↔ Docente (muchos a muchos con tabla intermedia Usuario_Docente) ---
+Usuario.belongsToMany(Docente, {
+  through: Usuario_Docente,
+  foreignKey: 'id_usuario',
+  otherKey: 'id_docente',
+  as: 'docentes'
+});
+Docente.belongsToMany(Usuario, {
+  through: Usuario_Docente,
+  foreignKey: 'id_docente',
+  otherKey: 'id_usuario',
+  as: 'usuarios'
+});
 
-if (Administrador && Usuario) {
-  Administrador.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-  Usuario.hasOne(Administrador, { foreignKey: 'id_usuario' });
-}
+// --- Usuario_Docente -> relaciones individuales ---
+Usuario_Docente.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuario' });
+Usuario_Docente.belongsTo(Docente, { foreignKey: 'id_docente', as: 'docente' });
+Usuario.hasMany(Usuario_Docente, { foreignKey: 'id_usuario', as: 'usuario_docente' });
+Docente.hasMany(Usuario_Docente, { foreignKey: 'id_docente', as: 'usuario_docente' });
 
-if (Cualificacion && Formacion && Docente) {
-  Cualificacion.belongsTo(Docente, { foreignKey: 'cedula_docente' });
-  Docente.hasMany(Cualificacion, { foreignKey: 'cedula_docente' });
+// --- Cualificación ↔ Usuario_Docente (1:N) ---
+Usuario_Docente.hasMany(Cualificacion, {
+  foreignKey: 'id_docente',
+  as: 'cualificaciones'
+});
+Cualificacion.belongsTo(Usuario_Docente, {
+  foreignKey: 'id_usuario_docente',
+  as: 'usuario_docente'
+});
 
-  Cualificacion.belongsTo(Formacion, { foreignKey: 'id_formacion' });
-  Formacion.hasMany(Cualificacion, { foreignKey: 'id_formacion' });
-}
+// --- Formación ↔ Cualificación (1:N) ---
+Formacion.hasMany(Cualificacion, { foreignKey: 'id_formacion', as: 'cualificaciones' });
+Cualificacion.belongsTo(Formacion, { foreignKey: 'id_formacion', as: 'formacion' });
 
-// Exportar Sequelize, la instancia y todos los modelos
+// Finalizar conexión
 db.sequelize = sequelize;
-db.Sequelize = Sequelize;
 
 module.exports = db;

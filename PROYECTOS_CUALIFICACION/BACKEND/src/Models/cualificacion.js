@@ -4,14 +4,15 @@ const sequelize = require('../config/db');
 const Cualificacion = sequelize.define('Cualificacion', {
   id_cualificacion: {
     type: DataTypes.INTEGER,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
-  cedula_docente: {
-    type: DataTypes.STRING(20),
+  id_docente: {
+    type: DataTypes.INTEGER, // O UUID si usaste UUID en Usuarios_Docentes
     allowNull: false
   },
   id_formacion: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false
   },
   año_cursado: {

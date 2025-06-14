@@ -24,7 +24,7 @@ import Swal from 'sweetalert2';
 
 
 const GestionUsuarios = () => {
-    const { usuarios, eliminarUsuario } = useUsuarios();
+    const { usuarios, eliminarUsuario, insertarAdmin, insertarDocentesMasivo, actualizarUsuario } = useUsuarios();
     const [busqueda, setBusqueda] = useState("");
     const [page, setPage] = useState(1);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -69,11 +69,19 @@ const GestionUsuarios = () => {
         });
     };
 
-
     const handleEditar = (usuario) => {
-        setUsuarioEditando(usuario);
+        const usuarioFormateado = {
+            id_usuario: usuario.id_usuario, // NECESARIO para poder actualizar
+            nombres: usuario.nombres || "",
+            apellidos: usuario.apellidos || "",
+            nombre_usuario: usuario.nombre_usuario || "",
+            id_rol: usuario.id_rol || 1,
+        };
+
+        setUsuarioEditando(usuarioFormateado);
         setMostrarFormulario(true);
     };
+
 
     const handleCancelar = () => {
         setUsuarioEditando(null);
@@ -87,11 +95,12 @@ const GestionUsuarios = () => {
     return (
         <Box component="main" sx={{ flexGrow: 1 }}>
             {mostrarFormulario ? (
-                <UsuariosForm onCancel={handleCancelar} data={usuarioEditando || {}} />
+                <UsuariosForm onCancel={handleCancelar} data={usuarioEditando || {}}
+                    onSave={usuarioEditando ? (data) => actualizarUsuario(usuarioEditando.id_usuario, data) : insertarAdmin} />
             ) : (
                 <>
                     <PageBreadcrumb title="Gestión de Usuarios" subName="App" />
-                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "50vh", display: "flex", flexDirection: "column" }}>
+                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "52vh", display: "flex", flexDirection: "column" }}>
                         <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2} mb={4}>
                             <TextField
                                 label="Buscar usuario"
@@ -124,18 +133,39 @@ const GestionUsuarios = () => {
                                 </Button>
 
                                 <Menu anchorEl={anchorAddUser} open={Boolean(anchorAddUser)} onClose={() => setAnchorAddUser(null)}>
-                                    <MenuItem onClick={() => { setAnchorAddUser(null); console.log("Carga individual"); }}>
-                                        Carga individual
+                                    <MenuItem
+                                        onClick={() => {
+                                            setAnchorAddUser(null);
+                                            setUsuarioEditando(null);  // limpiar edición
+                                            setMostrarFormulario(true);
+                                        }}
+                                    >
+                                        Administrador
                                     </MenuItem>
                                     <MenuItem onClick={() => { setAnchorAddUser(null); setModalCargaMasivaOpen(true); }}>
-                                        Carga masiva
+                                        Docentes
                                     </MenuItem>
                                 </Menu>
 
                             </Box>
                         </Box>
 
-                        <Box sx={{ maxHeight: 500, overflowY: "auto", pr: 1 }}>
+                        <Box sx={{
+                            maxHeight: 500, overflowY: "auto", pr: 1, scrollbarWidth: "thin", scrollbarColor: "#ccc transparent",
+                            "&::-webkit-scrollbar": {
+                                width: "6px",
+                            },
+                            "&::-webkit-scrollbar-track": {
+                                backgroundColor: "transparent",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "#b0b0b0",
+                                borderRadius: "4px",
+                            },
+                            "&::-webkit-scrollbar-thumb:hover": {
+                                backgroundColor: "#888",
+                            },
+                        }}>
                             {usuariosPaginados.length > 0 ? (
                                 usuariosPaginados.map((user) => (
                                     <Paper
@@ -194,6 +224,7 @@ const GestionUsuarios = () => {
                     console.log("Datos cargados:", datos);
 
                 }}
+                insertarDocentesMasivo={insertarDocentesMasivo}
             />
 
         </Box>

@@ -17,7 +17,7 @@ export default function useLogin() {
   let timetemps = 30;
 
   const loginFormSchema = yup.object({
-    email: yup.string().email("Por favor ingresa un correo válido").required("Por favor ingresa un correo"),
+    email: yup.string("Por favor ingresa un correo válido").required("Por favor ingresa un correo"),
     password: yup.string().required("Por favor ingresa una contraseña"),
     rememberMe: yup.boolean().oneOf([true], "Checkbox must be checked").optional()
   });

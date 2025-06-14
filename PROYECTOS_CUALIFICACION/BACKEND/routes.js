@@ -15,16 +15,22 @@ const rutas = () => {
 
   //Interface
   const interfacesController = require('./src/controllers/interfaces');
-  
+
   //Usuario
-  const usuariosController = require("./src/Controllers/usuarios"); 
+  const usuariosController = require("./src/Controllers/usuarios");
 
   //Formacion
   const formacionesController = require('./src/Controllers/formaciones');
 
   //Roles
   const rolesInterfacesController = require('./src/controllers/roles');
-  
+
+  //Cualificación
+  const cualificacionController = require('./src/Controllers/cualificacion');
+
+  //Usuario Docente
+  const usuarioDocenteController = require('./src/Controllers/usuario_docente');
+
   //---------------------------------------Rutas---------------------------------------
 
   // Ruta base
@@ -40,9 +46,10 @@ const rutas = () => {
   router.put('/interfaces/actualizar', verifyToken, interfacesController.actualizar);
 
   // Usuarios
-  router.post("/usuarios/insertar", usuariosController.insertar);
+  router.post("/usuarios/insertarAdmin", usuariosController.insertarAdmin);
+  router.post("/usuarios/insertarDocentes", usuariosController.insertarDocentes);
   router.get("/usuarios/listar", verifyToken, usuariosController.listar);
-  router.put("/usuarios/actualizar/:id",verifyToken, usuariosController.actualizar);
+  router.put("/usuarios/actualizar/:id", verifyToken, usuariosController.actualizar);
   router.delete("/usuarios/eliminar/:id", usuariosController.eliminar);
 
   //Formaciones
@@ -50,14 +57,22 @@ const rutas = () => {
   router.get("/formacion/listar", verifyToken, formacionesController.listar);
   router.put("/formacion/actualizar/:id", verifyToken, formacionesController.actualizar);
   router.delete("/formacion/eliminar/:id", formacionesController.eliminar);
-  router.post("/formacion/cargaMasiva", verifyToken,upload.single('archivo'), formacionesController.cargarFormacionesMasivo);
+  router.post("/formacion/cargaMasiva", verifyToken, upload.single('archivo'), formacionesController.cargarFormacionesMasivo);
 
   //Roles
   router.post('/roles/:idRol/interfaces', verifyToken, rolesInterfacesController.guardar);
   router.get('/roles/:idRol/interfaces', verifyToken, rolesInterfacesController.buscar);
   router.get("/roles", verifyToken, rolesInterfacesController.listar);
 
-  return router; 
+  // Cualificación
+  router.get('/cualificacion/listar', cualificacionController.listar);
+  router.post('/cualificacion/insertar', cualificacionController.insertar);
+  router.put('/cualificacion/actualizar/:id', cualificacionController.actualizar);
+  router.delete('/cualificacion/eliminar/:id', cualificacionController.eliminar);
+
+  // Usuario Docente
+  router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
+  return router;
 };
 
 module.exports = rutas;

@@ -2,7 +2,8 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import FilterListIcon from "@mui/icons-material/FilterList";
-
+import { LuFileSpreadsheet } from "react-icons/lu";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {
   Box,
   Button,
@@ -10,7 +11,9 @@ import {
   Pagination,
   Paper,
   TextField,
-  Typography
+  Typography,
+  Menu,
+  MenuItem
 } from "@mui/material";
 import { PageBreadcrumb } from "components";
 import { useState } from "react";
@@ -21,17 +24,19 @@ import { useFormaciones } from "./useFormaciones";
 
 const GestionFormaciones = () => {
   const {
-  formaciones,
-  crearFormacion,
-  eliminarFormacion,
-  actualizarFormacion,
-  cargarFormacionesMasivo
-} = useFormaciones();
+    formaciones,
+    crearFormacion,
+    eliminarFormacion,
+    actualizarFormacion,
+    cargarFormacionesMasivo
+  } = useFormaciones();
   const [anchorEl, setAnchorEl] = useState(null);
   const [page, setPage] = useState(1);
   const [busqueda, setBusqueda] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [formacionEditando, setFormacionEditando] = useState(null);
+  const [anchorAddMenu, setAnchorAddMenu] = useState(null);
+
   const itemsPerPage = 10;
   const formacionesFiltradas = formaciones.filter((f) =>
     (f.nombre_formacion?.toLowerCase() || '').includes(busqueda.toLowerCase()) ||
@@ -56,7 +61,7 @@ const GestionFormaciones = () => {
       title: resultado.success ? "Carga exitosa" : "Error",
       text: resultado.mensaje,
     });
-};
+  };
 
   const confirmarEliminacion = (formacion) => {
     Swal.fire({
@@ -81,7 +86,7 @@ const GestionFormaciones = () => {
     });
   };
 
-  
+
 
   return (
 
@@ -99,7 +104,7 @@ const GestionFormaciones = () => {
         <>
           <PageBreadcrumb title="Gestión de Formaciones" subName="App" />
 
-          <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "50vh", display: "flex", flexDirection: "column", }}>
+          <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "52vh", display: "flex", flexDirection: "column", }}>
             <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2} mb={4}>
               <input
                 type="file"
@@ -132,33 +137,41 @@ const GestionFormaciones = () => {
 
 
                 <Button
-                  startIcon={<AddIcon />}
                   variant="contained"
                   color="success"
-                  onClick={() => {
-                    setFormacionEditando(null);
-                    setMostrarFormulario(true);
-                  }}
+                  startIcon={<AddIcon />}
+                  endIcon={<ArrowDropDownIcon />}
+                  onClick={(e) => setAnchorAddMenu(e.currentTarget)}
                 >
                   Añadir formación
                 </Button>
 
-                <label htmlFor="input-carga-masiva">
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    component="span"
-                    startIcon={
-                      <Box
-                        component="img"
-                        src="/carga_masiva.png" 
-                        alt="Cargar masivamente"
-                        sx={{ width: 24, height: 24 }}
-                      />
-                    }                  >
-                    Cargar masivamente
-                  </Button>
-                </label>
+                <Menu
+                  anchorEl={anchorAddMenu}
+                  open={Boolean(anchorAddMenu)}
+                  onClose={() => setAnchorAddMenu(null)}
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setFormacionEditando(null);
+                      setMostrarFormulario(true);
+                      setAnchorAddMenu(null);
+                    }}
+                  >
+                    Individual
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      document.getElementById("input-carga-masiva").click();
+                      setAnchorAddMenu(null);
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" gap={1}>
+                      {/* <LuFileSpreadsheet size={18} /> */}
+                      Carga masiva
+                    </Box>
+                  </MenuItem>
+                </Menu>
 
 
               </Box>

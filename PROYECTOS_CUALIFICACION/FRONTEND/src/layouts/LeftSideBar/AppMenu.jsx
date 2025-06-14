@@ -38,7 +38,9 @@ const MenuItemWithChildren = ({
     }} onClick={toggleMenuItem}>
         {Icon && <Icon size={16} />}
         <Typography variant="subtitle1" sx={{
-        lineHeight: 1
+        lineHeight: 1,color: theme.item.active,
+
+     fontWeight: open ? 'bold' : 'normal'
       }}>
           {item.label}
         </Typography>
@@ -107,7 +109,9 @@ const MenuItem = ({
       }}>
           {Icon && <Icon />}
           <Typography variant="subtitle1" style={{
-          lineHeight: 1
+          lineHeight: 1,color: theme.item.active,
+
+     fontWeight: open ? 'bold' : 'normal'
         }}>
             {item.label}
           </Typography>
@@ -189,101 +193,6 @@ const AppMenu =  ({
     }
   }, [location.pathname, menuItems]);
 
-  // useEffect(() => {
-  //   var objSesion = JSON.parse(localStorage.getItem('token'));
-  //   let accessToken = objSesion;
-  //   console.log(accessToken)
-
-  //   fetch("http://localhost:8080/interfaces", {
-  //     method: 'GET',
-  //     headers: {
-  //       'Authorization': `Bearer ${accessToken}`,
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       'Accept': 'application/json',
-  //     }
-  //   })
-  //   .then(res => res.json())
-  //   .then(data => {
-  //     if (data.interfaces.length > 0) {
-  //       let lstData = data.interfaces.sort((a, b) => a.Orden - b.Orden);
-
-
-  //       let lstMenus = lstData.filter(obj => obj.parent === "#").sort((a, b) => a.Orden - b.Orden);
-
-
-  //       let array = [];
-
-  //       // Agregar títulos solo una vez antes del bucle
-  //       let title = lstData.filter(obj => obj.isTitle === true).sort((a, b) => a.Orden - b.Orden);
-  //       if (title.length > 0) {
-  //         let data = title.map(item => ({
-  //           Orden: item.Orden,
-  //           key: item.key,
-  //           label: item.label,
-  //           isTitle: item.isTitle,
-  //         }));
-  //         console.log("title", data);
-  //         array.push(...data); // Agregar títulos al array
-  //       }
-
-  //       // Agregar menuitems solo una vez antes del bucle
-  //       let menuitem = lstData.filter(obj => obj.Type == "item" && obj.parent === undefined).sort((a, b) => a.Orden - b.Orden);
-  //       console.log("menuitem", menuitem);
-  //       if (menuitem.length > 0) {
-  //         let menuindivudual = menuitem.map(item => ({
-  //           Orden: item.Orden,
-  //           key: item.key,
-  //           label: item.label,
-  //           translate: item.label,
-  //           type: item.Type,
-  //           icon: item.icon,
-  //           url: item.url,
-  //           parentKey: item.parent
-  //         }));
-  //         console.log("menuindivudual", menuindivudual);
-  //         array.push(...menuindivudual); // Agregar menuitems al array
-  //       }
-
-  //       lstMenus.forEach(menu => {
-  //         let objDataMenu = {
-  //           Orden: menu.Orden,
-  //           key: menu.key,
-  //           label: menu.label,
-  //           isTitle: menu.isTitle,
-  //           type: "collapse",
-  //           icon: menu.icon,
-  //           children: [],
-  //         };
-
-  //         let lstSubMenu = lstData.filter(obj => obj.parent === menu.key).sort((a, b) => a.Orden - b.Orden);
-
-  //         if (lstSubMenu.length > 0) {
-  //           objDataMenu.children = lstSubMenu.map(sub => ({
-  //             Orden: sub.Orden,
-  //             key: sub.key,
-  //             label: sub.label,
-  //             translate: sub.label,
-  //             type: sub.Type,
-  //             icon: sub.icon,
-  //             url: sub.url,
-  //             parentKey: sub.parent
-  //           }));
-  //         }
-
-  //         array.push(objDataMenu); // Agregar el menú con sus submenús
-  //       });
-
-  //       array = array.sort((a, b) => a.Orden - b.Orden); // Ordenar todo el array al final
-
-  //       console.log("objDataMenu", array);
-  //       setMenuItems(array); // Actualiza el estado de menuItems
-  //     }
-
-
-
-  //   })
-  //   .catch(err => console.log("err", err));
-  // }, []);
 
 
   useEffect(() => {

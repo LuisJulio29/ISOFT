@@ -1,24 +1,21 @@
-const usuariosRepository = require('../../repositories/usuarios');
+const usuarioDocenteRepo = require('../../Repositories/usuario_docente');
 const constants = require('../../../constants');
 
 async function handler(req, res, next) {
   try {
-    const usuario = req.body;
+    const response = await usuarioDocenteRepo.listarConDetalle();
 
-    // Validar ingreso
-    const response = await usuariosRepository.insertar(usuario);
-    
-    if (response.usuario) {
+    if (response.usuarios_docentes) {
       res.status(200).json({
         status: response.status,
-       mensaje: 'Usuario creado correctamente.',
+        usuarios_docentes: response.usuarios_docentes
       });
     } else {
-      res.status(401).json({
+      res.status(response.failure_code || 500).json({
         status: response.status,
         error: {
-          code: response.failure_code || 401,
-          message: response.failure_message || 'Usuario o contraseña incorrectos.',
+          code: response.failure_code || 500,
+          message: response.failure_message || 'Error al obtener usuarios_docentes.',
         },
       });
     }

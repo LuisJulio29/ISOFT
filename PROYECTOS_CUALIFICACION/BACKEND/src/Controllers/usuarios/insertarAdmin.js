@@ -3,27 +3,26 @@ const constants = require('../../../constants');
 
 async function handler(req, res) {
   try {
-    const id_usuario = req.params.id;
-    const datos = req.body;
+    const usuario = req.body;
 
-    const response = await usuariosRepository.actualizar(id_usuario, datos);
+    const response = await usuariosRepository.insertarAdministrador(usuario);
 
-    if (response.status === constants.SUCCEEDED_MESSAGE) {
+    if (response.usuario) {
       return res.status(200).json({
-        status: constants.SUCCEEDED_MESSAGE,
-        mensaje: response.mensaje || 'Usuario actualizado correctamente.'
+        status: response.status,
+        mensaje: 'Administrador creado correctamente.',
       });
     } else {
       return res.status(400).json({
-        status: constants.FAILED_MESSAGE,
+        status: response.status,
         error: {
-          code: response.failure_code || 400,
-          message: response.failure_message || 'Error al actualizar el usuario.',
+          code: response.failure_code,
+          message: response.failure_message,
         },
       });
     }
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       status: constants.INTERNAL_ERROR_MESSAGE,
       error: {
         code: error.code || 500,

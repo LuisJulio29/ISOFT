@@ -1,13 +1,14 @@
 const listar = require('./listar');
 // const buscar = require('./buscar');
-const insertar = require('./insertar');
+const insertarAdmin = require('./insertarAdmin');
 const actualizar = require('./actualizar');
 const eliminar = require('./eliminar');
-
+const insertarDocentes = require('./insertarDocentes');
 module.exports = {
   listar,
 //   buscar,
-  insertar,
+  insertarAdmin,
+  insertarDocentes,
   actualizar,
   eliminar,  
 }

@@ -76,7 +76,7 @@ const CaracterizacionDocentes = () => {
             ) : (
                 <>
                     <PageBreadcrumb title="Caracterización de Docentes" subName="App" />
-                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4, minHeight: "40vh" }}>
+                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4, Height: "70vh" }}>
                         {/* Barra de búsqueda y filtros */}
                         <Grid container spacing={2} justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap">
                             <Grid item xs={12} md={4}>
@@ -167,7 +167,7 @@ const CaracterizacionDocentes = () => {
                                 <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>
                                     Descargar
                                 </Button>
-                                <Button
+                                {/* <Button
                                     startIcon={<AddIcon />}
                                     variant="contained"
                                     color="success"
@@ -177,8 +177,8 @@ const CaracterizacionDocentes = () => {
                                         setMostrarFormulario(true);
                                     }}
                                 >
-                                    Agregar docente
-                                </Button>
+                                    Agregar cualificacion
+                                </Button> */}
 
                             </Grid>
                         </Grid>
