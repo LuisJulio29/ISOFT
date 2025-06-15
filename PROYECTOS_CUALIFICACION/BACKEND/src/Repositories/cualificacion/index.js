@@ -18,6 +18,7 @@ const repo = {
   insertar: async (datos) => {
     try {
       const nueva = await Cualificacion.create(datos);
+      console.log("Se hizo",nueva);
       return {
         status: constants.SUCCEEDED_MESSAGE,
         mensaje: 'Cualificación registrada correctamente',

@@ -17,6 +17,7 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import { PageBreadcrumb } from "components";
 import Swal from "sweetalert2";
 
+
 const UsuariosForm = ({ onCancel, data = {}, onSave }) => {
     const [formData, setFormData] = useState({
         nombres: data.nombres || "",
