@@ -32,13 +32,20 @@ const GestionUsuarios = () => {
     const [modalCargaMasivaOpen, setModalCargaMasivaOpen] = useState(false);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [usuarioEditando, setUsuarioEditando] = useState(null);
+    const [filtroRol, setFiltroRol] = useState("Todos");
     const itemsPerPage = 10;
 
-    const usuariosFiltrados = usuarios.filter(
-        (u) =>
+    const usuariosFiltrados = usuarios.filter((u) => {
+        const cumpleBusqueda =
             u.nombres?.toLowerCase().includes(busqueda.toLowerCase()) ||
-            u.nombre_usuario?.toLowerCase().includes(busqueda.toLowerCase())
-    );
+            u.nombre_usuario?.toLowerCase().includes(busqueda.toLowerCase());
+
+        const cumpleRol =
+            filtroRol === "Todos" || u.rol_nombre?.toLowerCase() === filtroRol.toLowerCase();
+
+        return cumpleBusqueda && cumpleRol;
+    });
+
 
 
     const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
@@ -76,6 +83,7 @@ const GestionUsuarios = () => {
             apellidos: usuario.apellidos || "",
             nombre_usuario: usuario.nombre_usuario || "",
             id_rol: usuario.id_rol || 1,
+            rol_nombre: usuario.rol_nombre
         };
 
         setUsuarioEditando(usuarioFormateado);
@@ -121,7 +129,10 @@ const GestionUsuarios = () => {
                                 >
                                     Filtros
                                 </Button>
-                                <FiltrosUsuarios anchorEl={anchorEl} handleClose={handleCloseMenu} />
+                                <FiltrosUsuarios anchorEl={anchorEl} handleClose={handleCloseMenu} onAplicarFiltros={({ rol }) => {
+                                    setFiltroRol(rol);
+                                    setPage(1);
+                                }} />
 
                                 <Button
                                     variant="contained"

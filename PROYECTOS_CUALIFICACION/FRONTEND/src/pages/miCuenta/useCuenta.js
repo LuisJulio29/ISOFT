@@ -25,10 +25,9 @@ export const useMiCuenta = () => {
 
             const data = await response.json();
 
-            if (response.ok) {
-                localStorage.setItem('Usuario', JSON.stringify(data.usuario));
+            if (data.status === "SUCCEEDED") {
                 setSuccessMessage(data.mensaje || "Usuario actualizado correctamente.");
-                return { success: true, usuario: data.usuario };
+                return { success: true, usuario: data.usuario, mensaje: data.mensaje };
             } else {
                 setError(data.error?.message || "Error desconocido");
                 return { success: false };

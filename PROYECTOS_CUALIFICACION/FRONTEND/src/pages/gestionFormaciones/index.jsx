@@ -36,12 +36,25 @@ const GestionFormaciones = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [formacionEditando, setFormacionEditando] = useState(null);
   const [anchorAddMenu, setAnchorAddMenu] = useState(null);
+  const [filtros, setFiltros] = useState({
+    linea: 'Todos',
+    periodo: 'Todos',
+    horas: 'Todos'
+  });
 
   const itemsPerPage = 10;
-  const formacionesFiltradas = formaciones.filter((f) =>
-    (f.nombre_formacion?.toLowerCase() || '').includes(busqueda.toLowerCase()) ||
-    (f.linea_cualificacion?.toLowerCase() || '').includes(busqueda.toLowerCase())
-  );
+  const formacionesFiltradas = formaciones
+    .filter((f) =>
+      (f.nombre_formacion?.toLowerCase() || '').includes(busqueda.toLowerCase()) ||
+      (f.linea_cualificacion?.toLowerCase() || '').includes(busqueda.toLowerCase())
+    )
+    .filter((f) => {
+      const lineaOk = filtros.linea === 'Todos' || f.linea_cualificacion === filtros.linea;
+      const periodoOk = filtros.periodo === 'Todos' || f.periodo === filtros.periodo;
+      const horasOk = filtros.horas === 'Todos' || String(f.numero_horas) === filtros.horas;
+      return lineaOk && periodoOk && horasOk;
+    });
+
   const totalPages = Math.ceil(formacionesFiltradas.length / itemsPerPage);
   const startIndex = (page - 1) * itemsPerPage;
   const formacionesPaginadas = formacionesFiltradas.slice(startIndex, startIndex + itemsPerPage);
@@ -90,7 +103,29 @@ const GestionFormaciones = () => {
 
   return (
 
-    <Box component="main" sx={{ flexGrow: 1 }}>
+    <Box
+      sx={{
+        flexGrow: 1,
+        overflowY: "auto",
+        pr: 1,
+        scrollbarWidth: "thin",
+        scrollbarColor: "#ccc transparent",
+        "&::-webkit-scrollbar": {
+          width: "6px",
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: "transparent",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "#b0b0b0",
+          borderRadius: "4px",
+        },
+        "&::-webkit-scrollbar-thumb:hover": {
+          backgroundColor: "#888",
+        },
+      }}
+    >
+
       {mostrarFormulario ? (
         <FormacionesForm
           data={formacionEditando || {}}
@@ -133,7 +168,7 @@ const GestionFormaciones = () => {
                 >
                   Filtros
                 </Button>
-                <FiltrosFormaciones anchorEl={anchorEl} handleClose={handleCloseMenu} />
+                <FiltrosFormaciones anchorEl={anchorEl} handleClose={handleCloseMenu} onAplicarFiltros={(nuevosFiltros) => setFiltros(nuevosFiltros)} />
 
 
                 <Button

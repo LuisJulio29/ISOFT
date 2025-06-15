@@ -24,7 +24,8 @@ const UsuariosForm = ({ onCancel, data = {}, onSave }) => {
         apellidos: data.apellidos || "",
         nombre_usuario: data.nombre_usuario || "",
         contraseña: data.contraseña || "",
-        id_rol: data.id_rol || 1, // por defecto Administrador (1)
+        id_rol: data.id_rol || 1,
+        rol_nombre: data.rol_nombre// por defecto Administrador (1)
     });
 
     const handleChange = (e) => {
@@ -60,10 +61,16 @@ const UsuariosForm = ({ onCancel, data = {}, onSave }) => {
 
     return (
         <Box component="main" sx={{ flexGrow: 1, p: 1 }}>
-            <PageBreadcrumb title="Crear Usuario" subName="Administración" />
+            {console.log("Datos del usuario:", data)
+            }
+            <PageBreadcrumb
+                title={data?.id_usuario ? "Editar Usuario" : "Crear Usuario"}
+                subName="Administración"
+            />
+
             <Paper elevation={2} sx={{ borderRadius: 4, p: 4 }}>
                 <Typography variant="h6" fontWeight="bold" mb={3}>
-                    REGISTRO DE NUEVO USUARIO
+                    {data?.id_usuario ? 'ACTUALIZACIÓN DE USUARIO' : 'REGISTRO DE NUEVO USUARIO'}
                 </Typography>
 
                 <Box display="flex" flexDirection="column" gap={3}>
@@ -108,7 +115,7 @@ const UsuariosForm = ({ onCancel, data = {}, onSave }) => {
                         />
 
                         <FormControl fullWidth sx={{ flex: 1 }}>
-                            <InputLabel>Rol</InputLabel>
+                            <InputLabel>Rol </InputLabel>
                             <Select
                                 label="Rol"
                                 name="id_rol"
@@ -121,6 +128,9 @@ const UsuariosForm = ({ onCancel, data = {}, onSave }) => {
                                 }
                             >
                                 <MenuItem value={1}>Administrador</MenuItem>
+                                {data.rol_nombre && (
+                                    <MenuItem value={2}>Docente</MenuItem>
+                                )}
                             </Select>
                         </FormControl>
 

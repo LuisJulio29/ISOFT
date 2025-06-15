@@ -173,8 +173,32 @@ const repo = {
 
           continue;
         }
+        const hashedPassword = await bcrypt.hash(String(usuario.numero_identificacion), 10);
 
+        const nuevoUsuario = await Usuario.create({
+          nombre_usuario: String(usuario.numero_identificacion),
+          contraseña: hashedPassword,
+          id_rol: usuario.id_rol,
+          nombres: docente.nombre,
+          apellidos: docente.apellidos,
+          email: docente.email_institucional,
+          numero_identificacion: String(usuario.numero_identificacion),
+          id_docente: docente.id
+        });
+
+        await Usuario_Docente.create({
+          id_usuario: nuevoUsuario.id_usuario,
+          id_docente: docente.id
+        });
+
+        resultados.push({
+          status: constants.SUCCEEDED_MESSAGE,
+          numero_identificacion: usuario.numero_identificacion,
+          mensaje: "Usuario creado y vinculado correctamente"
+        });
       }
+
+
 
       return {
         status: constants.SUCCEEDED_MESSAGE,
@@ -201,7 +225,7 @@ const repo = {
       });
 
       const usuariosLimpios = usuarios.map(usuario => {
-        const { contraseña, id_rol, Rol: rolData, ...restoUsuario } = usuario.toJSON();
+        const { contraseña, Rol: rolData, ...restoUsuario } = usuario.toJSON();
         return {
           ...restoUsuario,
           rol_nombre: rolData?.nombre || null
@@ -235,27 +259,51 @@ const repo = {
 
       const cambios = {};
 
-      // Comparar campo por campo y solo agregar si cambió
-      if (datos.nombre_usuario && datos.nombre_usuario !== user.nombre_usuario) {
-        cambios.nombre_usuario = datos.nombre_usuario;
+      // Validar que nombre_usuario no sea vacío o solo espacios
+      if (
+        typeof datos.nombre_usuario === 'string' &&
+        datos.nombre_usuario.trim() &&
+        datos.nombre_usuario !== user.nombre_usuario
+      ) {
+        cambios.nombre_usuario = datos.nombre_usuario.trim();
       }
 
-      if (datos.nombres && datos.nombres !== user.nombres) {
-        cambios.nombres = datos.nombres;
-      }
-      if (datos.apellidos && datos.apellidos !== user.apellidos) {
-        cambios.apellidos = datos.apellidos;
+      // Validar nombres
+      if (
+        typeof datos.nombres === 'string' &&
+        datos.nombres.trim() &&
+        datos.nombres !== user.nombres
+      ) {
+        cambios.nombres = datos.nombres.trim();
       }
 
-      // Solo actualiza contraseña si fue enviada y es distinta
-      if (datos.contraseña) {
-        const isSamePassword = await bcrypt.compare(datos.contraseña, user.contraseña);
+      // Validar apellidos
+      if (
+        typeof datos.apellidos === 'string' &&
+        datos.apellidos.trim() &&
+        datos.apellidos !== user.apellidos
+      ) {
+        cambios.apellidos = datos.apellidos.trim();
+      }
+
+      // Validar nueva contraseña
+      if (
+        typeof datos.nueva_contraseña === 'string' &&
+        datos.nueva_contraseña.trim()
+      ) {
+        const isSamePassword = await bcrypt.compare(datos.nueva_contraseña, user.contraseña);
         if (!isSamePassword) {
-          cambios.contraseña = await bcrypt.hash(datos.contraseña, 10);
+          cambios.contraseña = await bcrypt.hash(datos.nueva_contraseña, 10);
         }
       }
-
-      // Si no hay cambios, no hacer update
+      //Validar Rol
+      if (
+        typeof datos.id_rol === 'number' &&
+        datos.id_rol !== user.id_rol
+      ) {
+        cambios.id_rol = datos.id_rol;
+      }
+      // Si no hay cambios válidos, no hacer update
       if (Object.keys(cambios).length === 0) {
         return {
           status: constants.SUCCEEDED_MESSAGE,
@@ -278,6 +326,7 @@ const repo = {
       };
     }
   },
+
 
   eliminar: async (id_usuario) => {
     try {

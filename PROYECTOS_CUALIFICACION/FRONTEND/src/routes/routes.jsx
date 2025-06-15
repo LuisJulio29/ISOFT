@@ -10,10 +10,10 @@ const lazyLoad = (importFn) => {
 // PÚBLICAS (auth)
 const publicRoutes = [
   { path: "/auth/login", ...lazyLoad(() => import("../pages/auth/Login")) },
-  { path: "/auth/register", ...lazyLoad(() => import("../pages/auth/Register")) },
+  // { path: "/auth/register", ...lazyLoad(() => import("../pages/auth/Register")) },
   { path: "/auth/logout", ...lazyLoad(() => import("../pages/auth/Logout")) },
-  { path: "/auth/recover-password", ...lazyLoad(() => import("../pages/auth/ResetPassword")) },
-  { path: "/auth/lock-screen", ...lazyLoad(() => import("../pages/auth/LockScreen")) },
+  // { path: "/auth/recover-password", ...lazyLoad(() => import("../pages/auth/ResetPassword")) },
+  // { path: "/auth/lock-screen", ...lazyLoad(() => import("../pages/auth/LockScreen")) },
 ];
 
 // ERRORES
