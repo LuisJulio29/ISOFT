@@ -9,7 +9,7 @@ const Usuario_Docente = sequelize.define('Usuario_Docente', {
     primaryKey: true
   },
   id_docente: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
     primaryKey: true
   }

@@ -8,7 +8,7 @@ const Cualificacion = sequelize.define('Cualificacion', {
     autoIncrement: true
   },
   id_docente: {
-    type: DataTypes.INTEGER, // O UUID si usaste UUID en Usuarios_Docentes
+    type: DataTypes.BIGINT, 
     allowNull: false
   },
   id_formacion: {
