@@ -81,6 +81,14 @@ const rutas = () => {
   router.post('/incentivos/asignar', verifyToken, incentivosController.asignar);
   router.get('/incentivos/docente/:idDocente?', verifyToken, incentivosController.listarPorDocente);
 
+  // Reportes Incentivo
+  const reportesController = require('./src/Controllers/reportes_incentivo');
+  const uploadPDF = require('./src/Middlewares/uploadPDF');
+
+  router.post('/incentivos/reportes/subir', verifyToken, uploadPDF.single('archivo'), reportesController.subir);
+  router.get('/incentivos/reportes/pendientes', verifyToken, reportesController.listarPendientes);
+  router.put('/incentivos/reportes/:id/validar', verifyToken, reportesController.validar);
+
   // Usuario Docente
   router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
   return router;
