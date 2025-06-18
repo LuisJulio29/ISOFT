@@ -12,7 +12,7 @@ const Rol_Interface = sequelize.define('Rol_Interface', {
     allowNull: false
   },
   id_interface: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false
   }
 }, {

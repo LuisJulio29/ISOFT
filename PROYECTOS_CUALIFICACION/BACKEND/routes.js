@@ -28,6 +28,9 @@ const rutas = () => {
   //Cualificación
   const cualificacionController = require('./src/Controllers/cualificacion');
 
+  // Incentivos
+  const incentivosController = require('./src/Controllers/incentivos');
+
   //Usuario Docente
   const usuarioDocenteController = require('./src/Controllers/usuario_docente');
 
@@ -71,6 +74,23 @@ const rutas = () => {
   router.delete('/cualificacion/eliminar/:id', cualificacionController.eliminar);
   router.get('/cualificacion/obtenerPorUsuario', cualificacionController.obtenerCualificacionesPorUsuarioId);
 
+
+  // Incentivos
+  router.post('/incentivos/insertar', verifyToken, incentivosController.insertar);
+  router.get('/incentivos/listar', verifyToken, incentivosController.listar);
+  router.put('/incentivos/actualizar/:id', verifyToken, incentivosController.actualizar);
+  router.delete('/incentivos/eliminar/:id', verifyToken, incentivosController.eliminar);
+  router.post('/incentivos/asignar', verifyToken, incentivosController.asignar);
+  router.get('/incentivos/docente', verifyToken, incentivosController.listarPorDocente);
+  router.get('/incentivos/docente/:idDocente', verifyToken, incentivosController.listarPorDocente);
+
+  // Reportes Incentivo
+  const reportesController = require('./src/Controllers/reportes_incentivo');
+  const uploadPDF = require('./src/Middlewares/uploadPDF');
+
+  router.post('/incentivos/reportes/subir', verifyToken, uploadPDF.single('archivo'), reportesController.subir);
+  router.get('/incentivos/reportes/pendientes', verifyToken, reportesController.listarPendientes);
+  router.put('/incentivos/reportes/:id/validar', verifyToken, reportesController.validar);
 
   // Usuario Docente
   router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
