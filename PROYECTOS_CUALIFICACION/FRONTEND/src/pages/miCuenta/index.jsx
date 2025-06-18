@@ -74,8 +74,6 @@ const MiCuenta = () => {
             });
         }
     };
-
-
     return (
         <Box component="main" sx={{ flexGrow: 1 }}>
             <PageBreadcrumb title="Mi cuenta" subName="App" />
