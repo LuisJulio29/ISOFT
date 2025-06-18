@@ -2,11 +2,89 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const requests = require("request");
 const constants = require('../../../constants');
-const {Usuario, Rol} = require('../../Models');
+const { Usuario, Rol, Docente, Usuario_Docente } = require('../../Models');
 
 const repo = {
 
-  insertar: async (usuario) => {
+  // insertar: async (usuario) => {
+  //   try {
+  //     let nombreUsuario, contraseñaTextoPlano, nombres, apellidos, email, docenteId;
+
+  //     if (usuario.id_rol === 2) {
+  //       // Validar que exista el docente
+  //       const docente = await Docente.findOne({
+  //         where: { numero_identificacion: usuario.numero_identificacion }
+  //       });
+
+  //       if (!docente) {
+  //         return {
+  //           status: constants.FAILED_MESSAGE,
+  //           mensaje: "El número de identificación no está registrado como docente.",
+  //           failure_code: 404,
+  //           failure_message: "Número de identificación no encontrado en docentes."
+  //         };
+  //       }
+
+  //       // Asignar datos desde docente
+  //       nombreUsuario = usuario.numero_identificacion;
+  //       contraseñaTextoPlano = usuario.numero_identificacion;
+  //       nombres = docente.nombre;
+  //       apellidos = docente.apellidos;
+  //       email = docente.email_institucional;
+  //       docenteId = docente.id;
+
+  //     } else {
+  //       // Si no es rol docente, se usa lo enviado normalmente
+  //       nombreUsuario = usuario.nombre_usuario;
+  //       contraseñaTextoPlano = usuario.contraseña;
+  //       nombres = usuario.nombres;
+  //       apellidos = usuario.apellidos;
+  //       email = usuario.email;
+  //     }
+
+  //     // Verificar que no exista el usuario (por nombre de usuario generado o enviado)
+  //     const existente = await Usuario.findOne({ where: { nombre_usuario: nombreUsuario } });
+  //     if (existente) {
+  //       return {
+  //         status: constants.SUCCEEDED_MESSAGE,
+  //         mensaje: "El usuario ya existe.",
+  //         failure_code: 409,
+  //         failure_message: "El usuario ya existe."
+  //       };
+  //     }
+
+  //     // Hashear la contraseña
+  //     const hashedPassword = await bcrypt.hash(contraseñaTextoPlano, 10);
+
+  //     // Crear el nuevo usuario
+  //     const nuevo = await Usuario.create({
+  //       nombre_usuario: nombreUsuario,
+  //       contraseña: hashedPassword,
+  //       id_rol: usuario.id_rol,
+  //       nombres,
+  //       apellidos,
+  //       email,
+  //       numero_identificacion: usuario.numero_identificacion,
+  //       id_docente: docenteId // si lo tienes en la tabla usuario
+  //     });
+
+  //     return {
+  //       status: constants.SUCCEEDED_MESSAGE,
+  //       usuario: nuevo,
+  //       failure_code: null,
+  //       failure_message: null
+  //     };
+
+  //   } catch (error) {
+  //     return {
+  //       status: constants.INTERNAL_ERROR_MESSAGE,
+  //       mensaje: "Error al crear el usuario.",
+  //       failure_code: error.code || 500,
+  //       failure_message: error.message || "Error interno del servidor."
+  //     };
+  //   }
+  // },
+  insertarAdministrador: async (usuario) => {
     try {
       const existente = await Usuario.findOne({ where: { nombre_usuario: usuario.nombre_usuario } });
       if (existente) {
@@ -19,6 +97,7 @@ const repo = {
       }
 
       const hashedPassword = await bcrypt.hash(usuario.contraseña, 10);
+
       const nuevo = await Usuario.create({
         nombre_usuario: usuario.nombre_usuario,
         contraseña: hashedPassword,
@@ -38,6 +117,74 @@ const repo = {
       return {
         status: constants.INTERNAL_ERROR_MESSAGE,
         mensaje: "Error al crear el usuario.",
+        failure_code: error.code || 500,
+        failure_message: error.message || "Error interno del servidor."
+      };
+    }
+  },
+  insertarDocentesMasivo: async (listaUsuarios) => {
+    try {
+      const resultados = [];
+
+      for (const usuario of listaUsuarios) {
+        const docente = await Docente.findOne({
+          where: { numero_identificacion: String(usuario.numero_identificacion) }
+        });
+
+
+        if (!docente) {
+          resultados.push({
+            status: constants.FAILED_MESSAGE,
+            numero_identificacion: usuario.numero_identificacion,
+            mensaje: "No encontrado en la tabla Docente, por favor verifique que en la hoja de vida esté registrado el docente.",
+          });
+          continue;
+        }
+
+        const yaExiste = await Usuario.findOne({
+          where: { nombre_usuario: String(usuario.numero_identificacion) }
+        });
+
+        if (yaExiste) {
+          // Verifica si ya tiene relación con el docente
+          const yaVinculado = await Usuario_Docente.findOne({
+            where: {
+              id_usuario: yaExiste.id_usuario,
+              id_docente: docente.id
+            }
+          });
+
+          resultados.push({
+            status: constants.SUCCEEDED_MESSAGE,
+            numero_identificacion: usuario.numero_identificacion,
+            mensaje: yaVinculado
+              ? "Usuario ya existe y está vinculado al docente"
+              : "Usuario ya existe pero no está vinculado al docente"
+          });
+
+          // Si ya estaba vinculado, continúa (no crea ni intenta nada más)
+          if (yaVinculado) continue;
+
+          // Si no estaba vinculado, creamos la relación
+          await Usuario_Docente.create({
+            id_usuario: yaExiste.id_usuario,
+            id_docente: docente.id
+          });
+
+          continue;
+        }
+
+      }
+
+      return {
+        status: constants.SUCCEEDED_MESSAGE,
+        resultados
+      };
+
+    } catch (error) {
+      return {
+        status: constants.INTERNAL_ERROR_MESSAGE,
+        mensaje: "Error durante el proceso masivo",
         failure_code: error.code || 500,
         failure_message: error.message || "Error interno del servidor."
       };
@@ -93,7 +240,7 @@ const repo = {
         cambios.nombre_usuario = datos.nombre_usuario;
       }
 
-      if (datos.nombres && datos.nombres!== user.nombres) {
+      if (datos.nombres && datos.nombres !== user.nombres) {
         cambios.nombres = datos.nombres;
       }
       if (datos.apellidos && datos.apellidos !== user.apellidos) {
@@ -111,9 +258,8 @@ const repo = {
       // Si no hay cambios, no hacer update
       if (Object.keys(cambios).length === 0) {
         return {
-          status: 'success',
+          status: constants.SUCCEEDED_MESSAGE,
           mensaje: 'No se realizaron cambios.',
-          usuario: user
         };
       }
 
@@ -134,31 +280,31 @@ const repo = {
   },
 
   eliminar: async (id_usuario) => {
-  try {
-    const usuario = await Usuario.findByPk(id_usuario);
+    try {
+      const usuario = await Usuario.findByPk(id_usuario);
 
-    if (!usuario) {
+      if (!usuario) {
+        return {
+          status: 'error',
+          failure_code: 404,
+          failure_message: 'Usuario no encontrado.',
+        };
+      }
+
+      await usuario.destroy();
+
       return {
-        status: 'error',
-        failure_code: 404,
-        failure_message: 'Usuario no encontrado.',
+        status: constants.SUCCEEDED_MESSAGE,
+        mensaje: 'Usuario eliminado correctamente.',
+      };
+    } catch (error) {
+      return {
+        status: constants.INTERNAL_ERROR_MESSAGE,
+        failure_code: error.code || 500,
+        failure_message: error.message || "Error al eliminar el usuario.",
       };
     }
-
-    await usuario.destroy();
-
-    return {
-      status: constants.SUCCEEDED_MESSAGE,
-      mensaje: 'Usuario eliminado correctamente.',
-    };
-  } catch (error) {
-    return {
-      status: constants.INTERNAL_ERROR_MESSAGE,
-      failure_code: error.code || 500,
-      failure_message: error.message || "Error al eliminar el usuario.",
-    };
   }
-}
 
 
 };

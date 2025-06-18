@@ -1,24 +1,23 @@
 const usuariosRepository = require('../../repositories/usuarios');
 const constants = require('../../../constants');
 
-async function handler(req, res, next) {
+async function handler(req, res) {
   try {
     const usuario = req.body;
 
-    // Validar ingreso
-    const response = await usuariosRepository.insertar(usuario);
-    
+    const response = await usuariosRepository.insertarAdministrador(usuario);
+
     if (response.usuario) {
-      res.status(200).json({
+      return res.status(200).json({
         status: response.status,
-       mensaje: 'Usuario creado correctamente.',
+        mensaje: 'Administrador creado correctamente.',
       });
     } else {
-      res.status(401).json({
+      return res.status(400).json({
         status: response.status,
         error: {
-          code: response.failure_code || 401,
-          message: response.failure_message || 'Usuario o contraseña incorrectos.',
+          code: response.failure_code,
+          message: response.failure_message,
         },
       });
     }

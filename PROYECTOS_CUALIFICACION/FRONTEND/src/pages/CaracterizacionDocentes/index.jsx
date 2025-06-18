@@ -5,63 +5,44 @@ import {
     Button,
     Typography,
     Paper,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Divider,
-    Box,
     Menu,
+    Box,
     Pagination,
     IconButton,
+    CircularProgress,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 import { PageBreadcrumb } from "components";
-import DocentesForm from "./DocentesForm"; // ajusta la ruta según tu estructura
+import DocentesForm from "./DocentesForm";
+import { useCaracterizacionDocentes } from "./useCaracterizacionDocentes";
 
-
+const itemsPerPage = 2;
 
 const CaracterizacionDocentes = () => {
-    const docentesOriginales = [
-        { nombre: "Ruben Basquez", cedula: "FS06", facultad: "Piedra Bolivar", ingreso: "2023" },
-        { nombre: "Pinguinos Cartagena", cedula: "FS05", facultad: "Centro", ingreso: "2022" },
-        { nombre: "Hotel Las Islas", cedula: "FS04", facultad: "Zaragocilla", ingreso: "2022" },
-        // Puedes agregar más docentes aquí
-    ];
+    const {
+        docentes,
+        loading,
+        error,
+    } = useCaracterizacionDocentes();
 
-    // Estados
     const [busqueda, setBusqueda] = useState("");
-    const [facultadFiltro, setFacultadFiltro] = useState("Todas");
-    const [ingresoFiltro, setIngresoFiltro] = useState("Todos");
     const [anchorEl, setAnchorEl] = useState(null);
     const [page, setPage] = useState(1);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
-    const [docenteEditando, setDocenteEditando] = useState(null); // por si luego editas
-
-    const itemsPerPage = 2;
+    const [docenteEditando, setDocenteEditando] = useState(null);
 
     const openMenu = Boolean(anchorEl);
     const handleOpenMenu = (event) => setAnchorEl(event.currentTarget);
     const handleCloseMenu = () => setAnchorEl(null);
-
     const handlePageChange = (_, value) => setPage(value);
 
-    // Filtrado
-    const docentesFiltrados = docentesOriginales.filter((docente) => {
-        const coincideBusqueda =
-            docente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-            docente.cedula.toLowerCase().includes(busqueda.toLowerCase());
-
-        const coincideFacultad = facultadFiltro === "Todas" || docente.facultad === facultadFiltro;
-        const coincideIngreso = ingresoFiltro === "Todos" || docente.ingreso === ingresoFiltro;
-
-        return coincideBusqueda && coincideFacultad && coincideIngreso;
+    const docentesFiltrados = docentes.filter((docente) => {
+        const nombreCompleto = `${docente.nombre || ""} ${docente.apellidos || ""}`.toLowerCase();
+        return nombreCompleto.includes(busqueda.toLowerCase());
     });
 
-    // Paginación real
     const totalPages = Math.ceil(docentesFiltrados.length / itemsPerPage);
     const startIndex = (page - 1) * itemsPerPage;
     const docentesPaginados = docentesFiltrados.slice(startIndex, startIndex + itemsPerPage);
@@ -70,15 +51,17 @@ const CaracterizacionDocentes = () => {
         <Box component="main" sx={{ flexGrow: 1 }}>
             {mostrarFormulario ? (
                 <DocentesForm
-                    data={docenteEditando || {}} // si más adelante agregas edición
-                    onCancel={() => setMostrarFormulario(false)}
+                    data={docenteEditando || {}}
+                    onCancel={() => {
+                        setMostrarFormulario(false);
+                        setDocenteEditando(null);
+                    }}
                 />
             ) : (
                 <>
                     <PageBreadcrumb title="Caracterización de Docentes" subName="App" />
-                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4, minHeight: "40vh" }}>
-                        {/* Barra de búsqueda y filtros */}
-                        <Grid container spacing={2} justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap">
+                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4 }}>
+                        <Grid container spacing={2} justifyContent="space-between" alignItems="center" mb={3}>
                             <Grid item xs={12} md={4}>
                                 <TextField
                                     fullWidth
@@ -114,50 +97,7 @@ const CaracterizacionDocentes = () => {
                                         },
                                     }}
                                 >
-                                    <Box
-                                        component="form"
-                                        noValidate
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "row",
-                                            alignItems: "center",
-                                            gap: 2,
-                                            flexWrap: "wrap",
-                                        }}
-                                    >
-                                        <TextField
-                                            select
-                                            label="Facultad"
-                                            value={facultadFiltro}
-                                            onChange={(e) => {
-                                                setFacultadFiltro(e.target.value);
-                                                setPage(1);
-                                            }}
-                                            size="small"
-                                            sx={{ minWidth: 180 }}
-                                        >
-                                            <MenuItem value="Todas">Todas</MenuItem>
-                                            <MenuItem value="Piedra Bolivar">Piedra Bolivar</MenuItem>
-                                            <MenuItem value="Centro">Centro</MenuItem>
-                                            <MenuItem value="Zaragocilla">Zaragocilla</MenuItem>
-                                        </TextField>
-
-                                        <TextField
-                                            select
-                                            label="Año de ingreso"
-                                            value={ingresoFiltro}
-                                            onChange={(e) => {
-                                                setIngresoFiltro(e.target.value);
-                                                setPage(1);
-                                            }}
-                                            size="small"
-                                            sx={{ minWidth: 150 }}
-                                        >
-                                            <MenuItem value="Todos">Todos</MenuItem>
-                                            <MenuItem value="2023">2023</MenuItem>
-                                            <MenuItem value="2022">2022</MenuItem>
-                                        </TextField>
-
+                                    <Box component="form" noValidate sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                                         <Button variant="contained" onClick={handleCloseMenu}>
                                             Aplicar
                                         </Button>
@@ -167,25 +107,20 @@ const CaracterizacionDocentes = () => {
                                 <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>
                                     Descargar
                                 </Button>
-                                <Button
-                                    startIcon={<AddIcon />}
-                                    variant="contained"
-                                    color="success"
-                                    sx={{ textTransform: "none" }}
-                                    onClick={() => {
-                                        setDocenteEditando(null);
-                                        setMostrarFormulario(true);
-                                    }}
-                                >
-                                    Agregar docente
-                                </Button>
-
                             </Grid>
                         </Grid>
 
-                        {/* Cards de docentes */}
-                        <Box sx={{ maxHeight: 500, overflowY: "auto", pr: 1 }}>
-                            {docentesPaginados.length > 0 ? (
+                        {/* Loader o Lista */}
+                        {loading ? (
+                            <Box display="flex" justifyContent="center" mt={4}>
+                                <CircularProgress />
+                            </Box>
+                        ) : error ? (
+                            <Box display="flex" justifyContent="center" mt={4}>
+                                <Typography color="error">{error}</Typography>
+                            </Box>
+                        ) : docentesPaginados.length > 0 ? (
+                            <Box sx={{ maxHeight: 500, overflowY: "auto", pr: 1 }}>
                                 <Grid container direction="column" spacing={2}>
                                     {docentesPaginados.map((docente, index) => (
                                         <Grid item key={index}>
@@ -197,25 +132,30 @@ const CaracterizacionDocentes = () => {
                                                     display: "flex",
                                                     justifyContent: "space-between",
                                                     alignItems: "center",
-                                                    minHeight: 80, // altura mínima de tarjeta
+                                                    minHeight: 80,
                                                 }}
                                             >
                                                 <Box>
-                                                    <Typography variant="h6">{docente.nombre}</Typography>
+                                                    <Typography variant="h6">
+                                                        {`${docente.nombre} ${docente.apellidos}`}
+                                                    </Typography>
                                                     <Typography variant="body2" color="text.secondary">
                                                         Cédula: <strong>{docente.cedula}</strong>
                                                     </Typography>
                                                     <Typography variant="body2" color="text.secondary">
-                                                        Facultad: {docente.facultad}
+                                                        Correo: {docente.correo_institucional}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        Programa: {docente.programa || "N/A"}
                                                     </Typography>
                                                 </Box>
                                                 <Box display="flex" gap={1}>
                                                     <IconButton
-                                                        title="Editar"
+                                                        title="Ver detalles"
                                                         color="primary"
                                                         onClick={() => {
-                                                            setDocenteEditando(docente); // pasar el docente seleccionado
-                                                            setMostrarFormulario(true); // mostrar formulario
+                                                            setDocenteEditando(docente);
+                                                            setMostrarFormulario(true);
                                                         }}
                                                     >
                                                         <EditIcon />
@@ -228,31 +168,32 @@ const CaracterizacionDocentes = () => {
                                         </Grid>
                                     ))}
                                 </Grid>
-                            ) : (
-                                <Box display="flex" justifyContent="center" alignItems="center" height={200}>
-                                    <Typography variant="body1" color="text.secondary">
-                                        No hay coincidencias
-                                    </Typography>
-                                </Box>
-                            )}
-                        </Box>
+                            </Box>
+                        ) : (
+                            <Box display="flex" justifyContent="center" alignItems="center" height={200}>
+                                <Typography variant="body1" color="text.secondary">
+                                    No hay coincidencias
+                                </Typography>
+                            </Box>
+                        )}
 
                         {/* Paginación */}
-                        <Box display="flex" mt={2} justifyContent="center">
-                            <Pagination
-                                count={totalPages}
-                                page={page}
-                                onChange={handlePageChange}
-                                color="primary"
-                                siblingCount={0}
-                                boundaryCount={1}
-                            />
-                        </Box>
+                        {!loading && totalPages > 1 && (
+                            <Box display="flex" mt={2} justifyContent="center">
+                                <Pagination
+                                    count={totalPages}
+                                    page={page}
+                                    onChange={handlePageChange}
+                                    color="primary"
+                                    siblingCount={0}
+                                    boundaryCount={1}
+                                />
+                            </Box>
+                        )}
                     </Paper>
                 </>
             )}
         </Box>
-
     );
 };
 

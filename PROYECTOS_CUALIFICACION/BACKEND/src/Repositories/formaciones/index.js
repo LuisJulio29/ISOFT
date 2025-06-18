@@ -114,7 +114,23 @@ const repo = {
         failure_message: error.message || "Error al eliminar la formación."
       };
     }
-  }
+  },
+
+    cargarMasivamente: async (formaciones) => {
+    try {
+      const resultado = await objModel.bulkCreate(formaciones, { validate: true });
+      return {
+        status: constants.SUCCEEDED_MESSAGE,
+        data: resultado
+      };
+    } catch (error) {
+      return {
+        status: constants.INTERNAL_ERROR_MESSAGE,
+        failure_code: error.code || 500,
+        failure_message: error.message || "Error al cargar formaciones masivamente."
+      };
+    }
+  },
 
 };
 

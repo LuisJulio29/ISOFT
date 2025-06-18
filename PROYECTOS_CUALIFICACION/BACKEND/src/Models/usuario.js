@@ -28,7 +28,8 @@ const Usuario = sequelize.define('Usuario', {
   id_rol: {
     type: DataTypes.INTEGER,
     allowNull: false
-  }
+  },
+  
 }, {
   tableName: 'Usuario',
   timestamps: false

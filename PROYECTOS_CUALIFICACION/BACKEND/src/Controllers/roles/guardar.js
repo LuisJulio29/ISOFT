@@ -1,6 +1,6 @@
 const rolInterfaceRepo = require('../../repositories/roles_interface');
 
-const guardarInterfacesRolController = async (req, res) => {
+async function handler(req, res) {
 
   try {
     const { idRol } = req.params;
@@ -19,4 +19,4 @@ const guardarInterfacesRolController = async (req, res) => {
   }
 };
 
-module.exports = guardarInterfacesRolController;
+module.exports = [handler];

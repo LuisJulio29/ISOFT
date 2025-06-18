@@ -1,30 +1,29 @@
 const usuariosRepository = require('../../repositories/usuarios');
 const constants = require('../../../constants');
 
-async function handler(req, res, next) {
+async function handler(req, res) {
   try {
     const id_usuario = req.params.id;
     const datos = req.body;
 
     const response = await usuariosRepository.actualizar(id_usuario, datos);
 
-    if (response.usuario) {
-      res.status(200).json({
-        status: response.status,
-        mensaje: 'Usuario actualizado correctamente.',
-        usuario: response.usuario
+    if (response.status === constants.SUCCEEDED_MESSAGE) {
+      return res.status(200).json({
+        status: constants.SUCCEEDED_MESSAGE,
+        mensaje: response.mensaje || 'Usuario actualizado correctamente.'
       });
     } else {
-      res.status(response.failure_code || 500).json({
-        status: response.status,
+      return res.status(400).json({
+        status: constants.FAILED_MESSAGE,
         error: {
-          code: response.failure_code || 500,
+          code: response.failure_code || 400,
           message: response.failure_message || 'Error al actualizar el usuario.',
         },
       });
     }
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: constants.INTERNAL_ERROR_MESSAGE,
       error: {
         code: error.code || 500,

@@ -1,6 +1,6 @@
 const rolesInterfaceRepo = require('../../repositories/roles_interface');
 
-const buscarInterfacesPorRol = async (req, res) => {
+async function handler(req, res) {
   try {
     const { idRol } = req.params;
     const interfaces = await rolesInterfaceRepo.obtenerInterfacesPorRol(idRol);
@@ -11,4 +11,4 @@ const buscarInterfacesPorRol = async (req, res) => {
   }
 };
 
-module.exports = buscarInterfacesPorRol;
+module.exports = [handler];
