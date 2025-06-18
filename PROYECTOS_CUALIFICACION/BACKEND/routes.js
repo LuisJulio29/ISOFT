@@ -28,6 +28,9 @@ const rutas = () => {
   //Cualificación
   const cualificacionController = require('./src/Controllers/cualificacion');
 
+  // Incentivos
+  const incentivosController = require('./src/Controllers/incentivos');
+
   //Usuario Docente
   const usuarioDocenteController = require('./src/Controllers/usuario_docente');
 
@@ -69,6 +72,14 @@ const rutas = () => {
   router.post('/cualificacion/insertar', cualificacionController.insertar);
   router.put('/cualificacion/actualizar/:id', cualificacionController.actualizar);
   router.delete('/cualificacion/eliminar/:id', cualificacionController.eliminar);
+
+  // Incentivos
+  router.post('/incentivos/insertar', verifyToken, incentivosController.insertar);
+  router.get('/incentivos/listar', verifyToken, incentivosController.listar);
+  router.put('/incentivos/actualizar/:id', verifyToken, incentivosController.actualizar);
+  router.delete('/incentivos/eliminar/:id', verifyToken, incentivosController.eliminar);
+  router.post('/incentivos/asignar', verifyToken, incentivosController.asignar);
+  router.get('/incentivos/docente/:idDocente?', verifyToken, incentivosController.listarPorDocente);
 
   // Usuario Docente
   router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
