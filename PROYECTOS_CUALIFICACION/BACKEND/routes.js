@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const upload = require('./src/Middlewares/upload');
+const uploadCertificado = require('./src/Middlewares/uploadCertificado')
 const constants = require("./constants");
 const verifyToken = require('./src/Middlewares/authentication');
 
@@ -69,9 +70,10 @@ const rutas = () => {
 
   // Cualificación
   router.get('/cualificacion/listar', cualificacionController.listar);
-  router.post('/cualificacion/insertar', cualificacionController.insertar);
+  router.post('/cualificacion/insertar', uploadCertificado.single('certificado'),cualificacionController.insertar);
   router.put('/cualificacion/actualizar/:id', cualificacionController.actualizar);
   router.delete('/cualificacion/eliminar/:id', cualificacionController.eliminar);
+  router.post('/cualificacion/subirCertificado/:idCualificacion', uploadCertificado.single('certificado'), cualificacionController.subirCertificado);
   router.get('/cualificacion/obtenerPorUsuario', cualificacionController.obtenerCualificacionesPorUsuarioId);
 
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
     Box, Typography, TextField, Paper, Button, Divider, Collapse,
-    IconButton, Pagination
+    IconButton, Pagination, Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
 import { PageBreadcrumb } from "components";
 import SearchIcon from "@mui/icons-material/Search";
@@ -26,6 +26,8 @@ const CualificacionesPage = () => {
     const [seleccionada, setSeleccionada] = useState(null);
     const [busqueda, setBusqueda] = useState("");
     const [menuAbierto, setMenuAbierto] = useState(false);
+    const [modalAbierto, setModalAbierto] = useState(false);
+    console.log("Valores:",seleccionada);
 
     // Paginación
     const [paginaActual, setPaginaActual] = useState(1);
@@ -218,10 +220,25 @@ const CualificacionesPage = () => {
                                 </Typography>
                             </Box>
                             <Box display="flex" gap={2} mt={4}>
-                                <Button variant="outlined" startIcon={<VisibilityIcon />}>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<VisibilityIcon />}
+                                    onClick={() => setModalAbierto(true)}
+                                >
                                     Ver certificado
                                 </Button>
-                                <Button variant="outlined" startIcon={<FileDownloadIcon />}>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<FileDownloadIcon />}
+                                    onClick={() => {
+                                        if (seleccionada?.certificado) {
+                                            const link = document.createElement("a");
+                                            link.href = `data:application/pdf;base64,${seleccionada.certificado}`;
+                                            link.download = `certificado_${seleccionada.id}.pdf`;
+                                            link.click();
+                                        }
+                                    }}
+                                >
                                     Descargar certificado
                                 </Button>
                             </Box>
@@ -240,6 +257,34 @@ const CualificacionesPage = () => {
                     )}
                 </Box>
             </Paper>
+
+            {/* Modal de previsualización del certificado */}
+            <Dialog
+                open={modalAbierto}
+                onClose={() => setModalAbierto(false)}
+                fullWidth
+                maxWidth="md"
+            >
+                <DialogTitle>Certificado de {seleccionada?.titulo}</DialogTitle>
+                <DialogContent dividers>
+                    {seleccionada?.certificado ? (
+                        <iframe
+                            title="Certificado"
+                            src={`data:application/pdf;base64,${seleccionada.certificado}`}
+                            width="100%"
+                            height="600px"
+                            style={{ border: "none" }}
+                        />
+                    ) : (
+                        <Typography>No hay certificado disponible.</Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setModalAbierto(false)} color="primary">
+                        Cerrar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

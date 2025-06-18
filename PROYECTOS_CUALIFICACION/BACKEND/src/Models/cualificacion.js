@@ -18,6 +18,10 @@ const Cualificacion = sequelize.define('Cualificacion', {
   año_cursado: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  certificado : {
+    type: DataTypes.TEXT,
+    allowNull : true
   }
 }, {
   tableName: 'Cualificacion',
