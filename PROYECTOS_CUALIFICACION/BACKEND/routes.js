@@ -79,7 +79,8 @@ const rutas = () => {
   router.put('/incentivos/actualizar/:id', verifyToken, incentivosController.actualizar);
   router.delete('/incentivos/eliminar/:id', verifyToken, incentivosController.eliminar);
   router.post('/incentivos/asignar', verifyToken, incentivosController.asignar);
-  router.get('/incentivos/docente/:idDocente?', verifyToken, incentivosController.listarPorDocente);
+  router.get('/incentivos/docente', verifyToken, incentivosController.listarPorDocente);
+  router.get('/incentivos/docente/:idDocente', verifyToken, incentivosController.listarPorDocente);
 
   // Reportes Incentivo
   const reportesController = require('./src/Controllers/reportes_incentivo');

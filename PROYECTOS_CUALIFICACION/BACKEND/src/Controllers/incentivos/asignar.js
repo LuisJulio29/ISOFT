@@ -3,8 +3,8 @@ const constants = require('../../../constants');
 
 async function handler(req, res) {
   try {
-    const { id_incentivo, id_docente, fecha_asignacion } = req.body;
-    const response = await incentivosRepo.asignar({ id_docente, id_incentivo, fecha_asignacion });
+    const { id_incentivo, id_docente, fecha_inicio, fecha_fin } = req.body;
+    const response = await incentivosRepo.asignar({ id_docente, id_incentivo, fecha_inicio, fecha_fin });
 
     if (response.status === constants.SUCCEEDED_MESSAGE) {
       return res.status(201).json({ asignacion: response.asignacion });

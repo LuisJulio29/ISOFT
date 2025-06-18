@@ -16,21 +16,9 @@ const Incentivo = sequelize.define('Incentivo', {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
-  tipo: {
-    type: DataTypes.ENUM('COMISION_ESTUDIO', 'ANIO_SABATICO'),
-    allowNull: false,
-  },
   descripcion: {
     type: DataTypes.TEXT,
     allowNull: true,
-  },
-  fecha_inicio: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  fecha_fin: {
-    type: DataTypes.DATE,
-    allowNull: false,
   },
   frecuencia_informe_dias: {
     // Cada cuántos días debe enviar informe el profesor
@@ -40,6 +28,14 @@ const Incentivo = sequelize.define('Incentivo', {
   estado: {
     type: DataTypes.ENUM('ACTIVO', 'INACTIVO'),
     defaultValue: 'ACTIVO',
+  },
+  tiempo_minimo_meses: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  tiempo_maximo_meses: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
 }, {
   tableName: 'Incentivo',

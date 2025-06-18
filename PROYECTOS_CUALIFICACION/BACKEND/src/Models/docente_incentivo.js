@@ -13,7 +13,7 @@ const DocenteIncentivo = sequelize.define('DocenteIncentivo', {
     defaultValue: DataTypes.UUIDV4,
   },
   id_docente: {
-    type: DataTypes.UUID,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   id_incentivo: {
@@ -27,6 +27,18 @@ const DocenteIncentivo = sequelize.define('DocenteIncentivo', {
   estado: {
     type: DataTypes.ENUM('VIGENTE', 'FINALIZADO'),
     defaultValue: 'VIGENTE',
+  },
+  fecha_inicio: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  fecha_fin: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  frecuencia_informe_dias: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
 }, {
   tableName: 'Docente_Incentivo',
