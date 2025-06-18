@@ -69,6 +69,8 @@ const rutas = () => {
   router.post('/cualificacion/insertar', cualificacionController.insertar);
   router.put('/cualificacion/actualizar/:id', cualificacionController.actualizar);
   router.delete('/cualificacion/eliminar/:id', cualificacionController.eliminar);
+  router.get('/cualificacion/obtenerPorUsuario', cualificacionController.obtenerCualificacionesPorUsuarioId);
+
 
   // Usuario Docente
   router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
