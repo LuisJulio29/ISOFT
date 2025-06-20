@@ -15,6 +15,7 @@ import {
   DialogActions
 } from "@mui/material";
 import { PageBreadcrumb } from "components";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -36,6 +37,9 @@ const DocentesForm = ({ data = {}, onCancel }) => {
   const [modalAbierta, setModalAbierta] = useState(false);
   const [formacionModal, setFormacionModal] = useState(null);
   const [formacionSeleccionada, setFormacionSeleccionada] = useState("");
+  const [modalVerCertificado, setModalVerCertificado] = useState(false);
+  const [certificadoBase64, setCertificadoBase64] = useState("");
+
 
   const [formData, setFormData] = useState({
     primerNombre: data.nombre || "",
@@ -210,15 +214,33 @@ const DocentesForm = ({ data = {}, onCancel }) => {
                 <Typography variant="body2">Línea de cualificación: {formacion.linea_cualificacion}</Typography>
                 <Typography variant="body2">Periodo: {formacion.periodo}</Typography>
               </Box>
-              <Button
-                title="Adjuntar archivo"
-                onClick={() => {
-                  setFormacionModal(formacion);
-                  setModalAbierta(true);
-                }}
-              >
-                <AttachFileIcon />
-              </Button>
+
+              <Box display="flex" alignItems="center" gap={1}>
+                <Button
+                  title="Adjuntar archivo"
+                  onClick={() => {
+                    setFormacionModal(formacion);
+                    setModalAbierta(true);
+                  }}
+                  sx={{ minWidth: 40 }}
+                >
+                  <AttachFileIcon />
+                </Button>
+
+                <Button
+                  title="Ver certificado"
+                  onClick={() => {
+                    setCertificadoBase64(formacion.certificado);
+                    setModalVerCertificado(true);
+                  }}
+                  disabled={!formacion.certificado}
+                  sx={{ minWidth: 40 }}
+                >
+                  <VisibilityIcon />
+                </Button>
+              </Box>
+
+
             </Box>
           ))}
         </Box>
@@ -233,6 +255,56 @@ const DocentesForm = ({ data = {}, onCancel }) => {
           </Button>
         </Box>
       </Paper>
+
+      <Dialog
+        open={modalVerCertificado}
+        onClose={() => {
+          setModalVerCertificado(false);
+          setCertificadoBase64("");
+        }}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogContent sx={{ height: "80vh", p: 0, position: 'relative' }}>
+          {certificadoBase64 ? (
+            <>
+              <iframe
+                title="Vista previa del certificado"
+                src={`data:application/pdf;base64,${certificadoBase64}`}
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+              />
+              <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    const link = document.createElement("a");
+                    link.href = `data:application/pdf;base64,${certificadoBase64}`;
+                    link.download = "certificado.pdf";
+                    link.click();
+                  }}
+                >
+                  Descargar PDF
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <Typography variant="body1" sx={{ p: 3 }}>
+              No hay certificado disponible para mostrar.
+            </Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setModalVerCertificado(false)} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
 
       {/* MODAL DE SUBIR CERTIFICADO */}
       <Dialog open={modalAbierta} onClose={() => {

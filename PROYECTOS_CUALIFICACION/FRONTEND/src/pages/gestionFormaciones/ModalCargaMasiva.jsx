@@ -193,7 +193,7 @@ const ModalCargaMasiva = ({ open, onClose, cargarFormacionesMasivo }) => {
         maxHeight: '90vh',
         overflowY: 'auto',
       }}>
-        <Typography variant="h6" textAlign="center" mb={2} fontWeight="bold">
+        <Typography variant="h6" color="text.secondary" textAlign="center" mb={2} fontWeight="bold">
           Carga masiva de formaciones
         </Typography>
 

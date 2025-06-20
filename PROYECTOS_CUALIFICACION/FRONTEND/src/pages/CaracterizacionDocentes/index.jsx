@@ -112,67 +112,83 @@ const CaracterizacionDocentes = () => {
 
                         {/* Loader o Lista */}
                         {loading ? (
-                            <Box display="flex" justifyContent="center" mt={4}>
-                                <CircularProgress />
-                            </Box>
-                        ) : error ? (
-                            <Box display="flex" justifyContent="center" mt={4}>
-                                <Typography color="error">{error}</Typography>
-                            </Box>
-                        ) : docentesPaginados.length > 0 ? (
-                            <Box sx={{ maxHeight: 500, overflowY: "auto", pr: 1 }}>
-                                <Grid container direction="column" spacing={2}>
-                                    {docentesPaginados.map((docente, index) => (
-                                        <Grid item key={index}>
-                                            <Paper
-                                                variant="outlined"
-                                                sx={{
-                                                    p: 2,
-                                                    borderRadius: 2,
-                                                    display: "flex",
-                                                    justifyContent: "space-between",
-                                                    alignItems: "center",
-                                                    minHeight: 80,
-                                                }}
-                                            >
-                                                <Box>
-                                                    <Typography variant="h6">
-                                                        {`${docente.nombre} ${docente.apellidos}`}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        Cédula: <strong>{docente.cedula}</strong>
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        Correo: {docente.correo_institucional}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        Programa: {docente.programa || "N/A"}
-                                                    </Typography>
-                                                </Box>
-                                                <Box display="flex" gap={1}>
-                                                    <IconButton
-                                                        title="Ver detalles"
-                                                        color="primary"
-                                                        onClick={() => {
-                                                            setDocenteEditando(docente);
-                                                            setMostrarFormulario(true);
+                                <Box display="flex" justifyContent="center" mt={4}>
+                                    <CircularProgress />
+                                </Box>
+                            ) : error ? (
+                                <Box display="flex" justifyContent="center" mt={4}>
+                                    <Typography color="error">{error}</Typography>
+                                </Box>
+                            ) : docentesPaginados.length > 0 ? (
+                                <>
+                                    {/* Lista con scroll */}
+                                    <Box sx={{ maxHeight: 260, overflowY: "auto", pr: 1 }}>
+                                        <Grid container direction="column" spacing={2}>
+                                            {docentesPaginados.map((docente, index) => (
+                                                <Grid item key={index}>
+                                                    <Paper
+                                                        variant="outlined"
+                                                        sx={{
+                                                            p: 2,
+                                                            borderRadius: 2,
+                                                            display: "flex",
+                                                            justifyContent: "space-between",
+                                                            alignItems: "center",
+                                                            minHeight: 80,
                                                         }}
                                                     >
-                                                        <EditIcon />
-                                                    </IconButton>
-                                                </Box>
-                                            </Paper>
+                                                        <Box>
+                                                            <Typography variant="h6">
+                                                                {`${docente.nombre} ${docente.apellidos}`}
+                                                            </Typography>
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                Cédula: <strong>{docente.cedula}</strong>
+                                                            </Typography>
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                Correo: {docente.correo_institucional}
+                                                            </Typography>
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                Programa: {docente.programa || "N/A"}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Box display="flex" gap={1}>
+                                                            <IconButton
+                                                                title="Ver detalles"
+                                                                color="primary"
+                                                                onClick={() => {
+                                                                    setDocenteEditando(docente);
+                                                                    setMostrarFormulario(true);
+                                                                }}
+                                                            >
+                                                                <EditIcon />
+                                                            </IconButton>
+                                                        </Box>
+                                                    </Paper>
+                                                </Grid>
+                                            ))}
                                         </Grid>
-                                    ))}
-                                </Grid>
-                            </Box>
-                        ) : (
-                            <Box display="flex" justifyContent="center" alignItems="center" height={200}>
-                                <Typography variant="body1" color="text.secondary">
-                                    No hay coincidencias
-                                </Typography>
-                            </Box>
-                        )}
+                                    </Box>
+
+                                    {/* Paginación debajo del listado */}
+                                    <Box display="flex" justifyContent="center" mt={3}>
+                                        <Pagination
+                                            count={totalPages}
+                                            page={page}
+                                            onChange={handlePageChange}
+                                            color="primary"
+                                            siblingCount={0}
+                                            boundaryCount={1}
+                                        />
+                                    </Box>
+                                </>
+                            ) : (
+                                <Box display="flex" justifyContent="center" alignItems="center" height={200}>
+                                    <Typography variant="body1" color="text.secondary">
+                                        No hay coincidencias
+                                    </Typography>
+                                </Box>
+                            )}
+
 
                         {/* Paginación */}
                         {!loading && totalPages > 1 && (

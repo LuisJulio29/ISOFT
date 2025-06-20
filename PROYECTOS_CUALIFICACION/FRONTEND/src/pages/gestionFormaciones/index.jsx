@@ -189,7 +189,7 @@ const GestionFormaciones = () => {
 
             <Box
               sx={{
-                maxHeight: 500,
+                maxHeight: 261,
                 overflowY: "auto",
                 pr: 1,
                 scrollbarWidth: "thin",
