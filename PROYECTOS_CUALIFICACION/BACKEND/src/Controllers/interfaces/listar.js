@@ -3,24 +3,13 @@ const constants = require('../../../constants');
 
 async function handler(req, res, next) {
   try {
-    const { interfaces } = req.body;
-
-    if (!Array.isArray(interfaces) || interfaces.length === 0) {
-      return res.status(400).send({
-        status: constants.BAD_REQUEST_MESSAGE,
-        error: {
-          code: 400,
-          message: "Lista de interfaces no válida o vacía."
-        }
-      });
-    }
-
-    const response = await interfacesRepository.actualizar(interfaces);
+    const response = await interfacesRepository.listarTodas();
 
     const statusCode = response.status === constants.SUCCEEDED_MESSAGE ? 200 : 500;
 
     const oResponse = {
-      status: response.status
+      status: response.status,
+      interfaces: response.interfaces
     };
 
     if (statusCode !== 200) {

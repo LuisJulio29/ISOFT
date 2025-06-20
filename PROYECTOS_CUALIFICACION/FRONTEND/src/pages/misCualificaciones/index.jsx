@@ -13,6 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 
+import Swal from 'sweetalert2';
 import { useCualificaciones } from "./useCualificaciones";
 
 const CualificacionesPage = () => {
@@ -27,11 +28,20 @@ const CualificacionesPage = () => {
     const [busqueda, setBusqueda] = useState("");
     const [menuAbierto, setMenuAbierto] = useState(false);
     const [modalAbierto, setModalAbierto] = useState(false);
-    console.log("Valores:",seleccionada);
 
     // Paginación
     const [paginaActual, setPaginaActual] = useState(1);
     const elementosPorPagina = 5;
+
+    const mostrarErrorCertificado = () => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se encontró un certificado para esta cualificación.',
+            confirmButtonColor: '#7C4DFF',
+            confirmButtonText: 'Aceptar'
+        });
+    };
 
     const handleSeleccion = (item) => {
         setSeleccionada(item);
@@ -207,23 +217,65 @@ const CualificacionesPage = () => {
                             </Typography>
                             <Divider sx={{ mb: 2 }} />
                             <Box display="grid" gridTemplateColumns={{ xs: "1fr", sm: "1fr 1fr" }} gap={2}>
-                                <Typography><strong>Período:</strong> {seleccionada.periodo}</Typography>
-                                <Typography><strong>Línea:</strong> {seleccionada.linea}</Typography>
-                                <Typography><strong>Inicio:</strong> {seleccionada.inicio}</Typography>
-                                <Typography><strong>Terminación:</strong> {seleccionada.fin}</Typography>
-                                <Typography><strong>Horas:</strong> {seleccionada.horas} h</Typography>
+                                <TextField
+                                    label="Período"
+                                    value={seleccionada.periodo}
+                                    fullWidth
+                                    InputProps={{ readOnly: true }}
+                                    inputProps={{ style: { pointerEvents: "none" } }}
+                                />
+                                <TextField
+                                    label="Línea"
+                                    value={seleccionada.linea}
+                                    fullWidth
+                                    InputProps={{ readOnly: true }}
+                                    inputProps={{ style: { pointerEvents: "none" } }}
+                                />
+                                <TextField
+                                    label="Inicio"
+                                    value={seleccionada.inicio}
+                                    fullWidth
+                                    InputProps={{ readOnly: true }}
+                                    inputProps={{ style: { pointerEvents: "none" } }}
+                                />
+                                <TextField
+                                    label="Terminación"
+                                    value={seleccionada.fin}
+                                    fullWidth
+                                    InputProps={{ readOnly: true }}
+                                    inputProps={{ style: { pointerEvents: "none" } }}
+                                />
+                                <TextField
+                                    label="Horas"
+                                    value={`${seleccionada.horas} h`}
+                                    fullWidth
+                                    InputProps={{ readOnly: true }}
+                                    inputProps={{ style: { pointerEvents: "none" } }}
+                                />
                             </Box>
+
                             <Box mt={3}>
-                                <Typography fontWeight="bold">Observaciones:</Typography>
-                                <Typography variant="body2" color="text.secondary" fontStyle="italic">
-                                    {seleccionada.observaciones}
-                                </Typography>
+                                <TextField
+                                    label="Observaciones"
+                                    value={seleccionada.observaciones || "Sin observaciones"}
+                                    fullWidth
+                                    multiline
+                                    minRows={3}
+                                    InputProps={{ readOnly: true }}
+                                    inputProps={{ style: { pointerEvents: "none" } }}
+                                />
                             </Box>
                             <Box display="flex" gap={2} mt={4}>
                                 <Button
                                     variant="outlined"
                                     startIcon={<VisibilityIcon />}
-                                    onClick={() => setModalAbierto(true)}
+                                    onClick={() => {
+                                        if (seleccionada?.certificado) {
+                                            setModalAbierto(true);
+                                        } else {
+                                            mostrarErrorCertificado();
+                                        }
+                                    }}
                                 >
                                     Ver certificado
                                 </Button>
@@ -236,6 +288,8 @@ const CualificacionesPage = () => {
                                             link.href = `data:application/pdf;base64,${seleccionada.certificado}`;
                                             link.download = `certificado_${seleccionada.id}.pdf`;
                                             link.click();
+                                        } else {
+                                            mostrarErrorCertificado();
                                         }
                                     }}
                                 >
@@ -275,9 +329,7 @@ const CualificacionesPage = () => {
                             height="600px"
                             style={{ border: "none" }}
                         />
-                    ) : (
-                        <Typography>No hay certificado disponible.</Typography>
-                    )}
+                    ) : null}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setModalAbierto(false)} color="primary">

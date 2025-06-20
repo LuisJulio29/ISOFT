@@ -15,7 +15,7 @@ import {
   DialogActions
 } from "@mui/material";
 import { PageBreadcrumb } from "components";
-import DeleteIcon from "@mui/icons-material/Delete";
+import CancelIcon from "@mui/icons-material/Cancel";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import AddIcon from "@mui/icons-material/Add";
@@ -31,7 +31,7 @@ const DocentesForm = ({ data = {}, onCancel }) => {
   } = useCaracterizacionDocentes();
 
   const opcionesFormacion = formaciones.formaciones || [];
-
+  
   const [archivoPDF, setArchivoPDF] = useState(null);
   const [modalAbierta, setModalAbierta] = useState(false);
   const [formacionModal, setFormacionModal] = useState(null);
@@ -49,8 +49,15 @@ const DocentesForm = ({ data = {}, onCancel }) => {
     tipoVinculacion: data.tipo_vinculacion || "",
     categoria: data.categoria || "",
     nivelFormacion: data.nivel_formacion || "",
-    formaciones: data.formaciones || []
+    formaciones: data.formaciones || [],
   });
+
+  const opcionesDisponibles = opcionesFormacion.filter(
+    (formacion) =>
+      !formData.formaciones.some(
+        (asignada) => asignada.id_formacion === formacion.id_formacion
+      )
+  );
 
   const handleAgregarFormacion = () => {
     const seleccion = opcionesFormacion.find(
@@ -158,12 +165,17 @@ const DocentesForm = ({ data = {}, onCancel }) => {
               value={formacionSeleccionada}
               onChange={(e) => setFormacionSeleccionada(e.target.value)}
             >
-              {opcionesFormacion.map((formacion) => (
+              {opcionesDisponibles.map((formacion) => (
                 <MenuItem key={formacion.id_formacion} value={formacion.id_formacion}>
                   {formacion.nombre_formacion}
                 </MenuItem>
               ))}
             </Select>
+              {opcionesDisponibles.length === 0 && (
+              <Typography variant="body2" color="text.secondary" mt={1}>
+                No hay nuevas formaciones disponibles para asignar.
+              </Typography>
+              )}
           </FormControl>
           <Button
             variant="outlined"
@@ -186,7 +198,9 @@ const DocentesForm = ({ data = {}, onCancel }) => {
               alignItems="center"
               p={2}
               borderRadius={2}
-              bgcolor="#f3f4f6"
+              bgcolor="background.paper"
+              border="1px solid"
+              borderColor="divider"
               boxShadow={1}
             >
               <Box>
@@ -211,7 +225,7 @@ const DocentesForm = ({ data = {}, onCancel }) => {
 
         <Divider sx={{ my: 4 }} />
         <Box display="flex" justifyContent="center" gap={2}>
-          <Button variant="contained" color="error" startIcon={<DeleteIcon />} onClick={onCancel}>
+          <Button variant="contained" color="error" startIcon={<CancelIcon />} onClick={onCancel}>
             Volver
           </Button>
           <Button variant="contained" color="success" startIcon={<DoneAllIcon />} onClick={handleGuardar}>

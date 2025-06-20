@@ -198,8 +198,6 @@ const repo = {
         });
       }
 
-
-
       return {
         status: constants.SUCCEEDED_MESSAGE,
         resultados

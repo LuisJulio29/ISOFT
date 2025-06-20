@@ -2,7 +2,6 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { LuFileSpreadsheet } from "react-icons/lu";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {
   Box,
@@ -18,9 +17,11 @@ import {
 import { PageBreadcrumb } from "components";
 import { useState } from "react";
 import Swal from 'sweetalert2';
+
 import FiltrosFormaciones from './filtrosFormaciones';
 import FormacionesForm from "./FormacionesForm";
 import { useFormaciones } from "./useFormaciones";
+import ModalCargaMasiva from "./modalCargaMasiva"; 
 
 const GestionFormaciones = () => {
   const {
@@ -30,17 +31,21 @@ const GestionFormaciones = () => {
     actualizarFormacion,
     cargarFormacionesMasivo
   } = useFormaciones();
+
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorAddMenu, setAnchorAddMenu] = useState(null);
+
   const [page, setPage] = useState(1);
   const [busqueda, setBusqueda] = useState("");
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [formacionEditando, setFormacionEditando] = useState(null);
-  const [anchorAddMenu, setAnchorAddMenu] = useState(null);
   const [filtros, setFiltros] = useState({
     linea: 'Todos',
     periodo: 'Todos',
     horas: 'Todos'
   });
+
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [formacionEditando, setFormacionEditando] = useState(null);
+  const [modalCargaAbierto, setModalCargaAbierto] = useState(false);
 
   const itemsPerPage = 10;
   const formacionesFiltradas = formaciones
@@ -62,19 +67,6 @@ const GestionFormaciones = () => {
   const handlePageChange = (_, value) => setPage(value);
   const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
-
-  const handleCargaArchivo = async (event) => {
-    const archivo = event.target.files[0];
-    if (!archivo) return;
-
-    const resultado = await cargarFormacionesMasivo(archivo);
-
-    Swal.fire({
-      icon: resultado.success ? "success" : "error",
-      title: resultado.success ? "Carga exitosa" : "Error",
-      text: resultado.mensaje,
-    });
-  };
 
   const confirmarEliminacion = (formacion) => {
     Swal.fire({
@@ -99,10 +91,7 @@ const GestionFormaciones = () => {
     });
   };
 
-
-
   return (
-
     <Box
       sx={{
         flexGrow: 1,
@@ -133,21 +122,14 @@ const GestionFormaciones = () => {
           cerrarFormulario={() => setMostrarFormulario(false)}
           crearFormacion={crearFormacion}
           actualizarFormacion={actualizarFormacion}
+          modoEdicion={!!formacionEditando}
         />
-
       ) : (
         <>
           <PageBreadcrumb title="Gestión de Formaciones" subName="App" />
 
-          <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "52vh", display: "flex", flexDirection: "column", }}>
+          <Paper elevation={2} sx={{ borderRadius: 4, p: 4 }}>
             <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2} mb={4}>
-              <input
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                id="input-carga-masiva"
-                onChange={handleCargaArchivo}
-                style={{ display: 'none' }}
-              />
               <TextField
                 label="Buscar formación"
                 variant="outlined"
@@ -155,21 +137,19 @@ const GestionFormaciones = () => {
                 value={busqueda}
                 onChange={(e) => {
                   setBusqueda(e.target.value);
-                  setPage(1); // reinicia la página cuando se busca
+                  setPage(1);
                 }}
                 sx={{ width: { xs: "100%", md: "50%" } }}
               />
               <Box display="flex" gap={1}>
-                {/* Filtro como menú estilo avatar */}
-                <Button
-                  color="primary"
-                  startIcon={<FilterListIcon />}
-                  onClick={handleOpenMenu}
-                >
+                <Button color="primary" startIcon={<FilterListIcon />} onClick={handleOpenMenu}>
                   Filtros
                 </Button>
-                <FiltrosFormaciones anchorEl={anchorEl} handleClose={handleCloseMenu} onAplicarFiltros={(nuevosFiltros) => setFiltros(nuevosFiltros)} />
-
+                <FiltrosFormaciones
+                  anchorEl={anchorEl}
+                  handleClose={handleCloseMenu}
+                  onAplicarFiltros={(nuevosFiltros) => setFiltros(nuevosFiltros)}
+                />
 
                 <Button
                   variant="contained"
@@ -197,25 +177,23 @@ const GestionFormaciones = () => {
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
-                      document.getElementById("input-carga-masiva").click();
+                      setModalCargaAbierto(true);
                       setAnchorAddMenu(null);
                     }}
                   >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      {/* <LuFileSpreadsheet size={18} /> */}
-                      Carga masiva
-                    </Box>
+                    Carga masiva
                   </MenuItem>
                 </Menu>
-
-
               </Box>
             </Box>
 
-            {/* Contenedor con scroll vertical */}
             <Box
               sx={{
-                maxHeight: 500, overflowY: "auto", pr: 1, scrollbarWidth: "thin", scrollbarColor: "#ccc transparent",
+                maxHeight: 500,
+                overflowY: "auto",
+                pr: 1,
+                scrollbarWidth: "thin",
+                scrollbarColor: "#ccc transparent",
                 "&::-webkit-scrollbar": {
                   width: "6px",
                 },
@@ -231,7 +209,6 @@ const GestionFormaciones = () => {
                 },
               }}
             >
-
               {formacionesPaginadas.length > 0 ? (
                 formacionesPaginadas.map((formacion) => (
                   <Paper
@@ -260,7 +237,6 @@ const GestionFormaciones = () => {
                       <Typography variant="body2" color="text.secondary">
                         <strong>Horas:</strong> {formacion.numero_horas}
                       </Typography>
-
                     </Box>
 
                     <Box display="flex" gap={1}>
@@ -274,23 +250,16 @@ const GestionFormaciones = () => {
                         <EditIcon />
                       </IconButton>
                       <IconButton
-                        onClick={() => confirmarEliminacion(formacion)}
                         color="error"
+                        onClick={() => confirmarEliminacion(formacion)}
                       >
                         <DeleteIcon />
                       </IconButton>
-
                     </Box>
                   </Paper>
                 ))
               ) : (
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  height={200}
-                  width="100%"
-                >
+                <Box display="flex" justifyContent="center" alignItems="center" height={200}>
                   <Typography variant="body1" color="text.secondary">
                     No hay coincidencias
                   </Typography>
@@ -298,15 +267,18 @@ const GestionFormaciones = () => {
               )}
             </Box>
 
-
-            {/* Paginación */}
             <Box display="flex" justifyContent="center" mt={3}>
               <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
             </Box>
           </Paper>
-
         </>
       )}
+
+      <ModalCargaMasiva
+        open={modalCargaAbierto}
+        onClose={() => setModalCargaAbierto(false)}
+        cargarFormacionesMasivo={cargarFormacionesMasivo}
+      />
     </Box>
   );
 };

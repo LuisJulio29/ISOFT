@@ -108,7 +108,7 @@ const GestionUsuarios = () => {
             ) : (
                 <>
                     <PageBreadcrumb title="Gestión de Usuarios" subName="App" />
-                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "52vh", display: "flex", flexDirection: "column" }}>
+                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4 }}>
                         <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2} mb={4}>
                             <TextField
                                 label="Buscar usuario"

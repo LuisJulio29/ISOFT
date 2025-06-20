@@ -54,7 +54,7 @@ const repo = {
                   {
                     model: Formacion,
                     as: 'formacion',
-                    attributes: ['nombre_formacion', 'linea_cualificacion', 'periodo', 'numero_horas']
+                    attributes: ['id_formacion','nombre_formacion', 'linea_cualificacion', 'periodo', 'numero_horas']
                   }
                 ]
               }
@@ -95,6 +95,7 @@ const repo = {
           linea_cualificacion: c.formacion?.linea_cualificacion || 'N/A',
           año: c.año_cursado,
           periodo: c.formacion?.periodo,
+          id_formacion: c.formacion.id_formacion
         }));  
 
         return {

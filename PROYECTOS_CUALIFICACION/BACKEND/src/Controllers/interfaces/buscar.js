@@ -1,4 +1,4 @@
-const interfacesRepository = require('../../repositories/interfaces');
+const interfacesRepository = require('../../Repositories/interfaces');
 const constants = require('../../../constants');
 
 async function handler(req, res, next) {

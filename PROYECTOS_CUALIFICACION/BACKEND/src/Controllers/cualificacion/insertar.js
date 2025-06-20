@@ -1,4 +1,4 @@
-const repo = require('../../repositories/cualificacion');
+const repo = require('../../Repositories/cualificacion');
 const constants = require('../../../constants');
 const path = require('path');
 const fs = require('fs');

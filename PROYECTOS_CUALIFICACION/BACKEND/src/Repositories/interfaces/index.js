@@ -64,7 +64,27 @@ const repo = {
       failure_message: error.message
     };
   }
+},
+listarTodas: async () => {
+  try {
+    const interfaces = await Interface.findAll({
+      attributes: ['id_interface', 'nombre', 'ruta', 'parent', 'Orden']
+    });
+
+    return {
+      status: constants.SUCCEEDED_MESSAGE,
+      interfaces
+    };
+  } catch (error) {
+    return {
+      status: constants.INTERNAL_ERROR_MESSAGE,
+      failure_code: error.code || 500,
+      failure_message: error.message,
+      interfaces: []
+    };
+  }
 }
+
 
 };
 

@@ -18,7 +18,7 @@ import { PageBreadcrumb } from "components";
 import DocentesForm from "./DocentesForm";
 import { useCaracterizacionDocentes } from "./useCaracterizacionDocentes";
 
-const itemsPerPage = 2;
+const itemsPerPage = 10;
 
 const CaracterizacionDocentes = () => {
     const {
@@ -159,9 +159,6 @@ const CaracterizacionDocentes = () => {
                                                         }}
                                                     >
                                                         <EditIcon />
-                                                    </IconButton>
-                                                    <IconButton title="Eliminar" color="error">
-                                                        <DeleteIcon />
                                                     </IconButton>
                                                 </Box>
                                             </Paper>

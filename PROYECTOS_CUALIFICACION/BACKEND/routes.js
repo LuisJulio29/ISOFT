@@ -15,7 +15,7 @@ const rutas = () => {
   const loginController = require("./src/Controllers/login");
 
   //Interface
-  const interfacesController = require('./src/controllers/interfaces');
+  const interfacesController = require('./src/Controllers/interfaces');
 
   //Usuario
   const usuariosController = require("./src/Controllers/usuarios");
@@ -24,7 +24,7 @@ const rutas = () => {
   const formacionesController = require('./src/Controllers/formaciones');
 
   //Roles
-  const rolesInterfacesController = require('./src/controllers/roles');
+  const rolesInterfacesController = require('./src/Controllers/roles');
 
   //Cualificación
   const cualificacionController = require('./src/Controllers/cualificacion');
@@ -48,6 +48,7 @@ const rutas = () => {
   // Interfaces
   router.get('/interfaces/buscar', verifyToken, interfacesController.buscar);
   router.put('/interfaces/actualizar', verifyToken, interfacesController.actualizar);
+  router.get('/interfaces/listarTodas',verifyToken,interfacesController.listarTodas);
 
   // Usuarios
   router.post("/usuarios/insertarAdmin", usuariosController.insertarAdmin);
@@ -61,7 +62,7 @@ const rutas = () => {
   router.get("/formacion/listar", verifyToken, formacionesController.listar);
   router.put("/formacion/actualizar/:id", verifyToken, formacionesController.actualizar);
   router.delete("/formacion/eliminar/:id", formacionesController.eliminar);
-  router.post("/formacion/cargaMasiva", verifyToken, upload.single('archivo'), formacionesController.cargarFormacionesMasivo);
+  router.post("/formacion/cargaMasiva",formacionesController.cargarFormacionesMasivo);
 
   //Roles
   router.post('/roles/:idRol/interfaces', verifyToken, rolesInterfacesController.guardar);

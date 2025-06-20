@@ -1,20 +1,17 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Paper,
-  TextField,
-  MenuItem,
-  Button,
-} from "@mui/material";
-import {
-  Cancel,
-  DoneAll
-} from '@mui/icons-material';
+import { Box, Paper, TextField, MenuItem, Button } from "@mui/material";
+import { Cancel, DoneAll } from "@mui/icons-material";
 import { PageBreadcrumb } from "components";
 import Swal from "sweetalert2";
 
-const FormacionesForm = ({ data = {}, onCancel, cerrarFormulario, crearFormacion, actualizarFormacion }) => {
-
+const FormacionesForm = ({
+  data = {},
+  onCancel,
+  cerrarFormulario,
+  crearFormacion,
+  actualizarFormacion,
+  modoEdicion,
+}) => {
   const [formData, setFormData] = useState({
     nombre_formacion: data.nombre_formacion || "",
     periodo: data.periodo || "",
@@ -54,28 +51,31 @@ const FormacionesForm = ({ data = {}, onCancel, cerrarFormulario, crearFormacion
 
     if (result.success) {
       await Swal.fire({
-        icon: 'success',
-        title: data.id_formacion ? 'Formación actualizada' : 'Formación creada',
-        text: result.mensaje || (data.id_formacion ? 'Actualización exitosa.' : 'Registro exitoso.'),
-        confirmButtonColor: '#3085d6'
+        icon: "success",
+        title: data.id_formacion ? "Formación actualizada" : "Formación creada",
+        text:
+          result.mensaje ||
+          (data.id_formacion ? "Actualización exitosa." : "Registro exitoso."),
+        confirmButtonColor: "#3085d6",
       });
       if (cerrarFormulario) cerrarFormulario();
-
     } else {
       await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: result.mensaje || 'Ocurrió un error.',
-        confirmButtonColor: '#d33'
+        icon: "error",
+        title: "Error",
+        text: result.mensaje || "Ocurrió un error.",
+        confirmButtonColor: "#d33",
       });
     }
   };
 
-
   return (
     <Box sx={{ display: "flex", minHeight: "40vh" }}>
       <Box sx={{ flex: 1 }}>
-        <PageBreadcrumb title="Registrar Formación" subName="App" />
+        <PageBreadcrumb
+          title={modoEdicion ? "Actualizar Formación" : "Registrar Formación"}
+          subName="App"
+        />
 
         <Paper elevation={3} sx={{ borderRadius: 4, p: 4 }}>
           <form onSubmit={handleSubmit}>
@@ -145,7 +145,6 @@ const FormacionesForm = ({ data = {}, onCancel, cerrarFormulario, crearFormacion
               />
             </Box>
 
-
             {/* Observaciones en toda la fila */}
             <Box sx={{ mt: 3 }}>
               <TextField
@@ -162,10 +161,20 @@ const FormacionesForm = ({ data = {}, onCancel, cerrarFormulario, crearFormacion
 
             {/* Botones */}
             <Box display="flex" justifyContent="flex-end" mt={4} gap={2}>
-              <Button variant="contained" onClick={onCancel} color="error" startIcon={<Cancel />}>
+              <Button
+                variant="contained"
+                onClick={onCancel}
+                color="error"
+                startIcon={<Cancel />}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" variant="contained" color="success" startIcon={<DoneAll />}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="success"
+                startIcon={<DoneAll />}
+              >
                 Guardar
               </Button>
             </Box>

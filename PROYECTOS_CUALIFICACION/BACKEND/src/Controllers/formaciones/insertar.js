@@ -1,4 +1,4 @@
-const formacionRepository = require('../../repositories/formaciones');
+const formacionRepository = require('../../Repositories/formaciones');
 const constants = require('../../../constants');
 
 async function handler(req, res) {

@@ -111,7 +111,6 @@ export const useCaracterizacionDocentes = () => {
 
         nuevasInsertadas.push(data.data);
       }
-
       return {
         success: true,
         mensaje: "Formaciones registradas correctamente.",
