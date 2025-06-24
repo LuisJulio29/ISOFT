@@ -77,26 +77,40 @@ const rutas = () => {
   router.post('/cualificacion/subirCertificado/:idCualificacion', uploadCertificado.single('certificado'), cualificacionController.subirCertificado);
   router.get('/cualificacion/obtenerPorUsuario', cualificacionController.obtenerCualificacionesPorUsuarioId);
 
-
-  // Incentivos
+  // Incentivos - Rutas básicas
   router.post('/incentivos/insertar', verifyToken, incentivosController.insertar);
   router.get('/incentivos/listar', verifyToken, incentivosController.listar);
   router.put('/incentivos/actualizar/:id', verifyToken, incentivosController.actualizar);
   router.delete('/incentivos/eliminar/:id', verifyToken, incentivosController.eliminar);
-  router.post('/incentivos/asignar', verifyToken, incentivosController.asignar);
+  const uploadResolucion = require('./src/Middlewares/uploadResolucion');
+  router.post('/incentivos/asignar', verifyToken, uploadResolucion.single('resolucion'), incentivosController.asignar);
   router.get('/incentivos/docente', verifyToken, incentivosController.listarPorDocente);
   router.get('/incentivos/docente/:idDocente', verifyToken, incentivosController.listarPorDocente);
+
+  // Incentivos - Rutas avanzadas para admin
+  router.get('/incentivos/docentes-asignados', verifyToken, incentivosController.listarDocentesAsignados);
+  router.get('/incentivos/estadisticas', verifyToken, incentivosController.obtenerEstadisticas);
+  router.get('/incentivos/calcular-fechas/:id_docente_incentivo', verifyToken, incentivosController.calcularFechasReporte);
+
+  // Incentivos - Rutas avanzadas para docentes
+  router.get('/incentivos/mi-progreso', verifyToken, incentivosController.obtenerMiProgreso);
 
   // Reportes Incentivo
   const reportesController = require('./src/Controllers/reportes_incentivo');
   const uploadPDF = require('./src/Middlewares/uploadPDF');
 
+  // Reportes - Rutas básicas
   router.post('/incentivos/reportes/subir', verifyToken, uploadPDF.single('archivo'), reportesController.subir);
   router.get('/incentivos/reportes/pendientes', verifyToken, reportesController.listarPendientes);
   router.put('/incentivos/reportes/:id/validar', verifyToken, reportesController.validar);
 
+  // Reportes - Rutas avanzadas
+  router.get('/incentivos/reportes/docente/:idDocente', verifyToken, reportesController.listarPorDocente);
+  router.get('/incentivos/reportes/mis-pendientes', verifyToken, reportesController.obtenerReportesPendientes);
+
   // Usuario Docente
   router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
+  
   return router;
 };
 

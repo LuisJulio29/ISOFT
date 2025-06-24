@@ -13,7 +13,15 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const nombre = `${Date.now()}_${file.originalname.replace(/\s+/g, '_')}`;
+    // Normalizar el nombre del archivo para evitar problemas con caracteres especiales
+    const nombreNormalizado = file.originalname
+      .normalize('NFD') // Descomponer caracteres acentuados
+      .replace(/[\u0300-\u036f]/g, '') // Remover acentos
+      .replace(/[^a-zA-Z0-9.\-_]/g, '_') // Reemplazar caracteres especiales con guiones bajos
+      .replace(/\s+/g, '_') // Reemplazar espacios con guiones bajos
+      .replace(/_+/g, '_'); // Reemplazar múltiples guiones bajos con uno solo
+    
+    const nombre = `${Date.now()}_${nombreNormalizado}`;
     cb(null, nombre);
   }
 });

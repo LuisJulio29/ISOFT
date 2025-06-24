@@ -40,6 +40,16 @@ const DocenteIncentivo = sequelize.define('DocenteIncentivo', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  resolucion: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    comment: 'Ruta del archivo PDF de resolución'
+  },
+  observaciones: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Observaciones adicionales sobre la asignación'
+  },
 }, {
   tableName: 'Docente_Incentivo',
   timestamps: false,

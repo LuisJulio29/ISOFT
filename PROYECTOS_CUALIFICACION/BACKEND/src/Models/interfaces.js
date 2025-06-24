@@ -14,6 +14,14 @@ const Interface = sequelize.define('Interface', {
   ruta: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  parent: {
+    type: DataTypes.UUID,
+    allowNull: true
+  },
+  Orden: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
   tableName: 'Interface',
