@@ -33,6 +33,13 @@ const CaracterizacionDocentes = () => {
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [docenteEditando, setDocenteEditando] = useState(null);
 
+    const [facultadFiltro, setFacultadFiltro] = useState("");
+    const [programaFiltro, setProgramaFiltro] = useState("");
+
+    const facultades = Array.from(new Set(docentes.map((d) => d.facultad).filter(Boolean)));
+    const programas = Array.from(new Set(docentes.map((d) => d.programa).filter(Boolean)));
+
+
     const openMenu = Boolean(anchorEl);
     const handleOpenMenu = (event) => setAnchorEl(event.currentTarget);
     const handleCloseMenu = () => setAnchorEl(null);
@@ -40,7 +47,10 @@ const CaracterizacionDocentes = () => {
 
     const docentesFiltrados = docentes.filter((docente) => {
         const nombreCompleto = `${docente.nombre || ""} ${docente.apellidos || ""}`.toLowerCase();
-        return nombreCompleto.includes(busqueda.toLowerCase());
+        const coincideNombre = nombreCompleto.includes(busqueda.toLowerCase());
+        const coincideFacultad = facultadFiltro ? docente.facultad === facultadFiltro : true;
+        const coincidePrograma = programaFiltro ? docente.programa === programaFiltro : true;
+        return coincideNombre && coincideFacultad && coincidePrograma;
     });
 
     const totalPages = Math.ceil(docentesFiltrados.length / itemsPerPage);
@@ -86,6 +96,7 @@ const CaracterizacionDocentes = () => {
                                     Filtros
                                 </Button>
 
+                                {/* MENÚ DE FILTROS ACTUALIZADO */}
                                 <Menu
                                     anchorEl={anchorEl}
                                     open={openMenu}
@@ -97,11 +108,56 @@ const CaracterizacionDocentes = () => {
                                         },
                                     }}
                                 >
-                                    <Box component="form" noValidate sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                                        <Button variant="contained" onClick={handleCloseMenu}>
-                                            Aplicar
-                                        </Button>
+                                    <Box component="form" noValidate sx={{ flexGrow: 1 }}>
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={6}>
+                                                <TextField
+                                                    select
+                                                    label="Facultad"
+                                                    value={facultadFiltro}
+                                                    onChange={(e) => setFacultadFiltro(e.target.value)}
+                                                    SelectProps={{ native: true }}
+                                                    InputLabelProps={{ shrink: true }}
+                                                    fullWidth
+                                                    size="small"
+                                                >
+                                                    <option value="">Todas</option>
+                                                    {facultades.map((facultad, index) => (
+                                                        <option key={index} value={facultad}>
+                                                            {facultad}
+                                                        </option>
+                                                    ))}
+                                                </TextField>
+                                            </Grid>
+
+                                            <Grid item xs={6}>
+                                                <TextField
+                                                    select
+                                                    label="Programa"
+                                                    value={programaFiltro}
+                                                    onChange={(e) => setProgramaFiltro(e.target.value)}
+                                                    SelectProps={{ native: true }}
+                                                    InputLabelProps={{ shrink: true }}
+                                                    fullWidth
+                                                    size="small"
+                                                >
+                                                    <option value="">Todos</option>
+                                                    {programas.map((programa, index) => (
+                                                        <option key={index} value={programa}>
+                                                            {programa}
+                                                        </option>
+                                                    ))}
+                                                </TextField>
+                                            </Grid>
+
+                                            <Grid item xs={12}>
+                                                <Button variant="contained" onClick={handleCloseMenu} fullWidth>
+                                                    Aplicar
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
                                     </Box>
+
                                 </Menu>
 
                                 <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>
@@ -112,83 +168,82 @@ const CaracterizacionDocentes = () => {
 
                         {/* Loader o Lista */}
                         {loading ? (
-                                <Box display="flex" justifyContent="center" mt={4}>
-                                    <CircularProgress />
+                            <Box display="flex" justifyContent="center" mt={4}>
+                                <CircularProgress />
+                            </Box>
+                        ) : error ? (
+                            <Box display="flex" justifyContent="center" mt={4}>
+                                <Typography color="error">{error}</Typography>
+                            </Box>
+                        ) : docentesPaginados.length > 0 ? (
+                            <>
+                                {/* Lista con scroll */}
+                                <Box sx={{ maxHeight: 260, overflowY: "auto", pr: 1 }}>
+                                    <Grid container direction="column" spacing={2}>
+                                        {docentesPaginados.map((docente, index) => (
+                                            <Grid item key={index}>
+                                                <Paper
+                                                    variant="outlined"
+                                                    sx={{
+                                                        p: 2,
+                                                        borderRadius: 2,
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        minHeight: 80,
+                                                    }}
+                                                >
+                                                    <Box>
+                                                        <Typography variant="h6">
+                                                            {`${docente.nombre} ${docente.apellidos}`}
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            Cédula: <strong>{docente.cedula}</strong>
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            Correo: {docente.correo_institucional}
+                                                        </Typography>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            Programa: {docente.programa || "N/A"}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box display="flex" gap={1}>
+                                                        <IconButton
+                                                            title="Ver detalles"
+                                                            color="primary"
+                                                            onClick={() => {
+                                                                setDocenteEditando(docente);
+                                                                setMostrarFormulario(true);
+                                                            }}
+                                                        >
+                                                            <EditIcon />
+                                                        </IconButton>
+                                                    </Box>
+                                                </Paper>
+                                            </Grid>
+                                        ))}
+                                    </Grid>
                                 </Box>
-                            ) : error ? (
-                                <Box display="flex" justifyContent="center" mt={4}>
-                                    <Typography color="error">{error}</Typography>
-                                </Box>
-                            ) : docentesPaginados.length > 0 ? (
-                                <>
-                                    {/* Lista con scroll */}
-                                    <Box sx={{ maxHeight: 260, overflowY: "auto", pr: 1 }}>
-                                        <Grid container direction="column" spacing={2}>
-                                            {docentesPaginados.map((docente, index) => (
-                                                <Grid item key={index}>
-                                                    <Paper
-                                                        variant="outlined"
-                                                        sx={{
-                                                            p: 2,
-                                                            borderRadius: 2,
-                                                            display: "flex",
-                                                            justifyContent: "space-between",
-                                                            alignItems: "center",
-                                                            minHeight: 80,
-                                                        }}
-                                                    >
-                                                        <Box>
-                                                            <Typography variant="h6">
-                                                                {`${docente.nombre} ${docente.apellidos}`}
-                                                            </Typography>
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                Cédula: <strong>{docente.cedula}</strong>
-                                                            </Typography>
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                Correo: {docente.correo_institucional}
-                                                            </Typography>
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                Programa: {docente.programa || "N/A"}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box display="flex" gap={1}>
-                                                            <IconButton
-                                                                title="Ver detalles"
-                                                                color="primary"
-                                                                onClick={() => {
-                                                                    setDocenteEditando(docente);
-                                                                    setMostrarFormulario(true);
-                                                                }}
-                                                            >
-                                                                <EditIcon />
-                                                            </IconButton>
-                                                        </Box>
-                                                    </Paper>
-                                                </Grid>
-                                            ))}
-                                        </Grid>
-                                    </Box>
 
-                                    {/* Paginación debajo del listado */}
-                                    <Box display="flex" justifyContent="center" mt={3}>
-                                        <Pagination
-                                            count={totalPages}
-                                            page={page}
-                                            onChange={handlePageChange}
-                                            color="primary"
-                                            siblingCount={0}
-                                            boundaryCount={1}
-                                        />
-                                    </Box>
-                                </>
-                            ) : (
-                                <Box display="flex" justifyContent="center" alignItems="center" height={200}>
-                                    <Typography variant="body1" color="text.secondary">
-                                        No hay coincidencias
-                                    </Typography>
+                                {/* Paginación debajo del listado */}
+                                <Box display="flex" justifyContent="center" mt={3}>
+                                    <Pagination
+                                        count={totalPages}
+                                        page={page}
+                                        onChange={handlePageChange}
+                                        color="primary"
+                                        siblingCount={0}
+                                        boundaryCount={1}
+                                    />
                                 </Box>
-                            )}
-
+                            </>
+                        ) : (
+                            <Box display="flex" justifyContent="center" alignItems="center" height={200}>
+                                <Typography variant="body1" color="text.secondary">
+                                    No hay coincidencias
+                                </Typography>
+                            </Box>
+                        )}
 
                         {/* Paginación */}
                         {!loading && totalPages > 1 && (
