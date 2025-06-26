@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const upload = require('./src/Middlewares/upload');
+const uploadCertificado = require('./src/Middlewares/uploadCertificado')
 const constants = require("./constants");
 const verifyToken = require('./src/Middlewares/authentication');
 
@@ -14,7 +15,7 @@ const rutas = () => {
   const loginController = require("./src/Controllers/login");
 
   //Interface
-  const interfacesController = require('./src/controllers/interfaces');
+  const interfacesController = require('./src/Controllers/interfaces');
 
   //Usuario
   const usuariosController = require("./src/Controllers/usuarios");
@@ -23,10 +24,13 @@ const rutas = () => {
   const formacionesController = require('./src/Controllers/formaciones');
 
   //Roles
-  const rolesInterfacesController = require('./src/controllers/roles');
+  const rolesInterfacesController = require('./src/Controllers/roles');
 
   //Cualificación
   const cualificacionController = require('./src/Controllers/cualificacion');
+
+  // Incentivos
+  const incentivosController = require('./src/Controllers/incentivos');
 
   //Usuario Docente
   const usuarioDocenteController = require('./src/Controllers/usuario_docente');
@@ -44,6 +48,7 @@ const rutas = () => {
   // Interfaces
   router.get('/interfaces/buscar', verifyToken, interfacesController.buscar);
   router.put('/interfaces/actualizar', verifyToken, interfacesController.actualizar);
+  router.get('/interfaces/listarTodas',verifyToken,interfacesController.listarTodas);
 
   // Usuarios
   router.post("/usuarios/insertarAdmin", usuariosController.insertarAdmin);
@@ -57,7 +62,7 @@ const rutas = () => {
   router.get("/formacion/listar", verifyToken, formacionesController.listar);
   router.put("/formacion/actualizar/:id", verifyToken, formacionesController.actualizar);
   router.delete("/formacion/eliminar/:id", formacionesController.eliminar);
-  router.post("/formacion/cargaMasiva", verifyToken, upload.single('archivo'), formacionesController.cargarFormacionesMasivo);
+  router.post("/formacion/cargaMasiva",formacionesController.cargarFormacionesMasivo);
 
   //Roles
   router.post('/roles/:idRol/interfaces', verifyToken, rolesInterfacesController.guardar);
@@ -66,12 +71,46 @@ const rutas = () => {
 
   // Cualificación
   router.get('/cualificacion/listar', cualificacionController.listar);
-  router.post('/cualificacion/insertar', cualificacionController.insertar);
+  router.post('/cualificacion/insertar', uploadCertificado.single('certificado'),cualificacionController.insertar);
   router.put('/cualificacion/actualizar/:id', cualificacionController.actualizar);
   router.delete('/cualificacion/eliminar/:id', cualificacionController.eliminar);
+  router.post('/cualificacion/subirCertificado/:idCualificacion', uploadCertificado.single('certificado'), cualificacionController.subirCertificado);
+  router.get('/cualificacion/obtenerPorUsuario', cualificacionController.obtenerCualificacionesPorUsuarioId);
+
+  // Incentivos - Rutas básicas
+  router.post('/incentivos/insertar', verifyToken, incentivosController.insertar);
+  router.get('/incentivos/listar', verifyToken, incentivosController.listar);
+  router.put('/incentivos/actualizar/:id', verifyToken, incentivosController.actualizar);
+  router.delete('/incentivos/eliminar/:id', verifyToken, incentivosController.eliminar);
+  const uploadResolucion = require('./src/Middlewares/uploadResolucion');
+  router.post('/incentivos/asignar', verifyToken, uploadResolucion.single('resolucion'), incentivosController.asignar);
+  router.get('/incentivos/docente', verifyToken, incentivosController.listarPorDocente);
+  router.get('/incentivos/docente/:idDocente', verifyToken, incentivosController.listarPorDocente);
+
+  // Incentivos - Rutas avanzadas para admin
+  router.get('/incentivos/docentes-asignados', verifyToken, incentivosController.listarDocentesAsignados);
+  router.get('/incentivos/estadisticas', verifyToken, incentivosController.obtenerEstadisticas);
+  router.get('/incentivos/calcular-fechas/:id_docente_incentivo', verifyToken, incentivosController.calcularFechasReporte);
+
+  // Incentivos - Rutas avanzadas para docentes
+  router.get('/incentivos/mi-progreso', verifyToken, incentivosController.obtenerMiProgreso);
+
+  // Reportes Incentivo
+  const reportesController = require('./src/Controllers/reportes_incentivo');
+  const uploadPDF = require('./src/Middlewares/uploadPDF');
+
+  // Reportes - Rutas básicas
+  router.post('/incentivos/reportes/subir', verifyToken, uploadPDF.single('archivo'), reportesController.subir);
+  router.get('/incentivos/reportes/pendientes', verifyToken, reportesController.listarPendientes);
+  router.put('/incentivos/reportes/:id/validar', verifyToken, reportesController.validar);
+
+  // Reportes - Rutas avanzadas
+  router.get('/incentivos/reportes/docente/:idDocente', verifyToken, reportesController.listarPorDocente);
+  router.get('/incentivos/reportes/mis-pendientes', verifyToken, reportesController.obtenerReportesPendientes);
 
   // Usuario Docente
   router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
+  
   return router;
 };
 

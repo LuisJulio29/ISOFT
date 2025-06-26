@@ -1,4 +1,4 @@
-const usuariosRepository = require('../../repositories/usuarios');
+const usuariosRepository = require('../../Repositories/usuarios');
 const constants = require('../../../constants');
 
 async function handler(req, res) {

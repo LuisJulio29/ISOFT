@@ -1,26 +1,28 @@
-import React, { useState } from "react";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { FaEdit } from "react-icons/fa";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { FaUserTie } from "react-icons/fa6";
+import { FaUser } from "react-icons/fa";
 import {
     Box,
-    Typography,
-    Paper,
     Button,
-    TextField,
-    MenuItem,
     IconButton,
-    Modal,
     Menu,
-    Pagination
+    MenuItem,
+    Pagination,
+    Paper,
+    TextField,
+    Typography,
+    Tooltip
 } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { PageBreadcrumb } from "components";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
+import { useState } from "react";
+import Swal from 'sweetalert2';
 import ModalCargaMasiva from "./ModalCargaMasiva";
 import UsuariosForm from "./UsuariosForm";
 import FiltrosUsuarios from "./filtrosUsuarios";
 import { useUsuarios } from "./useUsuarios"; // Ajusta la ruta según tu proyecto
-import Swal from 'sweetalert2';
 
 
 const GestionUsuarios = () => {
@@ -46,11 +48,11 @@ const GestionUsuarios = () => {
         return cumpleBusqueda && cumpleRol;
     });
 
-
-
     const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
     const startIndex = (page - 1) * itemsPerPage;
     const usuariosPaginados = usuariosFiltrados.slice(startIndex, startIndex + itemsPerPage);
+    const totalItems = usuariosFiltrados.length;
+    const itemsMostrados = startIndex + usuariosPaginados.length;
 
 
     const confirmarEliminacion = (usuario) => {
@@ -91,11 +93,7 @@ const GestionUsuarios = () => {
     };
 
 
-    const handleCancelar = () => {
-        setUsuarioEditando(null);
-        setMostrarFormulario(false);
-    };
-
+    const handleCancelar = () => { setUsuarioEditando(null); setMostrarFormulario(false) };
     const handlePageChange = (_, value) => setPage(value);
     const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
     const handleCloseMenu = () => setAnchorEl(null);
@@ -108,7 +106,7 @@ const GestionUsuarios = () => {
             ) : (
                 <>
                     <PageBreadcrumb title="Gestión de Usuarios" subName="App" />
-                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "52vh", display: "flex", flexDirection: "column" }}>
+                    <Paper elevation={2} sx={{ borderRadius: 4, p: 4 }}>
                         <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2} mb={4}>
                             <TextField
                                 label="Buscar usuario"
@@ -162,7 +160,7 @@ const GestionUsuarios = () => {
                         </Box>
 
                         <Box sx={{
-                            maxHeight: 500, overflowY: "auto", pr: 1, scrollbarWidth: "thin", scrollbarColor: "#ccc transparent",
+                            maxHeight: 261, overflowY: "auto", pr: 1, scrollbarWidth: "thin", scrollbarColor: "#ccc transparent",
                             "&::-webkit-scrollbar": {
                                 width: "6px",
                             },
@@ -187,28 +185,45 @@ const GestionUsuarios = () => {
                                             mb: 2,
                                             borderRadius: 2,
                                             display: "flex",
-                                            justifyContent: "space-between",
                                             alignItems: "center",
+                                            justifyContent: "space-between",
                                         }}
                                     >
-                                        <Box>
-                                            <Typography variant="h6" fontWeight="bold">
-                                                {user.nombres}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Usuario: {user.nombre_usuario}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Rol: {user.rol_nombre}
-                                            </Typography>
+                                        <Box display="flex" alignItems="center" gap={2}>
+                                            {/* Ícono según rol */}
+                                            {user.rol_nombre?.toLowerCase() === "docente" ? (
+                                                <FaUserTie size={28} />
+                                            ) : (
+                                                <FaUser size={28} />
+                                            )}
+
+                                            {/* Info del usuario */}
+                                            <Box>
+                                                <Typography variant="h6" fontWeight="bold">
+                                                    {user.nombres}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Usuario: {user.nombre_usuario}
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Rol: {user.rol_nombre}
+                                                </Typography>
+                                            </Box>
                                         </Box>
+
+                                        {/* Botones de acción */}
                                         <Box display="flex" gap={1}>
-                                            <IconButton color="primary" onClick={() => handleEditar(user)}>
-                                                <EditIcon />
-                                            </IconButton>
-                                            <IconButton color="error" onClick={() => confirmarEliminacion(user)}>
-                                                <DeleteIcon />
-                                            </IconButton>
+                                            <Tooltip title="Editar usuario" arrow>
+                                                <IconButton color="primary" onClick={() => handleEditar(user)}>
+                                                    <FaEdit />
+                                                </IconButton>
+                                            </Tooltip>
+
+                                            <Tooltip title="Eliminar usuario" arrow>
+                                                <IconButton color="error" onClick={() => confirmarEliminacion(user)}>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Tooltip>
                                         </Box>
                                     </Paper>
                                 ))
@@ -221,9 +236,42 @@ const GestionUsuarios = () => {
                             )}
                         </Box>
 
-                        <Box display="flex" justifyContent="center" mt={2}>
-                            <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
+                        <Box
+                            display="flex"
+                            flexDirection={{ xs: "column", sm: "row" }}
+                            alignItems="center"
+                            justifyContent="center"
+                            mt={3}
+                            gap={1}
+                            position="relative"
+                        >
+                            <Pagination
+                                count={totalPages}
+                                page={page}
+                                onChange={handlePageChange}
+                                color="primary"
+                                siblingCount={0}
+                                boundaryCount={1}
+                            />
+
+                            <Box
+                                sx={{
+                                    position: { xs: "static", sm: "absolute" },
+                                    top: { sm: "50%" },
+                                    right: { sm: 0 },
+                                    transform: { sm: "translateY(-50%)" },
+                                    textAlign: { xs: "center", sm: "right" },
+                                    width: { xs: "100%", sm: "auto" },
+                                    pr: { sm: 1 },
+                                    mt: { xs: 1, sm: 0 },
+                                }}
+                            >
+                                <Typography variant="body2" color="text.secondary">
+                                    Mostrando {itemsMostrados} de {totalItems}
+                                </Typography>
+                            </Box>
                         </Box>
+
                     </Paper>
                 </>
             )}

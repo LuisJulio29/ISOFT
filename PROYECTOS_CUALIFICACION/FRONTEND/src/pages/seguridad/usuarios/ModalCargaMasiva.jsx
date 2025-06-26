@@ -18,6 +18,7 @@ import {
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 const rolesDisponibles = ["Docente"];
+import { FaFileDownload } from "react-icons/fa";
 
 const ModalCargaMasiva = ({ open, onClose, onDataParsed, insertarDocentesMasivo }) => {
   const [archivoNombre, setArchivoNombre] = useState("");
@@ -48,12 +49,23 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed, insertarDocentesMasivo 
     };
     reader.readAsBinaryString(file);
   };
+  const handleDescargarPlantilla = () => {
+    const plantilla = [
+      { numero_identificacion: '' }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(plantilla);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Plantilla_Creacion_Docentes");
+
+    XLSX.writeFile(workbook, "PlantillaCargaMasiva.xlsx");
+  };
 
   const handleSubir = async () => {
     if (datosExcel.length > 0) {
       const datosConRol = datosExcel.map((usuario) => ({
         numero_identificacion: usuario.numero_identificacion,
-        id_rol: 2 
+        id_rol: 2
       }));
 
       try {
@@ -66,38 +78,38 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed, insertarDocentesMasivo 
         setDatosExcel([]);
 
         // Mostrar resumen con SweetAlert
-      if (response.success && response.resumen) {
-        const { exitosos, yaExistentes, fallidos } = response.resumen;
+        if (response.success && response.resumen) {
+          const { exitosos, yaExistentes, fallidos } = response.resumen;
 
-        // Mostrar swal sin mostrar los errores directamente
-        Swal.fire({
-          title: "Carga finalizada",
-          icon: exitosos.length > 0 ? "success" : "info",
-          html: `
+          // Mostrar swal sin mostrar los errores directamente
+          Swal.fire({
+            title: "Carga finalizada",
+            icon: exitosos.length > 0 ? "success" : "info",
+            html: `
             <p><b>Nuevos usuarios creados:</b> ${exitosos.length}</p>
             <p><b>Usuarios ya existentes:</b> ${yaExistentes.length}</p>
             <p><b>Fallidos:</b> ${fallidos.length}</p>
             ${fallidos.length > 0 ? "<p><b>Haz clic en el botón para descargar errores.</b></p>" : ""}
           `,
-          showCancelButton: fallidos.length > 0,
-          cancelButtonText: "Descargar errores",
-          confirmButtonText: "Cerrar"
-        }).then((result) => {
-          if (result.dismiss === Swal.DismissReason.cancel && fallidos.length > 0) {
-            const worksheet = XLSX.utils.json_to_sheet(fallidos);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Errores");
-            XLSX.writeFile(workbook, "NumerosIdentificaciónNoEncontrados.xlsx");
-          }
-        });
-      } else {
-        Swal.fire("Error", response.error || "Error inesperado", "error");
+            showCancelButton: fallidos.length > 0,
+            cancelButtonText: "Descargar errores",
+            confirmButtonText: "Cerrar"
+          }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.cancel && fallidos.length > 0) {
+              const worksheet = XLSX.utils.json_to_sheet(fallidos);
+              const workbook = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(workbook, worksheet, "Errores");
+              XLSX.writeFile(workbook, "NumerosIdentificaciónNoEncontrados.xlsx");
+            }
+          });
+        } else {
+          Swal.fire("Error", response.error || "Error inesperado", "error");
+        }
+      } catch (error) {
+        console.error("Error al insertar docentes:", error);
+        onClose();
+        Swal.fire("Error", "Ocurrió un error inesperado", "error");
       }
-    } catch (error) {
-      console.error("Error al insertar docentes:", error);
-      onClose();
-      Swal.fire("Error", "Ocurrió un error inesperado", "error");
-    }
     }
   };
 
@@ -131,22 +143,36 @@ const ModalCargaMasiva = ({ open, onClose, onDataParsed, insertarDocentesMasivo 
         <Typography variant="body2" color="text.secondary" mb={2}>
           Sube un archivo <b>.csv</b>  con los datos de los usuarios.
         </Typography>
+        <Box display="flex" alignItems="center" gap={1} sx={{ mb: 2 }}>
+          <TextField
+            select
+            label="Asignar rol a todos los usuarios a subir"
+            size="small"
+            value={rolSeleccionado}
+            onChange={(e) => setRolSeleccionado(e.target.value)}
+            sx={{ flex: 1 }} // En lugar de fullWidth
+          >
+            {rolesDisponibles.map((rol) => (
+              <MenuItem key={rol} value={rol}>
+                {rol}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        <TextField
-          select
-          label="Asignar rol a todos los usuarios a subir"
-          fullWidth
-          size="small"
-          value={rolSeleccionado}
-          onChange={(e) => setRolSeleccionado(e.target.value)}
-          sx={{ mb: 2 }}
-        >
-          {rolesDisponibles.map((rol) => (
-            <MenuItem key={rol} value={rol}>
-              {rol}
-            </MenuItem>
-          ))}
-        </TextField>
+          <Button
+            onClick={handleDescargarPlantilla}
+            color="primary"
+            variant="outlined"
+            sx={{
+              padding: '6px',
+              minWidth: 40,
+              height: '40px',
+            }}
+            title="Descargar plantilla"
+          >
+            <FaFileDownload />
+          </Button>
+        </Box>
 
         <Button
           variant="outlined"

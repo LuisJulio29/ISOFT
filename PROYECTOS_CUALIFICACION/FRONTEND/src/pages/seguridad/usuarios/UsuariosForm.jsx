@@ -62,7 +62,7 @@ const UsuariosForm = ({ onCancel, data = {}, onSave }) => {
 
     return (
         <Box component="main" sx={{ flexGrow: 1, p: 1 }}>
-            {console.log("Datos del usuario:", data)
+            {
             }
             <PageBreadcrumb
                 title={data?.id_usuario ? "Editar Usuario" : "Crear Usuario"}

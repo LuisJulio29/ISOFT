@@ -39,7 +39,10 @@ const {
   Pregrado,
   Especializacion,
   Magister,
-  Doctorado
+  Doctorado,
+  Incentivo,
+  DocenteIncentivo,
+  ReporteIncentivo
 } = db;
 
 // Relaciones
@@ -114,6 +117,20 @@ if (Docente && Magister) {
 }
 if (Docente && Doctorado) {
   Docente.hasMany(Doctorado, { foreignKey: 'docente_id', as: 'doctorados' });
+}
+
+// --------- NUEVAS RELACIONES INCENTIVOS ---------
+if (Docente && Incentivo && DocenteIncentivo) {
+  Docente.hasMany(DocenteIncentivo, { foreignKey: 'id_docente', as: 'incentivos_docente' });
+  DocenteIncentivo.belongsTo(Docente, { foreignKey: 'id_docente', as: 'docente' });
+
+  Incentivo.hasMany(DocenteIncentivo, { foreignKey: 'id_incentivo', as: 'docentes_asignados' });
+  DocenteIncentivo.belongsTo(Incentivo, { foreignKey: 'id_incentivo', as: 'incentivo' });
+}
+
+if (DocenteIncentivo && ReporteIncentivo) {
+  DocenteIncentivo.hasMany(ReporteIncentivo, { foreignKey: 'id_docente_incentivo', as: 'reportes' });
+  ReporteIncentivo.belongsTo(DocenteIncentivo, { foreignKey: 'id_docente_incentivo', as: 'docente_incentivo' });
 }
 
 db.sequelize = sequelize;

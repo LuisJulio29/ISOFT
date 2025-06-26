@@ -1,7 +1,22 @@
-import React, { useState } from 'react';
-import { Box, Button, Menu, TextField, MenuItem } from '@mui/material';
+import React, { useState, useMemo } from "react";
+import {
+  Box,
+  Menu,
+  Typography,
+  Button,
+  Grid,
+  Autocomplete,
+  TextField,
+} from "@mui/material";
+import { HiOutlineDownload } from "react-icons/hi";
 
-const FiltrosFormaciones = ({ anchorEl, handleClose, onAplicarFiltros }) => {
+const FiltrosFormaciones = ({
+  anchorEl,
+  handleClose,
+  onAplicarFiltros,
+  formaciones,
+  onDescargar,
+}) => {
   const open = Boolean(anchorEl);
 
   const [linea, setLinea] = useState("Todos");
@@ -13,61 +28,125 @@ const FiltrosFormaciones = ({ anchorEl, handleClose, onAplicarFiltros }) => {
     handleClose();
   };
 
+  const limpiarFiltros = () => {
+    setLinea("Todos");
+    setPeriodo("Todos");
+    setHoras("Todos");
+    onAplicarFiltros({ linea: "Todos", periodo: "Todos", horas: "Todos" });
+    handleClose();
+  };
+
+  const lineasUnicas = useMemo(() => {
+    const set = new Set(formaciones.map(f => f.linea_cualificacion).filter(Boolean));
+    return ["Todos", ...Array.from(set)];
+  }, [formaciones]);
+
+  const periodosUnicos = useMemo(() => {
+    const set = new Set(formaciones.map(f => f.periodo).filter(Boolean));
+    return ["Todos", ...Array.from(set)];
+  }, [formaciones]);
+
+  const horasUnicas = useMemo(() => {
+    const set = new Set(formaciones.map(f => f.numero_horas).filter(Boolean));
+    return ["Todos", ...Array.from(set).sort((a, b) => a - b)];
+  }, [formaciones]);
+
   return (
     <Menu
       anchorEl={anchorEl}
       open={open}
       onClose={handleClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       slotProps={{
         paper: {
           elevation: 3,
           sx: {
             mt: 1.5,
-            minWidth: 500,
+            width: { xs: '60vw', sm: 261 },
+            maxHeight: '80vh',
+            overflowY: 'auto',
             px: 2,
             py: 2,
+            borderRadius: 2,
           },
         },
       }}
     >
-      <Box
-        component="form"
-        autoComplete="off"
-        noValidate
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 2,
-          flexWrap: "wrap",
-        }}
-      >
-        <TextField select label="Línea de Cualificación" value={linea} onChange={(e) => setLinea(e.target.value)} size="small" sx={{ minWidth: 180 }}>
-          <MenuItem value="Todos">Todos</MenuItem>
-          <MenuItem value="Docencia">Docencia</MenuItem>
-          <MenuItem value="Investigación">Investigación</MenuItem>
-          <MenuItem value="TIC">TIC</MenuItem>
-          <MenuItem value="Administrativa">Administrativa</MenuItem>
-        </TextField>
+      <Box>
+        <Typography variant="subtitle1" fontWeight="bold" mb={2}>
+          Filtros de formación
+        </Typography>
 
-        <TextField select label="Período" value={periodo} onChange={(e) => setPeriodo(e.target.value)} size="small" sx={{ minWidth: 140 }}>
-          <MenuItem value="Todos">Todos</MenuItem>
-          <MenuItem value="2024">2024</MenuItem>
-          <MenuItem value="2023">2023</MenuItem>
-          <MenuItem value="2022">2022</MenuItem>
-        </TextField>
+        <Grid container spacing={1}>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={lineasUnicas}
+              value={linea}
+              onChange={(_, newValue) => setLinea(newValue || "Todos")}
+              renderInput={(params) => (
+                <TextField {...params} label="Línea de Cualificación" size="small" />
+              )}
+              fullWidth
+              clearOnEscape
+              size="small"
+            />
+          </Grid>
 
-        <TextField select label="Horas" value={horas} onChange={(e) => setHoras(e.target.value)} size="small" sx={{ minWidth: 120 }}>
-          <MenuItem value="Todos">Todos</MenuItem>
-          <MenuItem value="20">20</MenuItem>
-          <MenuItem value="40">40</MenuItem>
-          <MenuItem value="80">80</MenuItem>
-          <MenuItem value="100">100</MenuItem>
-        </TextField>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={periodosUnicos}
+              value={periodo}
+              onChange={(_, newValue) => setPeriodo(newValue || "Todos")}
+              renderInput={(params) => (
+                <TextField {...params} label="Período" size="small" />
+              )}
+              fullWidth
+              clearOnEscape
+              size="small"
+            />
+          </Grid>
 
-        <Button variant="contained" color="primary" onClick={aplicarFiltros}>
-          Aplicar
-        </Button>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={horasUnicas}
+              value={horas}
+              onChange={(_, newValue) => setHoras(newValue || "Todos")}
+              renderInput={(params) => (
+                <TextField {...params} label="Horas" size="small" />
+              )}
+              fullWidth
+              clearOnEscape
+              size="small"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Grid container spacing={1}>
+              <Grid item xs={6}>
+                <Button variant="outlined" fullWidth onClick={limpiarFiltros}>
+                  Limpiar
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button variant="contained" fullWidth onClick={aplicarFiltros}>
+                  Aplicar
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  fullWidth
+                  onClick={onDescargar}
+                  startIcon={<HiOutlineDownload />}
+                >
+                  Descargar
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
       </Box>
     </Menu>
   );

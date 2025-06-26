@@ -1,4 +1,4 @@
-const rolesInterfaceRepo = require('../../repositories/roles_interface');
+const rolesInterfaceRepo = require('../../Repositories/roles_interface');
 
 async function handler(req, res) {
   try {

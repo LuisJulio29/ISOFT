@@ -34,6 +34,8 @@ const privateRoutes = [
   { path: "/Usuarios", ...lazyLoad(() => import("../pages/seguridad/usuarios")) },
   { path: "/Roles", ...lazyLoad(() => import("../pages/seguridad/Roles")) },
   { path: "/misCualificaciones", ...lazyLoad(() => import("../pages/misCualificaciones")) },
+  { path: "/GestionIncentivos", ...lazyLoad(() => import("../pages/gestionIncentivos")) },
+  { path: "/misIncentivos", ...lazyLoad(() => import("../pages/misIncentivos")) },
 ];
 
 // Exporta todas juntas

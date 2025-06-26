@@ -6,82 +6,69 @@ import {
   Divider
 } from "@mui/material";
 import { Cancel, DoneAll } from "@mui/icons-material";
+import Swal from 'sweetalert2';
 import CheckboxTree from "react-checkbox-tree";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
 import "font-awesome/css/font-awesome.min.css";
 import { useRoles } from "./useRoles";
-import { gsUrlApi } from "@src/config/ConfigServer";
 
 const RolForm = ({ rol, reset }) => {
-  const { obtenerInterfacesPorRol, guardarInterfacesPorRol } = useRoles();
+  const {
+    guardarInterfacesPorRol,
+    obtenerDatosDePermisosPorRol
+  } = useRoles();
+
   const [formData, setFormData] = useState(rol);
   const [treeData, setTreeData] = useState([]);
   const [checked, setChecked] = useState([]);
   const [expanded, setExpanded] = useState(["vistas", "seguridad"]);
 
   useEffect(() => {
+    const cargar = async () => {
+      try {
+        const { treeData, checked } = await obtenerDatosDePermisosPorRol(rol.id_rol);
+        setTreeData(treeData);
+        setChecked(checked);
+        setFormData(rol);
+      } catch (error) {
+        console.error("Error al cargar interfaces:", error);
+      }
+    };
+
     if (rol?.id_rol) {
-      obtenerInterfacesPorRol(rol.id_rol)
-        .then((data) => {
-          setChecked(data.map((i) => i.id_interface));
-        })
-        .catch((err) => console.error("Error al cargar interfaces:", err));
+      cargar();
     }
-    setFormData(rol);
   }, [rol]);
-
-useEffect(() => {
-  fetch(`${gsUrlApi}/interfaces/buscar`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      const interfaces = data.interfaces || [];
-
-      const vistas = interfaces.filter(
-        (i) => i.parent === null && i.nombre !== "Inicio"
-      );
-
-      const tree = [
-        {
-          value: "vistas",
-          label: "Vistas",
-          children: vistas.map((vista) => {
-            const hijos = interfaces.filter(
-              (hijo) => hijo.parent === vista.id_interface
-            );
-            return {
-              value: vista.id_interface,
-              label: vista.nombre,
-              ...(hijos.length > 0 && {
-                children: hijos.map((hijo) => ({
-                  value: hijo.id_interface,
-                  label: hijo.nombre,
-                })),
-              }),
-            };
-          }),
-        },
-      ];
-
-      setTreeData(tree);
-    })
-    .catch((err) => console.error("Error cargando interfaces:", err));
-}, []);
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const idInicio = '11111111-1111-1111-1111-111111111108';
+    const checkedWithInicio = checked.includes(idInicio)
+      ? checked
+      : [...checked, idInicio];
+
     try {
-      await guardarInterfacesPorRol(rol.id_rol, checked);
-      alert("Permisos guardados correctamente");
+      await guardarInterfacesPorRol(rol.id_rol, checkedWithInicio);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Guardado correctamente',
+        text: 'Los permisos han sido actualizados.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#7C4DFF',
+      });
     } catch (error) {
-      alert("Error al guardar permisos",error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al guardar los permisos.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#7C4DFF',
+      });
     }
   };
+console.log("TreeData", treeData);
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -97,7 +84,6 @@ useEffect(() => {
         disabled
         InputLabelProps={{ shrink: true }}
       />
-
 
       <TextField
         fullWidth

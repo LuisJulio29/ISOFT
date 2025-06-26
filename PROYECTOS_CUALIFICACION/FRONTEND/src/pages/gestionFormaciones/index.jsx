@@ -1,9 +1,9 @@
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+import { FaEdit } from "react-icons/fa";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { LuFileSpreadsheet } from "react-icons/lu";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { GiBookmark } from "react-icons/gi";
 import {
   Box,
   Button,
@@ -13,14 +13,17 @@ import {
   TextField,
   Typography,
   Menu,
-  MenuItem
+  MenuItem,
+  Tooltip
 } from "@mui/material";
 import { PageBreadcrumb } from "components";
 import { useState } from "react";
 import Swal from 'sweetalert2';
+import { useFiltrosFormaciones } from './useFiltrosFormaciones';
 import FiltrosFormaciones from './filtrosFormaciones';
 import FormacionesForm from "./FormacionesForm";
 import { useFormaciones } from "./useFormaciones";
+import ModalCargaMasiva from "./modalCargaMasiva";
 
 const GestionFormaciones = () => {
   const {
@@ -30,51 +33,35 @@ const GestionFormaciones = () => {
     actualizarFormacion,
     cargarFormacionesMasivo
   } = useFormaciones();
+
+  const {
+    filtros,
+    setFiltros,
+    formacionesFiltradas,
+    descargarExcel,
+  } = useFiltrosFormaciones(formaciones);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorAddMenu, setAnchorAddMenu] = useState(null);
+
   const [page, setPage] = useState(1);
   const [busqueda, setBusqueda] = useState("");
+
+
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [formacionEditando, setFormacionEditando] = useState(null);
-  const [anchorAddMenu, setAnchorAddMenu] = useState(null);
-  const [filtros, setFiltros] = useState({
-    linea: 'Todos',
-    periodo: 'Todos',
-    horas: 'Todos'
-  });
+  const [modalCargaAbierto, setModalCargaAbierto] = useState(false);
 
   const itemsPerPage = 10;
-  const formacionesFiltradas = formaciones
-    .filter((f) =>
-      (f.nombre_formacion?.toLowerCase() || '').includes(busqueda.toLowerCase()) ||
-      (f.linea_cualificacion?.toLowerCase() || '').includes(busqueda.toLowerCase())
-    )
-    .filter((f) => {
-      const lineaOk = filtros.linea === 'Todos' || f.linea_cualificacion === filtros.linea;
-      const periodoOk = filtros.periodo === 'Todos' || f.periodo === filtros.periodo;
-      const horasOk = filtros.horas === 'Todos' || String(f.numero_horas) === filtros.horas;
-      return lineaOk && periodoOk && horasOk;
-    });
 
   const totalPages = Math.ceil(formacionesFiltradas.length / itemsPerPage);
   const startIndex = (page - 1) * itemsPerPage;
   const formacionesPaginadas = formacionesFiltradas.slice(startIndex, startIndex + itemsPerPage);
+  const totalItems = formacionesFiltradas.length;
+  const itemsMostrados = startIndex + formacionesPaginadas.length;
 
   const handlePageChange = (_, value) => setPage(value);
   const handleOpenMenu = (e) => setAnchorEl(e.currentTarget);
   const handleCloseMenu = () => setAnchorEl(null);
-
-  const handleCargaArchivo = async (event) => {
-    const archivo = event.target.files[0];
-    if (!archivo) return;
-
-    const resultado = await cargarFormacionesMasivo(archivo);
-
-    Swal.fire({
-      icon: resultado.success ? "success" : "error",
-      title: resultado.success ? "Carga exitosa" : "Error",
-      text: resultado.mensaje,
-    });
-  };
 
   const confirmarEliminacion = (formacion) => {
     Swal.fire({
@@ -99,10 +86,7 @@ const GestionFormaciones = () => {
     });
   };
 
-
-
   return (
-
     <Box
       sx={{
         flexGrow: 1,
@@ -133,21 +117,14 @@ const GestionFormaciones = () => {
           cerrarFormulario={() => setMostrarFormulario(false)}
           crearFormacion={crearFormacion}
           actualizarFormacion={actualizarFormacion}
+          modoEdicion={!!formacionEditando}
         />
-
       ) : (
         <>
           <PageBreadcrumb title="Gestión de Formaciones" subName="App" />
 
-          <Paper elevation={2} sx={{ borderRadius: 4, p: 4, height: "52vh", display: "flex", flexDirection: "column", }}>
+          <Paper elevation={2} sx={{ borderRadius: 4, p: 4 }}>
             <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={2} mb={4}>
-              <input
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                id="input-carga-masiva"
-                onChange={handleCargaArchivo}
-                style={{ display: 'none' }}
-              />
               <TextField
                 label="Buscar formación"
                 variant="outlined"
@@ -155,21 +132,21 @@ const GestionFormaciones = () => {
                 value={busqueda}
                 onChange={(e) => {
                   setBusqueda(e.target.value);
-                  setPage(1); // reinicia la página cuando se busca
+                  setPage(1);
                 }}
                 sx={{ width: { xs: "100%", md: "50%" } }}
               />
               <Box display="flex" gap={1}>
-                {/* Filtro como menú estilo avatar */}
-                <Button
-                  color="primary"
-                  startIcon={<FilterListIcon />}
-                  onClick={handleOpenMenu}
-                >
+                <Button color="primary" startIcon={<FilterListIcon />} onClick={handleOpenMenu}>
                   Filtros
                 </Button>
-                <FiltrosFormaciones anchorEl={anchorEl} handleClose={handleCloseMenu} onAplicarFiltros={(nuevosFiltros) => setFiltros(nuevosFiltros)} />
-
+                <FiltrosFormaciones
+                  anchorEl={anchorEl}
+                  handleClose={handleCloseMenu}
+                  onAplicarFiltros={(nuevosFiltros) => setFiltros(nuevosFiltros)}
+                  formaciones={formaciones}
+                  onDescargar={descargarExcel}
+                />
 
                 <Button
                   variant="contained"
@@ -197,25 +174,23 @@ const GestionFormaciones = () => {
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
-                      document.getElementById("input-carga-masiva").click();
+                      setModalCargaAbierto(true);
                       setAnchorAddMenu(null);
                     }}
                   >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      {/* <LuFileSpreadsheet size={18} /> */}
-                      Carga masiva
-                    </Box>
+                    Carga masiva
                   </MenuItem>
                 </Menu>
-
-
               </Box>
             </Box>
 
-            {/* Contenedor con scroll vertical */}
             <Box
               sx={{
-                maxHeight: 500, overflowY: "auto", pr: 1, scrollbarWidth: "thin", scrollbarColor: "#ccc transparent",
+                maxHeight: 261,
+                overflowY: "auto",
+                pr: 1,
+                scrollbarWidth: "thin",
+                scrollbarColor: "#ccc transparent",
                 "&::-webkit-scrollbar": {
                   width: "6px",
                 },
@@ -231,7 +206,6 @@ const GestionFormaciones = () => {
                 },
               }}
             >
-
               {formacionesPaginadas.length > 0 ? (
                 formacionesPaginadas.map((formacion) => (
                   <Paper
@@ -247,50 +221,50 @@ const GestionFormaciones = () => {
                       minHeight: 80,
                     }}
                   >
-                    <Box>
-                      <Typography variant="h6" fontWeight="bold">
-                        {formacion.nombre_formacion}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        <strong>Periodo:</strong> {formacion.periodo}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        <strong>Línea:</strong> {formacion.linea_cualificacion}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        <strong>Horas:</strong> {formacion.numero_horas}
-                      </Typography>
-
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <GiBookmark size={28} />
+                      <Box>
+                        <Typography variant="h6" fontWeight="bold">
+                          {formacion.nombre_formacion}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Periodo:</strong> {formacion.periodo}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Línea:</strong> {formacion.linea_cualificacion}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          <strong>Horas:</strong> {formacion.numero_horas}
+                        </Typography>
+                      </Box>
                     </Box>
 
                     <Box display="flex" gap={1}>
-                      <IconButton
-                        color="primary"
-                        onClick={() => {
-                          setFormacionEditando(formacion);
-                          setMostrarFormulario(true);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => confirmarEliminacion(formacion)}
-                        color="error"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-
+                      <Tooltip title="Editar formación" arrow>
+                        <IconButton
+                          color="primary"
+                          onClick={() => {
+                            setFormacionEditando(formacion);
+                            setMostrarFormulario(true);
+                          }}
+                        >
+                          <FaEdit />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Eliminar formación" arrow>
+                        <IconButton
+                          color="error"
+                          onClick={() => confirmarEliminacion(formacion)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
                   </Paper>
+
                 ))
               ) : (
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  height={200}
-                  width="100%"
-                >
+                <Box display="flex" justifyContent="center" alignItems="center" height={200}>
                   <Typography variant="body1" color="text.secondary">
                     No hay coincidencias
                   </Typography>
@@ -298,15 +272,51 @@ const GestionFormaciones = () => {
               )}
             </Box>
 
+            <Box
+              display="flex"
+              flexDirection={{ xs: "column", sm: "row" }}
+              alignItems="center"
+              justifyContent="center"
+              mt={3}
+              gap={1}
+              position="relative"
+            >
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="primary"
+                siblingCount={0}
+                boundaryCount={1}
+              />
 
-            {/* Paginación */}
-            <Box display="flex" justifyContent="center" mt={3}>
-              <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
+              <Box
+                sx={{
+                  position: { xs: "static", sm: "absolute" },
+                  top: { sm: "50%" },
+                  right: { sm: 0 },
+                  transform: { sm: "translateY(-50%)" },
+                  textAlign: { xs: "center", sm: "right" },
+                  width: { xs: "100%", sm: "auto" },
+                  pr: { sm: 1 },
+                  mt: { xs: 1, sm: 0 },
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  Mostrando {itemsMostrados} de {totalItems}
+                </Typography>
+              </Box>
             </Box>
-          </Paper>
 
+          </Paper>
         </>
       )}
+
+      <ModalCargaMasiva
+        open={modalCargaAbierto}
+        onClose={() => setModalCargaAbierto(false)}
+        cargarFormacionesMasivo={cargarFormacionesMasivo}
+      />
     </Box>
   );
 };

@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { MdOutlineSecurity } from "react-icons/md";
 import { PageBreadcrumb } from "components";
 import RolForm from "./RolesForm";
 import { useRoles } from "./useRoles";
@@ -70,14 +71,17 @@ const Roles = () => {
                 height: "100%",
                 minHeight: 200,
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "gray",
-                fontSize: "1.1rem",
+                textAlign: "center",
               }}
             >
-              Escoja un rol para editar sus permisos
+              <MdOutlineSecurity size={64} style={{ marginBottom: 12 }} />
+                Escoja un rol para editar sus permisos
             </Box>
+
           )}
         </Box>
       </Paper>
