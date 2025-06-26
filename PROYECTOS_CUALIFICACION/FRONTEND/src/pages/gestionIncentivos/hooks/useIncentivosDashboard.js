@@ -81,7 +81,7 @@ export const useIncentivosDashboard = () => {
   };
 
   // Validar reporte
-  const validarReporte = async (idReporte, estado, observaciones = '') => {
+  const validarReporte = async (idReporte, estado, observaciones = '', mensajeAdministrador = '') => {
     try {
       const resp = await fetch(`${gsUrlApi}/incentivos/reportes/${idReporte}/validar`, {
         method: 'PUT',
@@ -89,7 +89,11 @@ export const useIncentivosDashboard = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ estado, observaciones })
+        body: JSON.stringify({ 
+          estado, 
+          observaciones: observaciones || null,
+          mensaje_administrador: mensajeAdministrador || null
+        })
       });
       const data = await resp.json();
       if (resp.ok) {
@@ -150,6 +154,27 @@ export const useIncentivosDashboard = () => {
     }
   };
 
+  // Actualizar asignación de incentivo
+  const actualizarAsignacion = async (id_docente_incentivo, formData) => {
+    try {
+      const resp = await fetch(`${gsUrlApi}/incentivos/asignacion/${id_docente_incentivo}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        // Recargar datos
+        await cargarDocentesAsignados();
+        await cargarEstadisticas();
+        return { success: true, asignacion: data.asignacion };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
   // Manejar cambios de filtros
   const actualizarFiltros = (nuevosFiltros) => {
     const filtrosActualizados = { ...filtros, ...nuevosFiltros, page: 1 };
@@ -197,6 +222,7 @@ export const useIncentivosDashboard = () => {
     cargarReportesPendientes,
     validarReporte,
     asignarIncentivo,
+    actualizarAsignacion,
     obtenerReportesDocente,
     actualizarFiltros,
     cambiarPagina,

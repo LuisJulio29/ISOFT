@@ -70,7 +70,7 @@ const Error404 = () => {
                     "Pareces haber tomado un giro equivocado. No te preocupes... esto le pasa a los mejores de nosotros.
                     Aquí tienes un pequeño consejo que podría ayudarte a retomar el camino."
                   </Typography>
-                  <Link to={"/inicio"}>
+                  <Link to={"/"}>
                     <Button sx={{
                       mt: "40px"
                     }} size="medium" variant="contained" color="info" startIcon={<LuAntenna size={18} />}>

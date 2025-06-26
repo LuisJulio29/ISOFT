@@ -55,7 +55,7 @@ const EstadisticasPanel = ({ estadisticas, loading }) => {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-        📊 Estadísticas Generales
+        Estadísticas Generales
       </Typography>
       
       {/* Estadísticas principales */}
@@ -100,7 +100,7 @@ const EstadisticasPanel = ({ estadisticas, loading }) => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom color="success.main">
-                ✅ Reportes Validados
+                Reportes Validados
               </Typography>
               <Typography variant="h3" component="div" color="success.main">
                 {reportes.validados}
@@ -112,7 +112,7 @@ const EstadisticasPanel = ({ estadisticas, loading }) => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom color="warning.main">
-                ⏳ Reportes Pendientes
+                Reportes Pendientes
               </Typography>
               <Typography variant="h3" component="div" color="warning.main">
                 {reportes.pendientes}
@@ -124,7 +124,7 @@ const EstadisticasPanel = ({ estadisticas, loading }) => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom color="error.main">
-                ❌ Reportes Rechazados
+                Reportes Rechazados
               </Typography>
               <Typography variant="h3" component="div" color="error.main">
                 {reportes.rechazados}
@@ -139,7 +139,7 @@ const EstadisticasPanel = ({ estadisticas, loading }) => {
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              📈 Distribución por Tipo de Incentivo
+              Distribución por Tipo de Incentivo
             </Typography>
             <Box display="flex" flexWrap="wrap" gap={1} mt={2}>
               {por_tipo.map((tipo, index) => (

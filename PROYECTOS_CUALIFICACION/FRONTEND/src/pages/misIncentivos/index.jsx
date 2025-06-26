@@ -21,7 +21,7 @@ const ResumenEstadisticas = ({ estadisticas }) => (
   <Card sx={{ mb: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
     <CardContent>
       <Typography variant="h6" gutterBottom>
-        📊 Resumen de Mi Progreso
+       Resumen de Mi Progreso
       </Typography>
       <Grid container spacing={3} textAlign="center">
         <Grid item xs={6} md={2}>
@@ -169,7 +169,7 @@ const MisIncentivos = () => {
         {miProgreso.some(inc => estaVencido(obtenerProximaFechaLimite(inc))) && (
           <Alert severity="error" sx={{ mb: 3 }}>
             <Typography variant="body1" fontWeight="bold">
-              ⚠️ Tienes reportes vencidos
+              Tienes reportes vencidos
             </Typography>
             <Typography variant="body2">
               Algunos de tus reportes han pasado la fecha límite. Sube los reportes pendientes lo antes posible 
@@ -184,7 +184,7 @@ const MisIncentivos = () => {
         ) && (
           <Alert severity="warning" sx={{ mb: 3 }}>
             <Typography variant="body1" fontWeight="bold">
-              📅 Próximos vencimientos
+              Próximos vencimientos
             </Typography>
             <Typography variant="body2">
               Tienes reportes que vencen en los próximos 7 días. 
@@ -198,7 +198,7 @@ const MisIncentivos = () => {
           <Card>
             <CardContent sx={{ textAlign: 'center', py: 6 }}>
               <Typography variant="h5" color="textSecondary" gutterBottom>
-                📋 No tienes incentivos asignados
+                No tienes incentivos asignados
               </Typography>
               <Typography variant="body1" color="textSecondary">
                 Actualmente no tienes incentivos profesorales asignados. 
@@ -209,7 +209,7 @@ const MisIncentivos = () => {
         ) : (
           <Box>
             <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-              🎯 Mis Incentivos Activos ({miProgreso.length})
+              Mis Incentivos Activos ({miProgreso.length})
             </Typography>
             
             {miProgreso.map((incentivo) => (
@@ -230,13 +230,13 @@ const MisIncentivos = () => {
         <Card sx={{ mt: 3, bgcolor: 'grey.50' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom color="primary">
-              💡 Información Importante
+              Información Importante
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <Box>
                   <Typography variant="body2" fontWeight="bold" gutterBottom>
-                    📄 Formato de Reportes:
+                    Formato de Reportes:
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
                     • Solo archivos PDF (máximo 10MB)
@@ -248,12 +248,12 @@ const MisIncentivos = () => {
               <Grid item xs={12} md={6}>
                 <Box>
                   <Typography variant="body2" fontWeight="bold" gutterBottom>
-                    📅 Tiempos de Entrega:
+                    Sistema de Reportes:
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    • Puedes subir reportes 7 días antes del vencimiento
-                    • Los reportes se validan en orden de llegada
-                    • Recibirás notificación del resultado
+                    • Los reportes se habilitan cuando el anterior es validado
+                    • Un reporte por vez hasta que se valide el enviado
+                    • Recibirás notificación del resultado de validación
                   </Typography>
                 </Box>
               </Grid>

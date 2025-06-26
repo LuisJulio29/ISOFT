@@ -42,12 +42,13 @@ const {
   Doctorado,
   Incentivo,
   DocenteIncentivo,
-  ReporteIncentivo
+  ReporteIncentivo,
+  EmailLog
 } = db;
 
 // Relaciones
 if (Usuario && Rol) {
-  Usuario.belongsTo(Rol, { foreignKey: 'id_rol' });
+  Usuario.belongsTo(Rol, { foreignKey: 'id_rol', as: 'rol' });
   Rol.hasMany(Usuario, { foreignKey: 'id_rol' });
 }
 

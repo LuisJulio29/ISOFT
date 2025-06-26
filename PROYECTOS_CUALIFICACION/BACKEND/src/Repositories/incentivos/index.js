@@ -151,6 +151,7 @@ const repo = {
           model: Docente,
           as: 'docente',
           required: true,
+          attributes: ['id', 'nombre', 'apellidos', 'numero_identificacion', 'email_institucional'],
           where: busqueda ? {
             [Op.or]: [
               { nombre: { [Op.iLike]: `%${busqueda}%` } },
@@ -186,11 +187,11 @@ const repo = {
           order: [['fecha_envio', 'DESC']]
         });
 
-        const proximaFecha = repo.calcularProximaFechaReporte(
-          docenteIncentivo.fecha_inicio,
-          docenteIncentivo.frecuencia_informe_dias,
-          reportes
-        );
+                  const proximaFecha = repo.calcularProximaFechaReporte(
+            docenteIncentivo.fecha_inicio,
+            docenteIncentivo.frecuencia_informe_dias,
+            reportes
+          );
 
         const reportesPendientes = reportes.filter(r => r.estado === 'PENDIENTE').length;
 
@@ -356,16 +357,81 @@ const repo = {
     }
   },
 
-  // FUNCIONES AUXILIARES
+  actualizarAsignacion: async (id_docente_incentivo, datos) => {
+    try {
+      const asignacion = await DocenteIncentivo.findByPk(id_docente_incentivo);
+      if (!asignacion) {
+        return { 
+          status: constants.NOT_FOUND_ERROR_MESSAGE, 
+          failure_code: 404, 
+          failure_message: 'Asignación de incentivo no encontrada' 
+        };
+      }
+
+      // Validar fechas si se proporcionan
+      if (datos.fecha_inicio && datos.fecha_fin) {
+        const fechaInicio = new Date(datos.fecha_inicio);
+        const fechaFin = new Date(datos.fecha_fin);
+        
+        if (fechaInicio >= fechaFin) {
+          return { 
+            status: constants.INVALID_PARAMETER_SENDED, 
+            failure_code: 400,
+            failure_message: 'La fecha de inicio debe ser anterior a la fecha de fin' 
+          };
+        }
+      }
+
+      // Actualizar la asignación
+      await asignacion.update(datos);
+      
+      // Obtener la asignación actualizada con relaciones
+      const asignacionActualizada = await DocenteIncentivo.findByPk(id_docente_incentivo, {
+        include: [
+          {
+            model: Docente,
+            as: 'docente',
+            attributes: ['nombre', 'apellidos', 'email', 'numero_identificacion']
+          },
+          {
+            model: Incentivo,
+            as: 'incentivo',
+            attributes: ['nombre', 'descripcion', 'frecuencia_informe_dias']
+          }
+        ]
+      });
+
+      return { 
+        status: constants.SUCCEEDED_MESSAGE, 
+        asignacion: asignacionActualizada 
+      };
+    } catch (error) {
+      return { 
+        status: constants.INTERNAL_ERROR_MESSAGE, 
+        failure_code: error.code || 500, 
+        failure_message: error.message 
+      };
+    }
+  },
+
+  // FUNCIONES AUXILIARES - NUEVA LÓGICA SECUENCIAL
 
   generarFechasReporte: (fechaInicio, fechaFin, frecuenciaDias, reportesExistentes = []) => {
     const fechas = [];
     const inicio = new Date(fechaInicio);
     const fin = new Date(fechaFin);
     
-    let fechaActual = new Date(inicio);
-    fechaActual.setDate(fechaActual.getDate() + frecuenciaDias);
+    // Ordenar reportes existentes por fecha de envío
+    const reportesOrdenados = reportesExistentes
+      .filter(r => r.estado === 'VALIDADO') // Solo contar reportes VALIDADOS
+      .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio));
 
+    let fechaActual = new Date(inicio);
+    let numeroReporte = 1;
+    
+    // PRIMER REPORTE: Disponible desde el inicio
+    fechaActual.setDate(fechaActual.getDate() + frecuenciaDias);
+    
     while (fechaActual <= fin) {
       const reporteExistente = reportesExistentes.find(r => {
         const fechaReporte = new Date(r.fecha_envio);
@@ -373,61 +439,140 @@ const repo = {
         return diferenciaDias <= 7; // Tolerancia de 7 días
       });
 
+      // Determinar si este reporte está disponible para envío
+      // Para el reporte N, debe haber N-1 reportes validados
+      const reporteAnteriorValidado = reportesOrdenados.length >= numeroReporte - 1;
+
+      const estado = reporteExistente ? reporteExistente.estado : 
+        (reporteAnteriorValidado ? 'PENDIENTE' : 'BLOQUEADO');
+
+      // Calcular disponible_desde: para el primer reporte es desde el inicio,
+      // para los siguientes es desde que se validó el anterior
+      let disponibleDesde = null;
+      if (numeroReporte === 1) {
+        disponibleDesde = new Date(inicio);
+      } else if (reportesOrdenados[numeroReporte - 2]) {
+        // Usar fecha_validacion si existe, si no usar fecha_envio como fallback
+        const reporteAnterior = reportesOrdenados[numeroReporte - 2];
+        disponibleDesde = new Date(reporteAnterior.fecha_validacion || reporteAnterior.fecha_envio);
+      }
+
       fechas.push({
         fecha_limite: new Date(fechaActual),
         reporte: reporteExistente || null,
-        estado: reporteExistente ? reporteExistente.estado : 'PENDIENTE',
-        vencido: !reporteExistente && new Date() > fechaActual
+        estado: estado,
+        numero_reporte: numeroReporte,
+        disponible_desde: disponibleDesde,
+        vencido: !reporteExistente && new Date() > fechaActual && reporteAnteriorValidado,
+        puede_enviar: reporteAnteriorValidado && !reporteExistente
       });
 
       fechaActual.setDate(fechaActual.getDate() + frecuenciaDias);
+      numeroReporte++;
     }
 
     return fechas;
   },
 
   calcularProximaFechaReporte: (fechaInicio, frecuenciaDias, reportes) => {
+    const reportesValidados = reportes
+      .filter(r => r.estado === 'VALIDADO')
+      .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio));
+
     const inicio = new Date(fechaInicio);
     let proximaFecha = new Date(inicio);
-    proximaFecha.setDate(proximaFecha.getDate() + frecuenciaDias);
-
-    let reportesContados = 0;
-    while (reportesContados < reportes.length) {
+    
+    // Si no hay reportes validados, la próxima fecha es la primera
+    if (reportesValidados.length === 0) {
       proximaFecha.setDate(proximaFecha.getDate() + frecuenciaDias);
-      reportesContados++;
+      return proximaFecha;
     }
 
+    // La próxima fecha se calcula basándose en reportes VALIDADOS
+    proximaFecha.setDate(proximaFecha.getDate() + (frecuenciaDias * (reportesValidados.length + 1)));
+    
     return proximaFecha;
   },
 
   puedeSubirReporte: (fechasPrograma, reportes) => {
     const hoy = new Date();
     
-    // Encuentra la próxima fecha que no tiene reporte o tiene reporte rechazado
-    const proximaSlot = fechasPrograma.find(fecha => {
-      if (!fecha.reporte) return true;
-      if (fecha.reporte.estado === 'RECHAZADO') return true;
+    // Ordenar reportes validados
+    const reportesValidados = reportes
+      .filter(r => r.estado === 'VALIDADO')
+      .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio));
+
+    // Buscar reportes pendientes sin validar (que bloquean el envío)
+    const reportesPendientes = reportes.filter(r => r.estado === 'PENDIENTE');
+    
+    // Si hay reportes pendientes sin validar, no puede subir más
+    if (reportesPendientes.length > 0) {
       return false;
+    }
+
+    // Buscar reportes rechazados que necesitan ser reenviados
+    const reportesRechazados = reportes.filter(r => r.estado === 'RECHAZADO');
+    if (reportesRechazados.length > 0) {
+      // Puede reenviar reportes rechazados inmediatamente
+      return true;
+    }
+
+    // Encuentra el próximo slot disponible
+    const proximoSlot = fechasPrograma.find(fecha => {
+      return fecha.puede_enviar && !fecha.reporte;
     });
 
-    if (!proximaSlot) return false;
+    if (!proximoSlot) {
+      return false;
+    }
 
-    // Permite subir hasta 7 días antes de la fecha límite
-    const fechaLimite = new Date(proximaSlot.fecha_limite);
-    const fechaPermisoSubida = new Date(fechaLimite);
-    fechaPermisoSubida.setDate(fechaPermisoSubida.getDate() - 7);
+    // NUEVA LÓGICA: Si el reporte anterior está validado, puede subir inmediatamente
+    // Sin esperar a los 7 días antes de la fecha límite
+    const fechaLimite = new Date(proximoSlot.fecha_limite);
+    
+    // Verificar si ya pasó la fecha límite (no puede subir reportes vencidos)
+    if (hoy > fechaLimite) {
+      return false;
+    }
 
-    return hoy >= fechaPermisoSubida && hoy <= fechaLimite;
+    // Si llegamos aquí, significa que:
+    // 1. No hay reportes pendientes
+    // 2. No hay reportes rechazados 
+    // 3. El slot está disponible según la secuencia
+    // 4. No ha pasado la fecha límite
+    // Por lo tanto, puede subir inmediatamente
+    return true;
   },
 
   obtenerProximaFechaLimite: (fechasPrograma, reportes) => {
-    const proximaSlot = fechasPrograma.find(fecha => {
-      if (!fecha.reporte) return true;
-      if (fecha.reporte.estado === 'RECHAZADO') return true;
-      return false;
+    // Buscar reportes rechazados primero (prioridad)
+    const reportesRechazados = reportes.filter(r => r.estado === 'RECHAZADO');
+    if (reportesRechazados.length > 0) {
+      // Buscar la fecha del primer reporte rechazado
+      const primerRechazado = reportesRechazados
+        .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio))[0];
+      
+      const fechaRechazado = fechasPrograma.find(f => 
+        f.reporte && f.reporte.id_reporte_incentivo === primerRechazado.id_reporte_incentivo
+      );
+      
+      if (fechaRechazado) return fechaRechazado.fecha_limite;
+    }
+
+    // Buscar el próximo slot disponible
+    const proximoSlot = fechasPrograma.find(fecha => {
+      return fecha.puede_enviar && !fecha.reporte;
     });
 
-    return proximaSlot ? proximaSlot.fecha_limite : null;
+    return proximoSlot ? proximoSlot.fecha_limite : null;
+  },
+
+  // Nueva función: Verificar si un reporte puede ser enviado según la secuencia
+  puedeEnviarReporteSecuencial: (numeroReporte, reportesValidados) => {
+    if (numeroReporte === 1) return true; // El primer reporte siempre puede enviarse
+    
+    // Para enviar el reporte N, deben existir N-1 reportes validados
+    return reportesValidados.length >= numeroReporte - 1;
   }
 };
 

@@ -84,9 +84,26 @@ const repo = {
     }
   },
 
-  validar: async (id_reporte_incentivo, { estado, observaciones }) => {
+  validar: async (id_reporte_incentivo, { estado, observaciones, mensaje_administrador }) => {
     try {
-      const reporte = await ReporteIncentivo.findByPk(id_reporte_incentivo);
+      // Obtener el reporte con todos los datos relacionados necesarios para el email
+      const reporte = await ReporteIncentivo.findByPk(id_reporte_incentivo, {
+        include: [{
+          model: DocenteIncentivo,
+          as: 'docente_incentivo',
+          include: [
+            {
+              model: Docente,
+              as: 'docente'
+            },
+            {
+              model: Incentivo,
+              as: 'incentivo'
+            }
+          ]
+        }]
+      });
+
       if (!reporte) {
         return { status: constants.NOT_FOUND_ERROR_MESSAGE, failure_code: 404, failure_message: 'Reporte no encontrado' };
       }
@@ -99,17 +116,82 @@ const repo = {
         };
       }
 
-      // Si se rechaza, las observaciones son obligatorias
-      if (estado === 'RECHAZADO' && (!observaciones || observaciones.trim() === '')) {
+      // Si se rechaza, el mensaje del administrador es obligatorio
+      if (estado === 'RECHAZADO' && (!mensaje_administrador || mensaje_administrador.trim() === '')) {
         return { 
           status: constants.INVALID_PARAMETER_SENDED, 
           failure_code: 400, 
-          failure_message: 'Las observaciones son obligatorias al rechazar un reporte' 
+          failure_message: 'El mensaje para el docente es obligatorio al rechazar un reporte' 
         };
       }
 
-      await reporte.update({ estado, observaciones: observaciones || null });
-      return { status: constants.SUCCEEDED_MESSAGE, reporte };
+      await reporte.update({ 
+        estado, 
+        observaciones: observaciones || null,
+        mensaje_administrador: mensaje_administrador || null,
+        fecha_validacion: new Date()
+      });
+
+      // Recargar el reporte con los datos actualizados
+      await reporte.reload();
+
+      // Log simplificado
+      console.log('📋 Validando reporte:', {
+        estado: estado,
+        docente: reporte.docente_incentivo?.docente?.nombre || 'No encontrado',
+        incentivo: reporte.docente_incentivo?.incentivo?.nombre || 'No encontrado'
+      });
+
+      // Preparar datos para el email
+      const datosDocente = reporte.docente_incentivo?.docente;
+      const datosIncentivo = reporte.docente_incentivo?.incentivo;
+
+      // Validar que tenemos los datos mínimos necesarios
+      if (!datosDocente || !datosIncentivo) {
+        console.error('❌ ERROR: Datos incompletos para envío de correo', {
+          tieneDocente: !!datosDocente,
+          tieneIncentivo: !!datosIncentivo
+        });
+        // Aún devolvemos éxito porque el reporte se validó correctamente
+        return { 
+          status: constants.SUCCEEDED_MESSAGE, 
+          reporte,
+          datosDocente: null,
+          datosIncentivo: null,
+          proximoReporte: null,
+          proximaFechaLimite: null
+        };
+      }
+
+      // Calcular próximo reporte si el estado es VALIDADO
+      let proximoReporte = null;
+      let proximaFechaLimite = null;
+
+      if (estado === 'VALIDADO' && datosIncentivo.frecuencia_informe_dias) {
+        const fechaProximo = new Date(reporte.fecha_validacion);
+        fechaProximo.setDate(fechaProximo.getDate() + datosIncentivo.frecuencia_informe_dias);
+        
+        // Solo calcular si no supera la fecha de fin del incentivo
+        if (fechaProximo <= new Date(reporte.docente_incentivo.fecha_fin)) {
+          proximoReporte = fechaProximo;
+        }
+      }
+
+      if (estado === 'RECHAZADO') {
+        // Dar plazo de una semana para re-subir
+        const fechaLimite = new Date();
+        fechaLimite.setDate(fechaLimite.getDate() + 7);
+        proximaFechaLimite = fechaLimite;
+      }
+
+      return { 
+        status: constants.SUCCEEDED_MESSAGE, 
+        reporte,
+        datosDocente,
+        datosIncentivo,
+        proximoReporte,
+        proximaFechaLimite
+      };
     } catch (error) {
       return { status: constants.INTERNAL_ERROR_MESSAGE, failure_code: error.code || 500, failure_message: error.message };
     }
@@ -119,7 +201,7 @@ const repo = {
     try {
       const reportes = await ReporteIncentivo.findAll({ 
         where: { id_docente_incentivo },
-        order: [['fecha_envio', 'DESC']]
+        order: [['fecha_envio', 'ASC']] // CORRECCIÓN: ASC para que el más antiguo sea #1
       });
       return { status: constants.SUCCEEDED_MESSAGE, reportes };
     } catch (error) {
@@ -223,16 +305,24 @@ const repo = {
     }
   },
 
-  // FUNCIONES AUXILIARES (copiadas del repositorio de incentivos para consistencia)
-  
+  // FUNCIONES AUXILIARES - NUEVA LÓGICA SECUENCIAL
+
   generarFechasReporte: (fechaInicio, fechaFin, frecuenciaDias, reportesExistentes = []) => {
     const fechas = [];
     const inicio = new Date(fechaInicio);
     const fin = new Date(fechaFin);
     
-    let fechaActual = new Date(inicio);
-    fechaActual.setDate(fechaActual.getDate() + frecuenciaDias);
+    // Ordenar reportes existentes por fecha de envío
+    const reportesOrdenados = reportesExistentes
+      .filter(r => r.estado === 'VALIDADO') // Solo contar reportes VALIDADOS
+      .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio));
 
+    let fechaActual = new Date(inicio);
+    let numeroReporte = 1;
+    
+    // PRIMER REPORTE: Disponible desde el inicio
+    fechaActual.setDate(fechaActual.getDate() + frecuenciaDias);
+    
     while (fechaActual <= fin) {
       const reporteExistente = reportesExistentes.find(r => {
         const fechaReporte = new Date(r.fecha_envio);
@@ -240,14 +330,36 @@ const repo = {
         return diferenciaDias <= 7; // Tolerancia de 7 días
       });
 
+      // Determinar si este reporte está disponible para envío
+      // Para el reporte N, debe haber N-1 reportes validados
+      const reporteAnteriorValidado = reportesOrdenados.length >= numeroReporte - 1;
+
+      const estado = reporteExistente ? reporteExistente.estado : 
+        (reporteAnteriorValidado ? 'PENDIENTE' : 'BLOQUEADO');
+
+      // Calcular disponible_desde: para el primer reporte es desde el inicio,
+      // para los siguientes es desde que se validó el anterior
+      let disponibleDesde = null;
+      if (numeroReporte === 1) {
+        disponibleDesde = new Date(inicio);
+      } else if (reportesOrdenados[numeroReporte - 2]) {
+        // Usar fecha_validacion si existe, si no usar fecha_envio como fallback
+        const reporteAnterior = reportesOrdenados[numeroReporte - 2];
+        disponibleDesde = new Date(reporteAnterior.fecha_validacion || reporteAnterior.fecha_envio);
+      }
+
       fechas.push({
         fecha_limite: new Date(fechaActual),
         reporte: reporteExistente || null,
-        estado: reporteExistente ? reporteExistente.estado : 'PENDIENTE',
-        vencido: !reporteExistente && new Date() > fechaActual
+        estado: estado,
+        numero_reporte: numeroReporte,
+        disponible_desde: disponibleDesde,
+        vencido: !reporteExistente && new Date() > fechaActual && reporteAnteriorValidado,
+        puede_enviar: reporteAnteriorValidado && !reporteExistente
       });
 
       fechaActual.setDate(fechaActual.getDate() + frecuenciaDias);
+      numeroReporte++;
     }
 
     return fechas;
@@ -256,31 +368,150 @@ const repo = {
   puedeSubirReporte: (fechasPrograma, reportes) => {
     const hoy = new Date();
     
-    // Encuentra la próxima fecha que no tiene reporte o tiene reporte rechazado
-    const proximaSlot = fechasPrograma.find(fecha => {
-      if (!fecha.reporte) return true;
-      if (fecha.reporte.estado === 'RECHAZADO') return true;
+    // Ordenar reportes validados
+    const reportesValidados = reportes
+      .filter(r => r.estado === 'VALIDADO')
+      .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio));
+
+    // Buscar reportes pendientes sin validar (que bloquean el envío)
+    const reportesPendientes = reportes.filter(r => r.estado === 'PENDIENTE');
+    
+    // Si hay reportes pendientes sin validar, no puede subir más
+    if (reportesPendientes.length > 0) {
       return false;
+    }
+
+    // Buscar reportes rechazados que necesitan ser reenviados
+    const reportesRechazados = reportes.filter(r => r.estado === 'RECHAZADO');
+    if (reportesRechazados.length > 0) {
+      // Puede reenviar reportes rechazados inmediatamente
+      return true;
+    }
+
+    // Encuentra el próximo slot disponible
+    const proximoSlot = fechasPrograma.find(fecha => {
+      return fecha.puede_enviar && !fecha.reporte;
     });
 
-    if (!proximaSlot) return false;
+    if (!proximoSlot) return false;
 
-    // Permite subir hasta 7 días antes de la fecha límite
-    const fechaLimite = new Date(proximaSlot.fecha_limite);
-    const fechaPermisoSubida = new Date(fechaLimite);
-    fechaPermisoSubida.setDate(fechaPermisoSubida.getDate() - 7);
+    // NUEVA LÓGICA: Si el reporte anterior está validado, puede subir inmediatamente
+    // Sin esperar a los 7 días antes de la fecha límite
+    const fechaLimite = new Date(proximoSlot.fecha_limite);
+    
+    // Verificar si ya pasó la fecha límite (no puede subir reportes vencidos)
+    if (hoy > fechaLimite) {
+      return false;
+    }
 
-    return hoy >= fechaPermisoSubida && hoy <= fechaLimite;
+    // Si llegamos aquí, significa que:
+    // 1. No hay reportes pendientes
+    // 2. No hay reportes rechazados 
+    // 3. El slot está disponible según la secuencia
+    // 4. No ha pasado la fecha límite
+    // Por lo tanto, puede subir inmediatamente
+    return true;
   },
 
   obtenerProximaFechaLimite: (fechasPrograma, reportes) => {
-    const proximaSlot = fechasPrograma.find(fecha => {
-      if (!fecha.reporte) return true;
-      if (fecha.reporte.estado === 'RECHAZADO') return true;
-      return false;
+    // Buscar reportes rechazados primero (prioridad)
+    const reportesRechazados = reportes.filter(r => r.estado === 'RECHAZADO');
+    if (reportesRechazados.length > 0) {
+      // Buscar la fecha del primer reporte rechazado
+      const primerRechazado = reportesRechazados
+        .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio))[0];
+      
+      const fechaRechazado = fechasPrograma.find(f => 
+        f.reporte && f.reporte.id_reporte_incentivo === primerRechazado.id_reporte_incentivo
+      );
+      
+      if (fechaRechazado) return fechaRechazado.fecha_limite;
+    }
+
+    // Buscar el próximo slot disponible
+    const proximoSlot = fechasPrograma.find(fecha => {
+      return fecha.puede_enviar && !fecha.reporte;
     });
 
-    return proximaSlot ? proximaSlot.fecha_limite : null;
+    return proximoSlot ? proximoSlot.fecha_limite : null;
+  },
+
+  // NUEVA FUNCIONALIDAD: Extender plazo de reporte
+  extenderPlazo: async (id_docente_incentivo, { dias_extension, mensaje_administrador }) => {
+    try {
+      // Buscar el incentivo del docente
+      const docenteIncentivo = await DocenteIncentivo.findByPk(id_docente_incentivo);
+      if (!docenteIncentivo) {
+        return { 
+          status: constants.NOT_FOUND_ERROR_MESSAGE, 
+          failure_code: 404, 
+          failure_message: 'Incentivo del docente no encontrado' 
+        };
+      }
+
+      // Obtener reportes existentes
+      const reportesExistentes = await ReporteIncentivo.findAll({
+        where: { id_docente_incentivo },
+        order: [['fecha_envio', 'ASC']]
+      });
+
+      // Generar fechas de programa para identificar el próximo reporte pendiente
+      const fechasPrograma = repo.generarFechasReporte(
+        docenteIncentivo.fecha_inicio,
+        docenteIncentivo.fecha_fin,
+        docenteIncentivo.frecuencia_informe_dias,
+        reportesExistentes
+      );
+
+      // Buscar el próximo slot que necesita extensión (sin reporte o vencido)
+      const slotParaExtender = fechasPrograma.find(fecha => {
+        return fecha.puede_enviar && !fecha.reporte && fecha.vencido;
+      });
+
+      if (!slotParaExtender) {
+        return { 
+          status: constants.INVALID_PARAMETER_SENDED, 
+          failure_code: 400, 
+          failure_message: 'No hay reportes vencidos que requieran extensión de plazo' 
+        };
+      }
+
+      // Calcular nueva fecha límite
+      const fechaOriginal = new Date(slotParaExtender.fecha_limite);
+      const nuevaFechaLimite = new Date(fechaOriginal);
+      nuevaFechaLimite.setDate(nuevaFechaLimite.getDate() + dias_extension);
+
+      // Crear un registro de extensión (como un reporte especial que registra la extensión)
+      const extension = await ReporteIncentivo.create({
+        id_docente_incentivo,
+        ruta_archivo: `EXTENSION_PLAZO_${Date.now()}.txt`, // Archivo ficticio para registrar la extensión
+        fecha_envio: new Date(),
+        estado: 'EXTENSION_PLAZO', // Estado especial para extensiones
+        fecha_limite_original: fechaOriginal,
+        fecha_limite_extendida: nuevaFechaLimite,
+        dias_extension,
+        mensaje_administrador,
+        observaciones: `Extensión de plazo: ${dias_extension} días otorgados por el administrador`
+      });
+
+      return { 
+        status: constants.SUCCEEDED_MESSAGE, 
+        extension: {
+          id_extension: extension.id_reporte_incentivo,
+          fecha_limite_original: fechaOriginal,
+          fecha_limite_extendida: nuevaFechaLimite,
+          dias_extension,
+          mensaje_administrador
+        }
+      };
+
+    } catch (error) {
+      return { 
+        status: constants.INTERNAL_ERROR_MESSAGE, 
+        failure_code: 500, 
+        failure_message: error.message 
+      };
+    }
   }
 };
 

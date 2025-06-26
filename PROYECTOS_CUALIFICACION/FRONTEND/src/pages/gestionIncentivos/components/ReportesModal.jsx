@@ -34,12 +34,12 @@ import { gsUrlApi } from '@src/config/ConfigServer';
 
 const EstadoChip = ({ estado }) => {
   const configuracion = {
-    'PENDIENTE': { color: 'warning', label: '⏳ Pendiente', icon: '⏳' },
-    'VALIDADO': { color: 'success', label: '✅ Validado', icon: '✅' },
-    'RECHAZADO': { color: 'error', label: '❌ Rechazado', icon: '❌' }
+    'PENDIENTE': { color: 'warning', label: 'Pendiente' },
+    'VALIDADO': { color: 'success', label: 'Validado' },
+    'RECHAZADO': { color: 'error', label: 'Rechazado' }
   };
   
-  const config = configuracion[estado] || { color: 'default', label: estado, icon: '❓' };
+  const config = configuracion[estado] || { color: 'default', label: estado };
   
   return (
     <Chip 
@@ -87,6 +87,7 @@ const ReportesModal = ({
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [observaciones, setObservaciones] = useState('');
+  const [mensajeAdministrador, setMensajeAdministrador] = useState('');
   const [validando, setValidando] = useState(false);
 
   const token = localStorage.getItem('token');
@@ -122,9 +123,9 @@ const ReportesModal = ({
   const handleValidarReporte = async (estado) => {
     if (!reporteSeleccionado) return;
     
-    // Validación para rechazos
-    if (estado === 'RECHAZADO' && !observaciones.trim()) {
-      Swal.fire('Error', 'Debe proporcionar observaciones al rechazar un reporte', 'warning');
+    // Validación para rechazos - mensaje del administrador es obligatorio
+    if (estado === 'RECHAZADO' && !mensajeAdministrador.trim()) {
+      Swal.fire('Error', 'Debe proporcionar un mensaje explicativo al rechazar un reporte', 'warning');
       return;
     }
 
@@ -133,7 +134,8 @@ const ReportesModal = ({
       const resultado = await onValidarReporte(
         reporteSeleccionado.id_reporte_incentivo, 
         estado, 
-        observaciones
+        observaciones,
+        mensajeAdministrador
       );
       
       if (resultado.success) {
@@ -144,6 +146,7 @@ const ReportesModal = ({
         );
         setReporteSeleccionado(null);
         setObservaciones('');
+        setMensajeAdministrador('');
         await cargarReportes();
       } else {
         Swal.fire('Error', resultado.message || 'No se pudo validar el reporte', 'error');
@@ -191,7 +194,7 @@ const ReportesModal = ({
             <Card variant="outlined">
               <CardContent>
                 <Typography variant="h6" gutterBottom color="primary">
-                  📋 Información del Incentivo
+                  Información del Incentivo
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={4}>
@@ -221,7 +224,7 @@ const ReportesModal = ({
           {/* Lista de reportes */}
           <Grid item xs={12} md={5}>
             <Typography variant="h6" gutterBottom>
-              📑 Reportes Enviados ({reportes.length})
+              Reportes Enviados ({reportes.length})
             </Typography>
             
             {loading ? (
@@ -287,7 +290,7 @@ const ReportesModal = ({
             {reporteSeleccionado ? (
               <Box>
                 <Typography variant="h6" gutterBottom>
-                  👁️ Visualización del Reporte
+                  Visualización del Reporte
                 </Typography>
                 
                 {/* Visor PDF */}
@@ -299,21 +302,35 @@ const ReportesModal = ({
                 {reporteSeleccionado.estado === 'PENDIENTE' && (
                   <Box>
                     <Typography variant="h6" gutterBottom>
-                      ⚖️ Validación del Reporte
+                      Validación del Reporte
                     </Typography>
                     
-                    <TextField
-                      fullWidth
-                      label="Observaciones"
-                      placeholder="Comentarios sobre el reporte (obligatorio para rechazos)"
-                      multiline
-                      rows={3}
-                      value={observaciones}
-                      onChange={(e) => setObservaciones(e.target.value)}
-                      sx={{ mb: 2 }}
-                    />
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Observaciones Técnicas"
+                          placeholder="Comentarios técnicos sobre el reporte (opcional)"
+                          multiline
+                          rows={3}
+                          value={observaciones}
+                          onChange={(e) => setObservaciones(e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Mensaje para el Docente"
+                          placeholder="Mensaje que verá el docente (obligatorio para rechazos)"
+                          multiline
+                          rows={3}
+                          value={mensajeAdministrador}
+                          onChange={(e) => setMensajeAdministrador(e.target.value)}
+                        />
+                      </Grid>
+                    </Grid>
                     
-                    <Box display="flex" gap={2}>
+                    <Box display="flex" gap={2} sx={{ mt: 2 }}>
                       <Button
                         variant="contained"
                         color="success"
@@ -328,7 +345,7 @@ const ReportesModal = ({
                         color="error"
                         startIcon={<CancelIcon />}
                         onClick={() => handleValidarReporte('RECHAZADO')}
-                        disabled={validando || !observaciones.trim()}
+                        disabled={validando}
                       >
                         {validando ? 'Rechazando...' : 'Rechazar'}
                       </Button>

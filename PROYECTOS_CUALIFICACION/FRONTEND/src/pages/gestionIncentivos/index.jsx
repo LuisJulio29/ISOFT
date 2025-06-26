@@ -1,7 +1,8 @@
-import { Box, Typography, Alert, CircularProgress, Button, Fab } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Box, Typography, Alert, CircularProgress, Button, Fab, Tabs, Tab } from '@mui/material';
+import { Add as AddIcon, Settings as SettingsIcon, People as PeopleIcon } from '@mui/icons-material';
 import { PageBreadcrumb } from 'components';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 // Hooks
@@ -10,10 +11,12 @@ import { useIncentivosDashboard } from './hooks/useIncentivosDashboard';
 // Componentes
 import EstadisticasPanel from './components/EstadisticasPanel';
 import DocentesTable from './components/DocentesTable';
-import ReportesModal from './components/ReportesModal';
 import AsignarIncentivoModal from './components/AsignarIncentivoModal';
+import EditarIncentivoModal from './components/EditarIncentivoModal';
+import GestionIncentivosTipos from './components/GestionIncentivosTipos';
 
 const GestionIncentivos = () => {
+  const navigate = useNavigate();
   const {
     loading,
     error,
@@ -23,32 +26,28 @@ const GestionIncentivos = () => {
     filtros,
     totalDocentes,
     totalPages,
-    validarReporte,
     asignarIncentivo,
+    actualizarAsignacion,
     actualizarFiltros,
     cambiarPagina,
     setError
   } = useIncentivosDashboard();
 
-  // Estados para modales
-  const [modalReportesAbierto, setModalReportesAbierto] = useState(false);
+  // Estados para pestañas y modales
+  const [tabActiva, setTabActiva] = useState(0);
   const [modalAsignarAbierto, setModalAsignarAbierto] = useState(false);
-  const [docenteSeleccionado, setDocenteSeleccionado] = useState(null);
+  const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
+  const [docenteIncentivoSeleccionado, setDocenteIncentivoSeleccionado] = useState(null);
 
-  // Manejar ver proceso de reportes
+  // Manejar ver proceso de reportes - navegar a vista completa
   const handleVerProceso = (docenteIncentivo) => {
-    setDocenteSeleccionado(docenteIncentivo);
-    setModalReportesAbierto(true);
+    navigate(`/proceso-reportes/${docenteIncentivo.id_docente_incentivo}`);
   };
 
-  // Manejar editar incentivo (placeholder para futura implementación)
+  // Manejar editar incentivo
   const handleEditarIncentivo = (docenteIncentivo) => {
-    Swal.fire({
-      title: 'Editar Incentivo',
-      text: `Funcionalidad para editar el incentivo de ${docenteIncentivo.docente?.nombre || 'docente'}`,
-      icon: 'info',
-      confirmButtonText: 'OK'
-    });
+    setDocenteIncentivoSeleccionado(docenteIncentivo);
+    setModalEditarAbierto(true);
   };
 
   // Manejar asignación de incentivo
@@ -67,10 +66,20 @@ const GestionIncentivos = () => {
     setModalAsignarAbierto(false);
   };
 
-  // Cerrar modal de reportes
-  const handleCerrarModalReportes = () => {
-    setModalReportesAbierto(false);
-    setDocenteSeleccionado(null);
+  // Actualizar asignación de incentivo
+  const handleActualizarAsignacion = async (id_docente_incentivo, formData) => {
+    return await actualizarAsignacion(id_docente_incentivo, formData);
+  };
+
+  // Cerrar modal de edición
+  const handleCerrarModalEditar = () => {
+    setModalEditarAbierto(false);
+    setDocenteIncentivoSeleccionado(null);
+  };
+
+  // Cambiar pestaña
+  const handleCambiarTab = (event, newValue) => {
+    setTabActiva(newValue);
   };
 
   if (error) {
@@ -92,7 +101,7 @@ const GestionIncentivos = () => {
     <Box component="main" sx={{ flexGrow: 1 }}>
       <PageBreadcrumb title="Gestión de Incentivos" subName="Administración" />
       
-      {loading && !estadisticas ? (
+      {loading && !estadisticas && tabActiva === 0 ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <Box textAlign="center">
             <CircularProgress size={60} />
@@ -103,50 +112,66 @@ const GestionIncentivos = () => {
         </Box>
       ) : (
         <Box sx={{ p: 3 }}>
-          {/* Panel de estadísticas */}
-          <EstadisticasPanel 
-            estadisticas={estadisticas} 
-            loading={loading && !estadisticas} 
-          />
+          {/* Navegación por pestañas */}
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs value={tabActiva} onChange={handleCambiarTab} aria-label="gestión incentivos tabs">
+              <Tab 
+                icon={<PeopleIcon />} 
+                label="Incentivos Asignados" 
+                iconPosition="start"
+              />
+              <Tab 
+                icon={<SettingsIcon />} 
+                label="Gestión de Tipos" 
+                iconPosition="start"
+              />
+            </Tabs>
+          </Box>
 
-          {/* Alertas de reportes pendientes */}
-          {reportesPendientes && reportesPendientes.length > 0 && (
-            <Alert 
-              severity="warning" 
-              sx={{ mb: 3 }}
-              action={
-                <Typography variant="body2" fontWeight="bold">
-                  {reportesPendientes.length} reportes pendientes
-                </Typography>
-              }
-            >
-              <Typography variant="body2">
-                Hay {reportesPendientes.length} reportes esperando validación. 
-                Revisa la tabla de docentes para procesarlos.
-              </Typography>
-            </Alert>
+          {/* Contenido de la pestaña activa */}
+          {tabActiva === 0 ? (
+            <>
+              {/* Panel de estadísticas */}
+              <EstadisticasPanel 
+                estadisticas={estadisticas} 
+                loading={loading && !estadisticas} 
+              />
+
+              {/* Alertas de reportes pendientes */}
+              {reportesPendientes && reportesPendientes.length > 0 && (
+                <Alert 
+                  severity="warning" 
+                  sx={{ mb: 3 }}
+                  action={
+                    <Typography variant="body2" fontWeight="bold">
+                      {reportesPendientes.length} reportes pendientes
+                    </Typography>
+                  }
+                >
+                  <Typography variant="body2">
+                    Hay {reportesPendientes.length} reportes esperando validación. 
+                    Revisa la tabla de docentes para procesarlos.
+                  </Typography>
+                </Alert>
+              )}
+
+              {/* Tabla de docentes */}
+              <DocentesTable
+                docentes={docentesAsignados}
+                loading={loading}
+                filtros={filtros}
+                onFiltroChange={actualizarFiltros}
+                onVerProceso={handleVerProceso}
+                onEditarIncentivo={handleEditarIncentivo}
+                totalDocentes={totalDocentes}
+                totalPages={totalPages}
+                onPaginaChange={cambiarPagina}
+              />
+            </>
+          ) : (
+            /* Gestión de tipos de incentivos */
+            <GestionIncentivosTipos />
           )}
-
-          {/* Tabla de docentes */}
-          <DocentesTable
-            docentes={docentesAsignados}
-            loading={loading}
-            filtros={filtros}
-            onFiltroChange={actualizarFiltros}
-            onVerProceso={handleVerProceso}
-            onEditarIncentivo={handleEditarIncentivo}
-            totalDocentes={totalDocentes}
-            totalPages={totalPages}
-            onPaginaChange={cambiarPagina}
-          />
-
-          {/* Modal de reportes */}
-          <ReportesModal
-            open={modalReportesAbierto}
-            onClose={handleCerrarModalReportes}
-            docenteIncentivo={docenteSeleccionado}
-            onValidarReporte={validarReporte}
-          />
 
           {/* Modal de asignación de incentivos */}
           <AsignarIncentivoModal
@@ -154,23 +179,33 @@ const GestionIncentivos = () => {
             onClose={handleCerrarModalAsignar}
             onAsignar={handleAsignarIncentivo}
           />
+
+          {/* Modal de edición de incentivos asignados */}
+          <EditarIncentivoModal
+            open={modalEditarAbierto}
+            onClose={handleCerrarModalEditar}
+            docenteIncentivo={docenteIncentivoSeleccionado}
+            onActualizar={handleActualizarAsignacion}
+          />
         </Box>
       )}
 
-      {/* Botón flotante para asignar incentivo */}
-      <Fab
-        color="primary"
-        aria-label="asignar incentivo"
-        onClick={handleAbrirModalAsignar}
-        sx={{
-          position: 'fixed',
-          bottom: 16,
-          right: 16,
-          zIndex: 1000
-        }}
-      >
-        <AddIcon />
-      </Fab>
+      {/* Botón flotante para asignar incentivo (solo en la primera pestaña) */}
+      {tabActiva === 0 && (
+        <Fab
+          color="primary"
+          aria-label="asignar incentivo"
+          onClick={handleAbrirModalAsignar}
+          sx={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            zIndex: 1000
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   );
 };

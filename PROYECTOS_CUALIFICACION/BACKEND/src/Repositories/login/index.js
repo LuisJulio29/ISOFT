@@ -9,8 +9,11 @@ const login = {
     try {
       // Buscar usuario por nombre_usuario
       const user = await Usuario.findOne({
-        where: { nombre_usuario: Login }, include: {
-          model: Rol, attributes: ['nombre'],
+        where: { nombre_usuario: Login }, 
+        include: {
+          model: Rol, 
+          as: 'rol',
+          attributes: ['nombre']
         }
       });
 
@@ -47,7 +50,7 @@ const login = {
         constants.TOKEN_SECRET,
         { expiresIn: "2h" }
       );
-      const { contraseña, Rol: rolData, ...userSinPassword } = user.toJSON();
+      const { contraseña, rol: rolData, ...userSinPassword } = user.toJSON();
 
       return {
         status: constants.SUCCEEDED_MESSAGE,

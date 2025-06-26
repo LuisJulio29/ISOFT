@@ -1,5 +1,6 @@
 const incentivosRepo = require('../../Repositories/incentivos');
 const constants = require('../../../constants');
+const notificationService = require('../../Services/email/notificationService');
 
 async function handler(req, res) {
   try {
@@ -21,6 +22,27 @@ async function handler(req, res) {
     const response = await incentivosRepo.asignar(datosAsignacion);
 
     if (response.status === constants.SUCCEEDED_MESSAGE) {
+      // Enviar notificación por correo electrónico
+      try {
+        const datosNotificacion = {
+          emailDocente: response.datosDocente.email_institucional,
+          nombreDocente: `${response.datosDocente.nombre} ${response.datosDocente.apellidos}`,
+          nombreIncentivo: response.datosIncentivo.nombre,
+          descripcionIncentivo: response.datosIncentivo.descripcion,
+          fechaInicio: response.asignacion.fecha_inicio,
+          fechaFin: response.asignacion.fecha_fin,
+          observaciones: response.asignacion.observaciones,
+          frecuenciaReporte: response.datosIncentivo.frecuencia_informe_dias,
+          fechaPrimerReporte: response.fechaPrimerReporte,
+          idIncentivo: response.asignacion.id_docente_incentivo
+        };
+
+        await notificationService.notifyIncentivoAsignado(datosNotificacion);
+      } catch (emailError) {
+        console.error('Error al enviar notificación de incentivo asignado:', emailError.message);
+        // No interrumpir el flujo principal por un error de email
+      }
+
       return res.status(201).json({ 
         status: response.status,
         asignacion: response.asignacion,

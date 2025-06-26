@@ -24,8 +24,37 @@ const ReporteIncentivo = sequelize.define('ReporteIncentivo', {
     defaultValue: DataTypes.NOW,
   },
   estado: {
-    type: DataTypes.ENUM('PENDIENTE', 'VALIDADO', 'RECHAZADO'),
+    type: DataTypes.ENUM('PENDIENTE', 'VALIDADO', 'RECHAZADO', 'EXTENSION_PLAZO'),
     defaultValue: 'PENDIENTE',
+  },
+  fecha_validacion: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Fecha en que el administrador validó/rechazó el reporte'
+  },
+  fecha_limite_original: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Fecha límite original antes de extensiones'
+  },
+  fecha_limite_extendida: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Nueva fecha límite después de extensión (máximo 10 días)'
+  },
+  dias_extension: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    validate: {
+      min: 1,
+      max: 10
+    },
+    comment: 'Días de extensión otorgados (máximo 10)'
+  },
+  mensaje_administrador: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Mensaje del administrador al rechazar o extender plazo'
   },
   observaciones: {
     type: DataTypes.TEXT,

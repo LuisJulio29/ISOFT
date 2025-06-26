@@ -35,6 +35,9 @@ const rutas = () => {
   //Usuario Docente
   const usuarioDocenteController = require('./src/Controllers/usuario_docente');
 
+  //Emails
+  const emailsController = require('./src/Controllers/emails');
+
   //---------------------------------------Rutas---------------------------------------
 
   // Ruta base
@@ -49,6 +52,7 @@ const rutas = () => {
   router.get('/interfaces/buscar', verifyToken, interfacesController.buscar);
   router.put('/interfaces/actualizar', verifyToken, interfacesController.actualizar);
   router.get('/interfaces/listarTodas',verifyToken,interfacesController.listarTodas);
+  router.get('/interfaces/permisos-docente', verifyToken, interfacesController.verificarPermisosDocente);
 
   // Usuarios
   router.post("/usuarios/insertarAdmin", usuariosController.insertarAdmin);
@@ -84,6 +88,7 @@ const rutas = () => {
   router.delete('/incentivos/eliminar/:id', verifyToken, incentivosController.eliminar);
   const uploadResolucion = require('./src/Middlewares/uploadResolucion');
   router.post('/incentivos/asignar', verifyToken, uploadResolucion.single('resolucion'), incentivosController.asignar);
+  router.put('/incentivos/asignacion/:id_docente_incentivo', verifyToken, uploadResolucion.single('resolucion'), incentivosController.actualizarAsignacion);
   router.get('/incentivos/docente', verifyToken, incentivosController.listarPorDocente);
   router.get('/incentivos/docente/:idDocente', verifyToken, incentivosController.listarPorDocente);
 
@@ -105,11 +110,19 @@ const rutas = () => {
   router.put('/incentivos/reportes/:id/validar', verifyToken, reportesController.validar);
 
   // Reportes - Rutas avanzadas
-  router.get('/incentivos/reportes/docente/:idDocente', verifyToken, reportesController.listarPorDocente);
-  router.get('/incentivos/reportes/mis-pendientes', verifyToken, reportesController.obtenerReportesPendientes);
+router.get('/incentivos/reportes/docente/:idDocente', verifyToken, reportesController.listarPorDocente);
+router.get('/incentivos/reportes/docente-incentivo/:id_docente_incentivo', verifyToken, reportesController.listarPorDocenteIncentivo);
+router.get('/incentivos/reportes/mis-pendientes', verifyToken, reportesController.obtenerReportesPendientes);
+router.post('/incentivos/reportes/:id_docente_incentivo/extender-plazo', verifyToken, reportesController.extenderPlazo);
 
   // Usuario Docente
   router.get('/usuarioDocente/listar',  usuarioDocenteController.listarDetalle);
+
+  // Emails - Administración del sistema de correos
+  router.get('/emails/verify-connection', emailsController.verifyConnection); // Sin autenticación por ahora para pruebas
+  router.get('/emails/stats', verifyToken, emailsController.getEmailStats);
+  router.post('/emails/resend/:emailLogId', verifyToken, emailsController.resendEmail);
+  router.post('/emails/execute-reminders', verifyToken, emailsController.executeReminders);
   
   return router;
 };

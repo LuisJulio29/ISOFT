@@ -21,12 +21,12 @@ import {
 
 const EstadoChip = ({ estado }) => {
   const configuracion = {
-    'VIGENTE': { color: 'success', label: '✅ Vigente', icon: '✅' },
-    'FINALIZADO': { color: 'default', label: '🏁 Finalizado', icon: '🏁' },
-    'PAUSADO': { color: 'warning', label: '⏸️ Pausado', icon: '⏸️' }
+    'VIGENTE': { color: 'success', label: 'Vigente' },
+    'FINALIZADO': { color: 'default', label: 'Finalizado' },
+    'PAUSADO': { color: 'warning', label: 'Pausado' }
   };
   
-  const config = configuracion[estado] || { color: 'default', label: estado, icon: '❓' };
+  const config = configuracion[estado] || { color: 'default', label: estado };
   
   return (
     <Chip 
@@ -118,6 +118,49 @@ const FechaDisplay = ({ fecha, label, esVencimiento = false }) => {
   );
 };
 
+// Función para obtener mensajes relevantes del administrador
+const obtenerMensajesRelevantes = (reportes) => {
+  if (!reportes || reportes.length === 0) return [];
+
+  // Filtrar reportes con mensajes del administrador
+  const reportesConMensaje = reportes
+    .filter(reporte => reporte.mensaje_administrador && reporte.mensaje_administrador.trim())
+    .sort((a, b) => new Date(b.fecha_validacion || b.fecha_envio) - new Date(a.fecha_validacion || a.fecha_envio));
+
+  if (reportesConMensaje.length === 0) return [];
+
+  // Lógica de filtrado inteligente
+  const mensajesRelevantes = [];
+  const ahora = new Date();
+  const DIAS_VIGENCIA_MENSAJE = 30; // Los mensajes son relevantes por 30 días
+
+  for (const reporte of reportesConMensaje) {
+    const fechaMensaje = new Date(reporte.fecha_validacion || reporte.fecha_envio);
+    const diasTranscurridos = Math.floor((ahora - fechaMensaje) / (1000 * 60 * 60 * 24));
+
+    // 1. Si el mensaje es muy antiguo (>30 días), no mostrarlo
+    if (diasTranscurridos > DIAS_VIGENCIA_MENSAJE) continue;
+
+    // 2. Si es un reporte rechazado, verificar si ya se envió uno nuevo después
+    if (reporte.estado === 'RECHAZADO') {
+      const reportesPosteriorAlRechazo = reportes.filter(r => 
+        new Date(r.fecha_envio) > fechaMensaje
+      );
+      
+      // Si ya se envió un reporte después del rechazo, no mostrar el mensaje de rechazo
+      if (reportesPosteriorAlRechazo.length > 0) continue;
+    }
+
+    // 3. Agregar el mensaje a los relevantes
+    mensajesRelevantes.push(reporte);
+
+    // 4. Limitar a máximo 2 mensajes
+    if (mensajesRelevantes.length >= 2) break;
+  }
+
+  return mensajesRelevantes;
+};
+
 const IncentiveCard = ({ 
   incentivo, 
   onSubirReporte, 
@@ -161,7 +204,7 @@ const IncentiveCard = ({
         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
           <Box>
             <Typography variant="h6" component="div" gutterBottom>
-              🎯 {incentiveInfo.nombre || 'Incentivo Sin Nombre'}
+              {incentiveInfo.nombre || 'Incentivo Sin Nombre'}
             </Typography>
             <Typography variant="body2" color="textSecondary">
               {incentiveInfo.descripcion || 'Sin descripción disponible'}
@@ -253,22 +296,91 @@ const IncentiveCard = ({
           </Box>
         )}
 
+        {/* Estado secuencial de reportes */}
+        {incentivo.estado === 'VIGENTE' && progreso.reportes_pendientes > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <Alert 
+              severity={progreso.reportes_pendientes > 0 ? "info" : "success"} 
+              sx={{ mb: 1 }}
+            >
+              <Typography variant="body2" fontWeight="bold">
+                Sistema de Reportes Secuencial
+              </Typography>
+              <Typography variant="body2">
+                {progreso.reportes_pendientes > 0 ? (
+                  <>
+                    Tienes <strong>{progreso.reportes_pendientes}</strong> reportes pendientes de validación.
+                    <br />
+                    <small>Los nuevos reportes se habilitarán cuando el administrador valide los pendientes.</small>
+                  </>
+                ) : (
+                  "Todos tus reportes han sido validados. El próximo se habilitará según la programación."
+                )}
+              </Typography>
+            </Alert>
+          </Box>
+        )}
+
+        {/* Mensajes del Administrador */}
+        {incentivo.reportes && incentivo.reportes.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            {obtenerMensajesRelevantes(incentivo.reportes).map((reporte) => (
+              <Alert 
+                key={reporte.id_reporte_incentivo}
+                severity={reporte.estado === 'RECHAZADO' ? 'error' : 'info'}
+                sx={{ mb: 1 }}
+              >
+                <Typography variant="body2" fontWeight="bold">
+                  {reporte.estado === 'RECHAZADO' ? 'Reporte Rechazado' : 
+                   reporte.estado === 'EXTENSION_PLAZO' ? 'Extensión de Plazo' : 
+                   'Mensaje del Administrador'}
+                </Typography>
+                <Typography variant="body2">
+                  {reporte.mensaje_administrador}
+                </Typography>
+                <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5, display: 'block' }}>
+                  {new Date(reporte.fecha_validacion || reporte.fecha_envio).toLocaleDateString('es-ES')}
+                  {(() => {
+                    const fechaMensaje = new Date(reporte.fecha_validacion || reporte.fecha_envio);
+                    const ahora = new Date();
+                    const diasTranscurridos = Math.floor((ahora - fechaMensaje) / (1000 * 60 * 60 * 24));
+                    const diasRestantes = 30 - diasTranscurridos;
+                    
+                    if (diasRestantes > 7) {
+                      return ` • Expira en ${diasRestantes} días`;
+                    } else if (diasRestantes > 0) {
+                      return ` • Expira en ${diasRestantes} días`;
+                    } else {
+                      return ` • Mensaje expirado`;
+                    }
+                  })()}
+                </Typography>
+              </Alert>
+            ))}
+          </Box>
+        )}
+
         {/* Alertas */}
         {incentivo.estado === 'VIGENTE' && (
           <Box sx={{ mt: 2 }}>
             {estaVencido(proximaFechaLimite) && (
               <Alert severity="error" sx={{ mb: 1 }}>
-                ⚠️ Tienes un reporte vencido. Sube tu reporte lo antes posible.
+                Tienes un reporte vencido. Sube tu reporte lo antes posible.
               </Alert>
             )}
             {!estaVencido(proximaFechaLimite) && estaProximoAVencer(proximaFechaLimite) && (
               <Alert severity="warning" sx={{ mb: 1 }}>
-                📅 Tu próximo reporte vence pronto. Prepáralo con anticipación.
+                Tu próximo reporte vence pronto. Prepáralo con anticipación.
               </Alert>
             )}
-            {!puedeSubir && !estaVencido(proximaFechaLimite) && (
+            {!puedeSubir && !estaVencido(proximaFechaLimite) && progreso.reportes_pendientes === 0 && (
               <Alert severity="info" sx={{ mb: 1 }}>
-                ℹ️ Aún no puedes subir el próximo reporte. Se habilitará 7 días antes de la fecha límite.
+                El próximo reporte se habilitará cuando el administrador valide los pendientes.
+              </Alert>
+            )}
+            {!puedeSubir && progreso.reportes_pendientes > 0 && (
+              <Alert severity="warning" sx={{ mb: 1 }}>
+                No puedes subir más reportes hasta que el administrador valide los pendientes.
               </Alert>
             )}
           </Box>

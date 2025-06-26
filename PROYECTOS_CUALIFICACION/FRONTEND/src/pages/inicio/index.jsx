@@ -1,27 +1,34 @@
-import { Grid } from "@mui/material";
+import { Grid, Box, Container } from "@mui/material";
 import logo from "@src/assets/images/UnicartagenaLogo.png";
+import InfoAccesoDocente from "@src/components/InfoAccesoDocente";
 
 const Inicio = () => {
   return (
-    <Grid
-      container
-      justifyContent="center"
-      alignItems="center"
-      style={{ minHeight: "100vh", padding: "1rem" }}
-    >
-      <Grid item xs={12} sm={6} mt={10} md={9} lg={6} textAlign="center">
-        <img
-          src={logo}
-          alt="Logo"
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            height: "auto",
-            objectFit: "contain",
-          }}
-        />
+    <Container maxWidth="lg" sx={{ pt: 4 }}>
+      {/* Componente informativo para docentes */}
+      <InfoAccesoDocente />
+      
+      {/* Logo principal */}
+      <Grid
+        container
+        justifyContent="center"
+        alignItems="center"
+        style={{ minHeight: "60vh", padding: "1rem" }}
+      >
+        <Grid item xs={12} sm={6} md={9} lg={6} textAlign="center">
+          <img
+            src={logo}
+            alt="Logo Universidad de Cartagena"
+            style={{
+              width: "100%",
+              maxWidth: "400px",
+              height: "auto",
+              objectFit: "contain",
+            }}
+          />
+        </Grid>
       </Grid>
-    </Grid>
+    </Container>
   );
 };
 
