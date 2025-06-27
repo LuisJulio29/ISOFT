@@ -89,6 +89,7 @@ const rutas = () => {
   const uploadResolucion = require('./src/Middlewares/uploadResolucion');
   router.post('/incentivos/asignar', verifyToken, uploadResolucion.single('resolucion'), incentivosController.asignar);
   router.put('/incentivos/asignacion/:id_docente_incentivo', verifyToken, uploadResolucion.single('resolucion'), incentivosController.actualizarAsignacion);
+  router.delete('/incentivos/asignacion/:id_docente_incentivo', verifyToken, uploadResolucion.single('resolucion'), incentivosController.eliminarAsignacion);
   router.get('/incentivos/docente', verifyToken, incentivosController.listarPorDocente);
   router.get('/incentivos/docente/:idDocente', verifyToken, incentivosController.listarPorDocente);
 

@@ -25,7 +25,7 @@ const DocenteIncentivo = sequelize.define('DocenteIncentivo', {
     defaultValue: DataTypes.NOW,
   },
   estado: {
-    type: DataTypes.ENUM('VIGENTE', 'FINALIZADO'),
+    type: DataTypes.ENUM('VIGENTE', 'FINALIZADO', 'ELIMINADO'),
     defaultValue: 'VIGENTE',
   },
   fecha_inicio: {
@@ -49,6 +49,21 @@ const DocenteIncentivo = sequelize.define('DocenteIncentivo', {
     type: DataTypes.TEXT,
     allowNull: true,
     comment: 'Observaciones adicionales sobre la asignación'
+  },
+  fecha_eliminacion: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Fecha en que se eliminó el incentivo (soft delete)'
+  },
+  motivo_eliminacion: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Motivo de la eliminación del incentivo'
+  },
+  resolucion_eliminacion: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    comment: 'Ruta del archivo PDF de resolución de eliminación'
   },
 }, {
   tableName: 'Docente_Incentivo',

@@ -175,6 +175,27 @@ export const useIncentivosDashboard = () => {
     }
   };
 
+  // Eliminar asignación de incentivo (soft delete)
+  const eliminarAsignacion = async (id_docente_incentivo, formData) => {
+    try {
+      const resp = await fetch(`${gsUrlApi}/incentivos/asignacion/${id_docente_incentivo}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        // Recargar datos
+        await cargarDocentesAsignados();
+        await cargarEstadisticas();
+        return { success: true };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
   // Manejar cambios de filtros
   const actualizarFiltros = (nuevosFiltros) => {
     const filtrosActualizados = { ...filtros, ...nuevosFiltros, page: 1 };
@@ -223,6 +244,7 @@ export const useIncentivosDashboard = () => {
     validarReporte,
     asignarIncentivo,
     actualizarAsignacion,
+    eliminarAsignacion,
     obtenerReportesDocente,
     actualizarFiltros,
     cambiarPagina,

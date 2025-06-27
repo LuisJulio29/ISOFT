@@ -145,7 +145,9 @@ const repo = {
       const { estado, tipo_incentivo, busqueda, page, limit } = filtros;
       const offset = (page - 1) * limit;
 
-      let whereClause = {};
+      let whereClause = {
+        estado: { [Op.ne]: 'ELIMINADO' } // Excluir registros eliminados
+      };
       let includeClause = [
         {
           model: Docente,
@@ -168,7 +170,7 @@ const repo = {
       ];
 
       if (estado) {
-        whereClause.estado = estado;
+        whereClause.estado = { [Op.and]: [estado, { [Op.ne]: 'ELIMINADO' }] };
       }
 
       const { count, rows } = await DocenteIncentivo.findAndCountAll({
@@ -224,6 +226,7 @@ const repo = {
       const totalIncentivos = await Incentivo.count({ where: { estado: 'ACTIVO' } });
       const incentivoVigentes = await DocenteIncentivo.count({ where: { estado: 'VIGENTE' } });
       const incentivoFinalizados = await DocenteIncentivo.count({ where: { estado: 'FINALIZADO' } });
+      const incentivoEliminados = await DocenteIncentivo.count({ where: { estado: 'ELIMINADO' } });
       
       const reportesPendientes = await ReporteIncentivo.count({ where: { estado: 'PENDIENTE' } });
       const reportesValidados = await ReporteIncentivo.count({ where: { estado: 'VALIDADO' } });
@@ -249,7 +252,8 @@ const repo = {
         totales: {
           incentivos_activos: totalIncentivos,
           incentivos_vigentes: incentivoVigentes,
-          incentivos_finalizados: incentivoFinalizados
+          incentivos_finalizados: incentivoFinalizados,
+          incentivos_eliminados: incentivoEliminados
         },
         reportes: {
           pendientes: reportesPendientes,
@@ -305,7 +309,10 @@ const repo = {
   obtenerProgreso: async (id_docente) => {
     try {
       const incentivos = await DocenteIncentivo.findAll({
-        where: { id_docente, estado: 'VIGENTE' },
+        where: { 
+          id_docente, 
+          estado: 'VIGENTE'
+        },
         include: [{
           model: Incentivo,
           as: 'incentivo'
@@ -404,6 +411,46 @@ const repo = {
       return { 
         status: constants.SUCCEEDED_MESSAGE, 
         asignacion: asignacionActualizada 
+      };
+    } catch (error) {
+      return { 
+        status: constants.INTERNAL_ERROR_MESSAGE, 
+        failure_code: error.code || 500, 
+        failure_message: error.message 
+      };
+    }
+  },
+
+  eliminarAsignacion: async (id_docente_incentivo, datos) => {
+    try {
+      const asignacion = await DocenteIncentivo.findByPk(id_docente_incentivo);
+      if (!asignacion) {
+        return { 
+          status: constants.NOT_FOUND_ERROR_MESSAGE, 
+          failure_code: 404, 
+          failure_message: 'Asignación de incentivo no encontrada' 
+        };
+      }
+
+      // Verificar que no esté ya eliminada
+      if (asignacion.estado === 'ELIMINADO') {
+        return { 
+          status: constants.INVALID_PARAMETER_SENDED, 
+          failure_code: 400,
+          failure_message: 'La asignación ya está eliminada' 
+        };
+      }
+
+      // Realizar soft delete
+      await asignacion.update({
+        estado: 'ELIMINADO',
+        fecha_eliminacion: new Date(),
+        motivo_eliminacion: datos.observaciones,
+        resolucion_eliminacion: datos.resolucion_eliminacion
+      });
+
+      return { 
+        status: constants.SUCCEEDED_MESSAGE 
       };
     } catch (error) {
       return { 

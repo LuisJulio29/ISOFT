@@ -11,32 +11,36 @@ import {
   TrendingUp as TrendingUpIcon,
   People as PeopleIcon,
   Assignment as AssignmentIcon,
-  HourglassEmpty as PendingIcon
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 
-const EstadisticaCard = ({ titulo, valor, icono: IconComponent, color = 'primary' }) => (
-  <Card sx={{ height: '100%' }}>
-    <CardContent>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Box>
-          <Typography color="textSecondary" gutterBottom variant="body2">
-            {titulo}
-          </Typography>
-          <Typography variant="h4" component="div" color={color}>
-            {valor}
-          </Typography>
+const EstadisticaCard = ({ titulo, valor, icono, color = 'primary' }) => {
+  const IconoComponente = icono;
+  
+  return (
+    <Card sx={{ height: '100%' }}>
+      <CardContent>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box>
+            <Typography color="textSecondary" gutterBottom variant="body2">
+              {titulo}
+            </Typography>
+            <Typography variant="h4" component="div" color={color}>
+              {valor}
+            </Typography>
+          </Box>
+          <IconoComponente 
+            sx={{ 
+              fontSize: 40, 
+              color: `${color}.main`,
+              opacity: 0.7 
+            }} 
+          />
         </Box>
-        <IconComponent 
-          sx={{ 
-            fontSize: 40, 
-            color: `${color}.main`,
-            opacity: 0.7 
-          }} 
-        />
-      </Box>
-    </CardContent>
-  </Card>
-);
+      </CardContent>
+    </Card>
+  );
+};
 
 const EstadisticasPanel = ({ estadisticas, loading }) => {
   if (loading || !estadisticas) {
@@ -86,10 +90,10 @@ const EstadisticasPanel = ({ estadisticas, loading }) => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <EstadisticaCard
-            titulo="Reportes Pendientes"
-            valor={reportes.pendientes}
-            icono={PendingIcon}
-            color="warning"
+            titulo="Incentivos Eliminados"
+            valor={totales.incentivos_eliminados || 0}
+            icono={DeleteIcon}
+            color="error"
           />
         </Grid>
       </Grid>

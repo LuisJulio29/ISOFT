@@ -4,6 +4,7 @@ const actualizar = require('./actualizar');
 const eliminar = require('./eliminar');
 const asignar = require('./asignar');
 const actualizarAsignacion = require('./actualizarAsignacion');
+const eliminarAsignacion = require('./eliminarAsignacion');
 const listarPorDocente = require('./listarPorDocente');
 const listarDocentesAsignados = require('./listarDocentesAsignados');
 const obtenerEstadisticas = require('./obtenerEstadisticas');
@@ -17,6 +18,7 @@ module.exports = {
   eliminar,
   asignar,
   actualizarAsignacion,
+  eliminarAsignacion,
   listarPorDocente,
   listarDocentesAsignados,
   obtenerEstadisticas,

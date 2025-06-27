@@ -28,6 +28,7 @@ const GestionIncentivos = () => {
     totalPages,
     asignarIncentivo,
     actualizarAsignacion,
+    eliminarAsignacion,
     actualizarFiltros,
     cambiarPagina,
     setError
@@ -69,6 +70,11 @@ const GestionIncentivos = () => {
   // Actualizar asignación de incentivo
   const handleActualizarAsignacion = async (id_docente_incentivo, formData) => {
     return await actualizarAsignacion(id_docente_incentivo, formData);
+  };
+
+  // Eliminar asignación de incentivo
+  const handleEliminarAsignacion = async (id_docente_incentivo, formData) => {
+    return await eliminarAsignacion(id_docente_incentivo, formData);
   };
 
   // Cerrar modal de edición
@@ -186,6 +192,7 @@ const GestionIncentivos = () => {
             onClose={handleCerrarModalEditar}
             docenteIncentivo={docenteIncentivoSeleccionado}
             onActualizar={handleActualizarAsignacion}
+            onEliminar={handleEliminarAsignacion}
           />
         </Box>
       )}
