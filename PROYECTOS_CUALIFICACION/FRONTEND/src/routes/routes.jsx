@@ -25,14 +25,14 @@ const errorRoutes = [
 
 // PRIVADAS (acceso por rol/backend)
 const privateRoutes = [
-  { path: "/inicio", ...lazyLoad(() => import("../pages/Inicio")) },
+  { path: "/inicio", ...lazyLoad(() => import("../pages/inicio")) },
   { path: "/miCuenta", ...lazyLoad(() => import("../pages/miCuenta")) },
   { path: "/CaracterizacionDocentes", ...lazyLoad(() => import("../pages/CaracterizacionDocentes")) },
   { path: "/DocentesForm", ...lazyLoad(() => import("../pages/CaracterizacionDocentes/DocentesForm")) },
   { path: "/GestionFormaciones", ...lazyLoad(() => import("../pages/gestionFormaciones")) },
   { path: "/FormacionesForm", ...lazyLoad(() => import("../pages/gestionFormaciones/FormacionesForm")) },
   { path: "/Usuarios", ...lazyLoad(() => import("../pages/seguridad/usuarios")) },
-  { path: "/Roles", ...lazyLoad(() => import("../pages/seguridad/Roles")) },
+  { path: "/Roles", ...lazyLoad(() => import("../pages/seguridad/roles")) },
   { path: "/misCualificaciones", ...lazyLoad(() => import("../pages/misCualificaciones")) },
   { path: "/GestionIncentivos", ...lazyLoad(() => import("../pages/gestionIncentivos")) },
   { path: "/proceso-reportes/:id_docente_incentivo", ...lazyLoad(() => import("../pages/procesoReportes")) },

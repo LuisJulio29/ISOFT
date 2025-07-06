@@ -5,10 +5,10 @@ export var gsUpFiles = ""
 
 switch (sAmbiente) {
     case "PRODUCCION":
-        gsUrlApi = 'http://localhost:3001';//<----Cambiar por ruta real
+        gsUrlApi = 'https://isoft.onrender.com';//<----Cambiar por ruta real
         break;
     default:
-        gsUrlApi = 'http://localhost:3001';
+        gsUrlApi = 'https://isoft.onrender.com';
         break;
 }
 
