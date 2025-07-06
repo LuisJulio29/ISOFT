@@ -21,7 +21,7 @@ import Swal from 'sweetalert2';
 import FiltrosFormaciones from './filtrosFormaciones';
 import FormacionesForm from "./FormacionesForm";
 import { useFormaciones } from "./useFormaciones";
-import ModalCargaMasiva from "./modalCargaMasiva"; 
+import ModalCargaMasiva from "./ModalCargaMasiva"; 
 
 const GestionFormaciones = () => {
   const {
