@@ -1,4 +1,4 @@
-const inputValidation = require('../../middlewares/inputValidation');
+const inputValidation = require('../../Middlewares/inputValidation');
 const loginRepository = require('../../Repositories/login');
 const constants = require('../../../constants');
 
