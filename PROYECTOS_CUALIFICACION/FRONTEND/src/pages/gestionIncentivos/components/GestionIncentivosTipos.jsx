@@ -28,10 +28,12 @@ import {
   Delete as DeleteIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  PictureAsPdf as PictureAsPdfIcon,
 } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import { useIncentivos } from '../useIncentivos';
+import { gsUrlApi } from '@src/config/ConfigServer';
 
 const FormIncentivoModal = ({ open, onClose, incentivo, onGuardar }) => {
   const [formData, setFormData] = useState({
@@ -39,7 +41,8 @@ const FormIncentivoModal = ({ open, onClose, incentivo, onGuardar }) => {
     descripcion: incentivo?.descripcion || '',
     frecuencia_informe_dias: incentivo?.frecuencia_informe_dias || 30,
     tiempo_minimo_meses: incentivo?.tiempo_minimo_meses || 12,
-    tiempo_maximo_meses: incentivo?.tiempo_maximo_meses || 12
+    tiempo_maximo_meses: incentivo?.tiempo_maximo_meses || 12,
+    resolucion: null,
   });
   const [loading, setLoading] = useState(false);
 
@@ -50,7 +53,8 @@ const FormIncentivoModal = ({ open, onClose, incentivo, onGuardar }) => {
         descripcion: incentivo.descripcion || '',
         frecuencia_informe_dias: incentivo.frecuencia_informe_dias || 30,
         tiempo_minimo_meses: incentivo.tiempo_minimo_meses || 12,
-        tiempo_maximo_meses: incentivo.tiempo_maximo_meses || 12
+        tiempo_maximo_meses: incentivo.tiempo_maximo_meses || 12,
+        resolucion: null,
       });
     } else {
       setFormData({
@@ -58,7 +62,8 @@ const FormIncentivoModal = ({ open, onClose, incentivo, onGuardar }) => {
         descripcion: '',
         frecuencia_informe_dias: 30,
         tiempo_minimo_meses: 12,
-        tiempo_maximo_meses: 12
+        tiempo_maximo_meses: 12,
+        resolucion: null,
       });
     }
   }, [incentivo, open]);
@@ -68,6 +73,16 @@ const FormIncentivoModal = ({ open, onClose, incentivo, onGuardar }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      setFormData(prev => ({ ...prev, resolucion: file }));
+    } else {
+      Swal.fire('Error', 'Solo se permiten archivos PDF', 'error');
+      event.target.value = '';
+    }
   };
 
   const handleSubmit = async () => {
@@ -165,6 +180,42 @@ const FormIncentivoModal = ({ open, onClose, incentivo, onGuardar }) => {
                 onChange={(e) => handleChange('descripcion', e.target.value)}
                 placeholder="Descripción detallada del incentivo..."
               />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" gutterBottom>
+                Resolución (PDF opcional)
+              </Typography>
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<PictureAsPdfIcon />}
+              >
+                {formData.resolucion ? 'Cambiar PDF' : 'Subir PDF'}
+                <input type="file" hidden accept="application/pdf" onChange={handleFileChange} />
+              </Button>
+              {incentivo?.resolucion && !formData.resolucion && (
+                <Chip
+                  icon={<PictureAsPdfIcon color="error" />}
+                  label={
+                    incentivo.resolucion.length > 25
+                      ? `${incentivo.resolucion.slice(0, 22)}...`
+                      : incentivo.resolucion
+                  }
+                  component="a"
+                  href={`${gsUrlApi}/uploads/resoluciones/${incentivo.resolucion}`}
+                  clickable
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="outlined"
+                  sx={{ mt: 1 }}
+                />
+              )}
+              {formData.resolucion && (
+                <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+                  Archivo seleccionado: {formData.resolucion.name}
+                </Typography>
+              )}
             </Grid>
           </Grid>
         </Box>

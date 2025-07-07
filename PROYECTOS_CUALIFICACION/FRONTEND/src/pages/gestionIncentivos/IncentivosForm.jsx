@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Box, Paper, TextField, MenuItem, Button } from '@mui/material';
-import { Cancel, DoneAll } from '@mui/icons-material';
+import { Box, Paper, TextField, MenuItem, Button, Chip } from '@mui/material';
+import { Cancel, DoneAll, PictureAsPdf } from '@mui/icons-material';
 import { PageBreadcrumb } from 'components';
 import Swal from 'sweetalert2';
+import { gsUrlApi } from '@src/config/ConfigServer';
 
 const IncentivosForm = ({ data = {}, onCancel, onSave }) => {
   const [formData, setFormData] = useState({
@@ -11,11 +12,17 @@ const IncentivosForm = ({ data = {}, onCancel, onSave }) => {
     frecuencia_informe_dias: data.frecuencia_informe_dias || 30,
     tiempo_minimo_meses: data.tiempo_minimo_meses || 12,
     tiempo_maximo_meses: data.tiempo_maximo_meses || 12,
+    resolucion: null,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prev) => ({ ...prev, resolucion: file }));
   };
 
   const handleSubmit = async (e) => {
@@ -47,6 +54,33 @@ const IncentivosForm = ({ data = {}, onCancel, onSave }) => {
             </Box>
             <Box sx={{ mt: 3 }}>
               <TextField label="Descripción" name="descripcion" multiline rows={3} fullWidth value={formData.descripcion} onChange={handleChange} />
+              <Box>
+                <label style={{ fontSize: 14, fontWeight: 500 }}>Resolución (PDF opcional)</label>
+                {data.resolucion && !formData.resolucion && (
+                  <Chip
+                    icon={<PictureAsPdf color="error" />}
+                    label={
+                      data.resolucion.length > 25
+                        ? `${data.resolucion.slice(0, 22)}...`
+                        : data.resolucion
+                    }
+                    component="a"
+                    href={`${gsUrlApi}/uploads/resoluciones/${data.resolucion}`}
+                    clickable
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="outlined"
+                    sx={{ mt: 1 }}
+                  />
+                )}
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  name="resolucion"
+                  onChange={handleFileChange}
+                  style={{ marginTop: 8 }}
+                />
+              </Box>
             </Box>
             <Box display="flex" justifyContent="flex-end" mt={4} gap={2}>
               <Button variant="contained" color="error" onClick={onCancel} startIcon={<Cancel />}>Cancelar</Button>

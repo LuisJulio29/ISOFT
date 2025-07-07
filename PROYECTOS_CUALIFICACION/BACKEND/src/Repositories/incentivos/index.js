@@ -14,6 +14,7 @@ const repo = {
         tiempo_minimo_meses: data.tiempo_minimo_meses,
         tiempo_maximo_meses: data.tiempo_maximo_meses,
         descripcion: data.descripcion,
+        resolucion: data.resolucion || null,
       });
       return { status: constants.SUCCEEDED_MESSAGE, incentivo };
     } catch (error) {

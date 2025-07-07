@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const upload = require('./src/Middlewares/upload');
 const uploadCertificado = require('./src/Middlewares/uploadCertificado')
+const uploadResolucion = require('./src/Middlewares/uploadResolucion');
 const constants = require("./constants");
 const verifyToken = require('./src/Middlewares/authentication');
 
@@ -82,11 +83,10 @@ const rutas = () => {
   router.get('/cualificacion/obtenerPorUsuario', cualificacionController.obtenerCualificacionesPorUsuarioId);
 
   // Incentivos - Rutas básicas
-  router.post('/incentivos/insertar', verifyToken, incentivosController.insertar);
+  router.post('/incentivos/insertar', verifyToken, uploadResolucion.single('resolucion'), incentivosController.insertar);
   router.get('/incentivos/listar', verifyToken, incentivosController.listar);
-  router.put('/incentivos/actualizar/:id', verifyToken, incentivosController.actualizar);
+  router.put('/incentivos/actualizar/:id', verifyToken, uploadResolucion.single('resolucion'), incentivosController.actualizar);
   router.delete('/incentivos/eliminar/:id', verifyToken, incentivosController.eliminar);
-  const uploadResolucion = require('./src/Middlewares/uploadResolucion');
   router.post('/incentivos/asignar', verifyToken, uploadResolucion.single('resolucion'), incentivosController.asignar);
   router.put('/incentivos/asignacion/:id_docente_incentivo', verifyToken, uploadResolucion.single('resolucion'), incentivosController.actualizarAsignacion);
   router.delete('/incentivos/asignacion/:id_docente_incentivo', verifyToken, uploadResolucion.single('resolucion'), incentivosController.eliminarAsignacion);

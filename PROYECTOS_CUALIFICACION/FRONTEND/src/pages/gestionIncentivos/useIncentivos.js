@@ -32,13 +32,19 @@ export const useIncentivos = () => {
 
   const crearIncentivo = async (nuevo) => {
     try {
+      const formData = new FormData();
+      Object.entries(nuevo).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
+
       const resp = await fetch(`${gsUrlApi}/incentivos/insertar`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(nuevo),
+        body: formData,
       });
       const data = await resp.json();
       if (resp.ok) {
@@ -53,13 +59,19 @@ export const useIncentivos = () => {
 
   const actualizarIncentivo = async (id, cambios) => {
     try {
+      const formData = new FormData();
+      Object.entries(cambios).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
+
       const resp = await fetch(`${gsUrlApi}/incentivos/actualizar/${id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(cambios),
+        body: formData,
       });
       const data = await resp.json();
       if (resp.ok) {

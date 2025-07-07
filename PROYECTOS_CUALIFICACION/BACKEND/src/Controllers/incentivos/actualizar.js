@@ -6,6 +6,11 @@ async function handler(req, res) {
     const { id } = req.params;
     const datos = req.body;
 
+    // Si se cargó un nuevo archivo de resolución, incluirlo
+    if (req.file) {
+      datos.resolucion = req.file.filename;
+    }
+
     const response = await incentivosRepo.actualizar(id, datos);
 
     if (response.status === constants.SUCCEEDED_MESSAGE) {

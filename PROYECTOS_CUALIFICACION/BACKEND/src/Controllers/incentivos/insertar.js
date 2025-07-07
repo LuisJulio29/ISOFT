@@ -4,6 +4,12 @@ const constants = require('../../../constants');
 async function handler(req, res) {
   try {
     const datos = req.body;
+
+    // Si se cargó un archivo de resolución, agregar la ruta al cuerpo
+    if (req.file) {
+      datos.resolucion = req.file.filename; // Guardamos solo el nombre/relativo
+    }
+
     const response = await incentivosRepo.insertar(datos);
 
     if (response.status === constants.SUCCEEDED_MESSAGE) {

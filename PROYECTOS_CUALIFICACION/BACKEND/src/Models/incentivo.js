@@ -37,6 +37,11 @@ const Incentivo = sequelize.define('Incentivo', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  // Ruta del archivo PDF de la resolución (opcional)
+  resolucion: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
 }, {
   tableName: 'Incentivo',
   timestamps: false,
