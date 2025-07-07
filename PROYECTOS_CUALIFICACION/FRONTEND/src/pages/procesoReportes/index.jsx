@@ -17,7 +17,8 @@ import {
   Divider,
   CircularProgress,
   Alert,
-  Paper
+  Paper,
+  LinearProgress
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -90,40 +91,71 @@ const ProcesoReportes = () => {
   const [observaciones, setObservaciones] = useState('');
   const [mensajeAdministrador, setMensajeAdministrador] = useState('');
   const [validando, setValidando] = useState(false);
+  const [porcentajeProgreso, setPorcentajeProgreso] = useState(0);
+  const [contadores, setContadores] = useState({ validados: 0, total: 0 });
 
   const token = localStorage.getItem('token');
+
+  // Obtener fechas programa para calcular progreso total
+  const cargarProgreso = async (idAsignacion) => {
+    try {
+      const resp = await fetch(`${gsUrlApi}/incentivos/calcular-fechas/${idAsignacion}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        const fechas = data.fechas || [];
+        const total = fechas.length;
+        const reportes = data.reportes || [];
+        const validados = reportes.filter(r => r.estado === 'VALIDADO').length;
+        const porcentaje = total > 0 ? Math.round((validados / total) * 100) : 0;
+        setPorcentajeProgreso(porcentaje);
+        setContadores({ validados, total });
+      }
+    } catch (err) {
+      console.error('Error al calcular progreso', err);
+    }
+  };
 
   useEffect(() => {
     if (id_docente_incentivo) {
       cargarDatos();
+      cargarProgreso(id_docente_incentivo);
     }
   }, [id_docente_incentivo]);
 
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const docenteResp = await fetch(`${gsUrlApi}/incentivos/docentes-asignados`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const fetchDocentes = async (estado) => {
+        const url = `${gsUrlApi}/incentivos/docentes-asignados?limit=1000&page=1${estado ? `&estado=${estado}` : ''}`;
+        const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        return r.ok ? (await r.json()).docentes || [] : [];
+      };
 
-      if (docenteResp.ok) {
-        const docenteData = await docenteResp.json();
-        const docente = docenteData.docentes?.find(d => d.id_docente_incentivo === id_docente_incentivo);
-        setDocenteIncentivo(docente);
-        
-        if (docente) {
-          const reportesResp = await fetch(`${gsUrlApi}/incentivos/reportes/docente-incentivo/${id_docente_incentivo}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+      const [docentesVigentes, docentesFinalizados] = await Promise.all([
+        fetchDocentes('VIGENTE'),
+        fetchDocentes('FINALIZADO')
+      ]);
 
-          if (reportesResp.ok) {
-            const reportesData = await reportesResp.json();
-            // CORRECCIÓN: Ordenar reportes por fecha de envío (más antiguo primero)
-            const reportesOrdenados = (reportesData.reportes || []).sort((a, b) => 
-              new Date(a.fecha_envio) - new Date(b.fecha_envio)
-            );
-            setReportes(reportesOrdenados);
-          }
+      const docentesLista = [...docentesVigentes, ...docentesFinalizados];
+
+      // Buscar el docente
+      const docente = docentesLista.find(d => d.id_docente_incentivo === id_docente_incentivo);
+      setDocenteIncentivo(docente);
+      
+      if (docente) {
+        const reportesResp = await fetch(`${gsUrlApi}/incentivos/reportes/docente-incentivo/${id_docente_incentivo}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (reportesResp.ok) {
+          const reportesData = await reportesResp.json();
+          // CORRECCIÓN: Ordenar reportes por fecha de envío (más antiguo primero)
+          const reportesOrdenados = (reportesData.reportes || []).sort((a, b) => 
+            new Date(a.fecha_envio) - new Date(b.fecha_envio)
+          );
+          setReportes(reportesOrdenados);
         }
       }
     } catch (error) {
@@ -211,6 +243,78 @@ const ProcesoReportes = () => {
 
   const handleVolver = () => {
     navigate('/GestionIncentivos');
+  };
+
+  const handleAprobarIncentivo = async () => {
+    const confirm = await Swal.fire({
+      title: 'Aprobar incentivo',
+      text: '¿Está seguro de aprobar el incentivo? Se generará un certificado.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, aprobar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const resp = await fetch(`${gsUrlApi}/incentivos/docente-incentivo/${id_docente_incentivo}/aprobar`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        Swal.fire('Éxito', 'Incentivo aprobado y certificado generado.', 'success');
+        if (data.certificado) {
+          window.open(`${gsUrlApi}/${data.certificado}`, '_blank');
+        }
+        navigate('/GestionIncentivos');
+      } else {
+        Swal.fire('Error', data.message || 'No se pudo aprobar', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', err.message, 'error');
+    }
+  };
+
+  const handleDesaprobarIncentivo = async () => {
+    const { value: text } = await Swal.fire({
+      title: 'Desaprobar incentivo',
+      input: 'textarea',
+      inputLabel: 'Observaciones',
+      inputPlaceholder: 'Escriba las razones de la desaprobación...',
+      showCancelButton: true,
+      confirmButtonText: 'Desaprobar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (text === undefined) return; // Cancelado
+
+    try {
+      const resp = await fetch(`${gsUrlApi}/incentivos/docente-incentivo/${id_docente_incentivo}/desaprobar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ observaciones: text })
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        Swal.fire('Proceso completado', 'Incentivo desaprobado.', 'success');
+        if (data.certificado) {
+          window.open(`${gsUrlApi}/${data.certificado}`, '_blank');
+        }
+        navigate('/GestionIncentivos');
+      } else {
+        Swal.fire('Error', data.message || 'No se pudo desaprobar', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', err.message, 'error');
+    }
+  };
+
+  const verCertificado = () => {
+    const url = `${gsUrlApi}/incentivos/docente-incentivo/${id_docente_incentivo}/certificado?token=${token}`;
+    window.open(url, '_blank');
   };
 
   if (loading) {
@@ -529,6 +633,58 @@ const ProcesoReportes = () => {
             )}
           </Grid>
         </Grid>
+
+        {/* Progreso general del incentivo */}
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            Progreso del incentivo
+          </Typography>
+          <LinearProgress 
+            variant="determinate" 
+            value={porcentajeProgreso}
+            color={porcentajeProgreso >= 100 ? 'success' : 'primary'}
+            sx={{ height: 10, borderRadius: 4 }}
+          />
+          <Typography variant="caption" color="textSecondary">
+            {contadores.validados} / {contadores.total} reportes validados ({porcentajeProgreso}%)
+          </Typography>
+        </Box>
+
+        {/* Botones de aprobación final */}
+        <Box display="flex" justifyContent="flex-end" alignItems="center" sx={{ mb: 2 }}>
+          {docenteIncentivo.estado === 'FINALIZADO' || docenteIncentivo.estado === 'APROBADO' || docenteIncentivo.estado === 'REPROBADO' ? (
+            <Button
+              variant="contained"
+              color="info"
+              startIcon={<VisibilityIcon />}
+              onClick={verCertificado}
+            >
+              Ver Certificado
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<CheckCircleIcon />}
+                disabled={porcentajeProgreso < 100}
+                onClick={handleAprobarIncentivo}
+                sx={{ mr: 1 }}
+              >
+                Aprobar incentivo
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<CancelIcon />}
+                disabled={porcentajeProgreso < 100}
+                onClick={handleDesaprobarIncentivo}
+              >
+                Desaprobar incentivo
+              </Button>
+            </>
+          )}
+        </Box>
       </Box>
     </Box>
   );

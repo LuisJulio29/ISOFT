@@ -65,6 +65,11 @@ const DocenteIncentivo = sequelize.define('DocenteIncentivo', {
     allowNull: true,
     comment: 'Ruta del archivo PDF de resolución de eliminación'
   },
+  ruta_certificado: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    comment: 'Certificado final de aprobación o denegación'
+  },
 }, {
   tableName: 'Docente_Incentivo',
   timestamps: false,

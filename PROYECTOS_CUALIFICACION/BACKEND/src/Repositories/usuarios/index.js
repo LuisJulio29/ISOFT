@@ -218,12 +218,13 @@ const repo = {
       const usuarios = await Usuario.findAll({
         include: {
           model: Rol,
+          as: 'rol',
           attributes: ['nombre']
         }
       });
 
       const usuariosLimpios = usuarios.map(usuario => {
-        const { contraseña, Rol: rolData, ...restoUsuario } = usuario.toJSON();
+        const { contraseña, rol: rolData, ...restoUsuario } = usuario.toJSON();
         return {
           ...restoUsuario,
           rol_nombre: rolData?.nombre || null

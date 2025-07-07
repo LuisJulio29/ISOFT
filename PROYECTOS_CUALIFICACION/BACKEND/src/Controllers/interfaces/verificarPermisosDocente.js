@@ -1,5 +1,6 @@
 const constants = require('../../../constants');
 const { Usuario, Usuario_Docente, DocenteIncentivo, Cualificacion, Rol } = require('../../Models');
+const { Op } = require('sequelize');
 
 async function handler(req, res) {
   try {
@@ -59,7 +60,7 @@ async function handler(req, res) {
     const tieneIncentivos = await DocenteIncentivo.count({
       where: { 
         id_docente,
-        estado: 'VIGENTE'
+        estado: { [Op.in]: ['VIGENTE', 'FINALIZADO'] }
       }
     }) > 0;
 

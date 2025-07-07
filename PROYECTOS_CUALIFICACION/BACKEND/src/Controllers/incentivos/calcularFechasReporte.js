@@ -8,7 +8,7 @@ async function handler(req, res) {
     const response = await incentivosRepo.calcularFechasReporte(id_docente_incentivo);
 
     if (response.status === constants.SUCCEEDED_MESSAGE) {
-      return res.status(200).json({ fechas: response.fechas });
+      return res.status(200).json({ fechas: response.fechas, reportes: response.reportes });
     }
 
     return res.status(response.failure_code || 500).json({ 

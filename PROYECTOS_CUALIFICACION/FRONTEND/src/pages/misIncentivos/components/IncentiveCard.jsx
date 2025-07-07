@@ -16,8 +16,10 @@ import {
   Schedule as ScheduleIcon,
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
-  Error as ErrorIcon
+  Error as ErrorIcon,
+  Download as DownloadIcon
 } from '@mui/icons-material';
+import { gsUrlApi } from '@src/config/ConfigServer';
 
 const EstadoChip = ({ estado }) => {
   const configuracion = {
@@ -401,6 +403,24 @@ const IncentiveCard = ({
             {subiendoReporte ? 'Subiendo...' : 
              estaVencido(proximaFechaLimite) ? 'Subir Reporte (URGENTE)' :
              puedeSubir ? 'Subir Reporte' : 'Subir Reporte (No Disponible)'}
+          </Button>
+        </CardActions>
+      )}
+
+      {incentivo.estado === 'FINALIZADO' && incentivo.ruta_certificado && (
+        <CardActions sx={{ px: 2, pb: 2 }}>
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<DownloadIcon />}
+            onClick={() => {
+              const token = localStorage.getItem('token');
+              const url = `${gsUrlApi}/incentivos/docente-incentivo/${incentivo.id_docente_incentivo}/certificado?token=${token}`;
+              window.open(url, '_blank');
+            }}
+            fullWidth
+          >
+            Descargar certificado
           </Button>
         </CardActions>
       )}

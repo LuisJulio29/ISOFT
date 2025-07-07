@@ -10,6 +10,9 @@ const listarDocentesAsignados = require('./listarDocentesAsignados');
 const obtenerEstadisticas = require('./obtenerEstadisticas');
 const calcularFechasReporte = require('./calcularFechasReporte');
 const obtenerMiProgreso = require('./obtenerMiProgreso');
+const aprobarIncentivo = require('./aprobarIncentivo');
+const desaprobarIncentivo = require('./desaprobarIncentivo');
+const getCertificado = require('./getCertificado');
 
 module.exports = {
   insertar,
@@ -24,4 +27,7 @@ module.exports = {
   obtenerEstadisticas,
   calcularFechasReporte,
   obtenerMiProgreso,
+  aprobarIncentivo,
+  desaprobarIncentivo,
+  getCertificado,
 }; 

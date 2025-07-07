@@ -3,7 +3,10 @@ const jwt = require('jsonwebtoken');
 const constants = require('../../constants');
 
 function verifyToken(req, res, next) {
-  const token = req.headers['authorization']?.split(' ')[1]; // Bearer TOKEN
+  let token = req.headers['authorization']?.split(' ')[1]; // Bearer TOKEN
+  if (!token && req.query.token) {
+    token = req.query.token;
+  }
 
   if (!token) {
     return res.status(403).json({ message: 'Token no proporcionado.' });

@@ -19,7 +19,8 @@ import {
   Chip,
   Typography,
   Grid,
-  Tooltip
+  Tooltip,
+  LinearProgress
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -57,7 +58,6 @@ const DocentesTable = ({
   onVerProceso,
   onEditarIncentivo,
   totalDocentes,
-  totalPages,
   onPaginaChange
 }) => {
   const handleChangePage = (event, newPage) => {
@@ -73,7 +73,7 @@ const DocentesTable = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          👥 Docentes con Incentivos Asignados
+           Docentes con Incentivos Asignados
         </Typography>
 
         {/* Filtros */}
@@ -136,6 +136,7 @@ const DocentesTable = ({
                 <TableCell>Fecha Inicio</TableCell>
                 <TableCell>Fecha Fin</TableCell>
                 <TableCell>Próximo Reporte</TableCell>
+                <TableCell>Progreso</TableCell>
                 <TableCell>Estado</TableCell>
                 <TableCell>Reportes</TableCell>
                 <TableCell align="center">Acciones</TableCell>
@@ -198,6 +199,19 @@ const DocentesTable = ({
                         ) : (
                           '-'
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <Box minWidth={100}>
+                          <LinearProgress 
+                            variant="determinate" 
+                            value={row.porcentaje_progreso || 0}
+                            color={row.porcentaje_progreso >= 100 ? 'success' : 'primary'}
+                            sx={{ height: 8, borderRadius: 4, mb: 0.5 }}
+                          />
+                          <Typography variant="caption" color="textSecondary">
+                            {row.reportes_validados || 0} / {row.total_reportes || 0} ({row.porcentaje_progreso || 0}%)
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <EstadoBadge estado={row.estado} />

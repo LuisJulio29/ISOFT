@@ -190,11 +190,24 @@ const repo = {
           order: [['fecha_envio', 'DESC']]
         });
 
-                  const proximaFecha = repo.calcularProximaFechaReporte(
-            docenteIncentivo.fecha_inicio,
-            docenteIncentivo.frecuencia_informe_dias,
-            reportes
-          );
+        const proximaFecha = repo.calcularProximaFechaReporte(
+          docenteIncentivo.fecha_inicio,
+          docenteIncentivo.frecuencia_informe_dias,
+          reportes
+        );
+
+        const reportesValidados = reportes.filter(r => r.estado === 'VALIDADO').length;
+
+        // Calcular total de reportes requeridos utilizando la generación de fechas
+        const fechasPrograma = repo.generarFechasReporte(
+          docenteIncentivo.fecha_inicio,
+          docenteIncentivo.fecha_fin,
+          docenteIncentivo.frecuencia_informe_dias,
+          reportes
+        );
+
+        const totalRequeridos = fechasPrograma.length;
+        const porcentajeProgreso = totalRequeridos > 0 ? Math.min(100, Math.round((reportesValidados / totalRequeridos) * 100)) : 0;
 
         const reportesPendientes = reportes.filter(r => r.estado === 'PENDIENTE').length;
 
@@ -202,7 +215,9 @@ const repo = {
           ...docenteIncentivo.toJSON(),
           proxima_fecha_reporte: proximaFecha,
           reportes_pendientes: reportesPendientes,
-          total_reportes: reportes.length
+          total_reportes: totalRequeridos,
+          reportes_validados: reportesValidados,
+          porcentaje_progreso: porcentajeProgreso
         };
       }));
 
@@ -297,7 +312,7 @@ const repo = {
         reportes
       );
 
-      return { status: constants.SUCCEEDED_MESSAGE, fechas };
+      return { status: constants.SUCCEEDED_MESSAGE, fechas, reportes };
     } catch (error) {
       return { 
         status: constants.INTERNAL_ERROR_MESSAGE, 
@@ -312,7 +327,7 @@ const repo = {
       const incentivos = await DocenteIncentivo.findAll({
         where: { 
           id_docente, 
-          estado: 'VIGENTE'
+          estado: { [Op.in]: ['VIGENTE', 'FINALIZADO'] }
         },
         include: [{
           model: Incentivo,
@@ -338,7 +353,7 @@ const repo = {
         const reportesRechazados = reportes.filter(r => r.estado === 'RECHAZADO').length;
 
         const progreso = {
-          porcentaje: Math.round((reportesValidados / fechasPrograma.length) * 100),
+          porcentaje: Math.min(100, Math.round((reportesValidados / fechasPrograma.length) * 100)),
           reportes_completados: reportesValidados,
           reportes_pendientes: reportesPendientes,
           reportes_rechazados: reportesRechazados,
@@ -350,6 +365,7 @@ const repo = {
           reportes,
           fechas_programa: fechasPrograma,
           progreso,
+          ruta_certificado: incentivo.ruta_certificado,
           puede_subir_reporte: repo.puedeSubirReporte(fechasPrograma, reportes),
           proxima_fecha_limite: repo.obtenerProximaFechaLimite(fechasPrograma, reportes)
         };
@@ -519,6 +535,25 @@ const repo = {
       numeroReporte++;
     }
 
+    // Usamos el mismo arreglo reportesOrdenados ya existente arriba
+    let indiceSlot = 0;
+    for (const rep of reportesOrdenados) {
+      // Avanzar al siguiente slot VALIDADO si corresponde
+      while (indiceSlot < fechas.length && fechas[indiceSlot].estado === 'VALIDADO') {
+        indiceSlot++;
+      }
+      if (indiceSlot >= fechas.length) break;
+
+      // Sustituir (o colocar) el reporte en el slot actual
+      fechas[indiceSlot].reporte = rep;
+      fechas[indiceSlot].estado = rep.estado;
+
+      // Si quedó VALIDADO, avanzamos al próximo slot
+      if (rep.estado === 'VALIDADO') {
+        indiceSlot++;
+      }
+    }
+
     return fechas;
   },
 
@@ -621,6 +656,89 @@ const repo = {
     
     // Para enviar el reporte N, deben existir N-1 reportes validados
     return reportesValidados.length >= numeroReporte - 1;
+  },
+
+  /* --------------------------------------------------
+   * APROBACIÓN / DESAPROBACIÓN FINAL DEL INCENTIVO
+   * -------------------------------------------------- */
+
+  aprobarIncentivo: async (id_docente_incentivo) => {
+    try {
+      // Buscar asignación y relaciones
+      const asignacion = await DocenteIncentivo.findByPk(id_docente_incentivo, {
+        include: [
+          { model: Docente, as: 'docente' },
+          { model: Incentivo, as: 'incentivo' }
+        ]
+      });
+
+      if (!asignacion) {
+        return { status: constants.NOT_FOUND_ERROR_MESSAGE, failure_code: 404, failure_message: 'Asignación no encontrada' };
+      }
+
+      // Obtener progreso para asegurar 100 %
+      const reportes = await ReporteIncentivo.findAll({ where: { id_docente_incentivo }, order: [['fecha_envio', 'ASC']] });
+      const fechasPrograma = repo.generarFechasReporte(
+        asignacion.fecha_inicio,
+        asignacion.fecha_fin,
+        asignacion.frecuencia_informe_dias,
+        reportes
+      );
+      const reportesValidados = reportes.filter(r => r.estado === 'VALIDADO').length;
+      if (reportesValidados < fechasPrograma.length) {
+        return { status: constants.INVALID_PARAMETER_SENDED, failure_code: 400, failure_message: 'El docente no ha completado el 100 % de los informes' };
+      }
+
+      // Generar certificado
+      const generateCert = require('../../Services/certificate/generateIncentivoCertificate');
+      const rutaCertificado = await generateCert({
+        docente: asignacion.docente,
+        incentivo: asignacion.incentivo,
+        fecha_inicio: asignacion.fecha_inicio,
+        fecha_fin: asignacion.fecha_fin,
+        aprobado: true
+      });
+
+      // Actualizar estado
+      await asignacion.update({ estado: 'FINALIZADO', ruta_certificado: rutaCertificado });
+
+      return { status: constants.SUCCEEDED_MESSAGE, certificado: rutaCertificado };
+    } catch (error) {
+      return { status: constants.INTERNAL_ERROR_MESSAGE, failure_code: 500, failure_message: error.message };
+    }
+  },
+
+  desaprobarIncentivo: async (id_docente_incentivo, observaciones) => {
+    try {
+      const asignacion = await DocenteIncentivo.findByPk(id_docente_incentivo, {
+        include: [
+          { model: Docente, as: 'docente' },
+          { model: Incentivo, as: 'incentivo' }
+        ]
+      });
+
+      if (!asignacion) {
+        return { status: constants.NOT_FOUND_ERROR_MESSAGE, failure_code: 404, failure_message: 'Asignación no encontrada' };
+      }
+
+      // Generar certificado de denegación
+      const generateCert = require('../../Services/certificate/generateIncentivoCertificate');
+      const rutaCertificado = await generateCert({
+        docente: asignacion.docente,
+        incentivo: asignacion.incentivo,
+        fecha_inicio: asignacion.fecha_inicio,
+        fecha_fin: asignacion.fecha_fin,
+        aprobado: false,
+        observaciones
+      });
+
+      // Marcar como FINALIZADO igualmente (o podríamos usar otro estado si se desea)
+      await asignacion.update({ estado: 'FINALIZADO', ruta_certificado: rutaCertificado });
+
+      return { status: constants.SUCCEEDED_MESSAGE, certificado: rutaCertificado };
+    } catch (error) {
+      return { status: constants.INTERNAL_ERROR_MESSAGE, failure_code: 500, failure_message: error.message };
+    }
   }
 };
 

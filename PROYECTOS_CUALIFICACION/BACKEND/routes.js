@@ -125,6 +125,13 @@ router.post('/incentivos/reportes/:id_docente_incentivo/extender-plazo', verifyT
   router.post('/emails/resend/:emailLogId', verifyToken, emailsController.resendEmail);
   router.post('/emails/execute-reminders', verifyToken, emailsController.executeReminders);
   
+  // Incentivos - Aprobación / Desaprobación final
+  router.put('/incentivos/docente-incentivo/:id_docente_incentivo/aprobar', verifyToken, incentivosController.aprobarIncentivo);
+  router.put('/incentivos/docente-incentivo/:id_docente_incentivo/desaprobar', verifyToken, incentivosController.desaprobarIncentivo);
+
+  // Ver certificado generado
+  router.get('/incentivos/docente-incentivo/:id_docente_incentivo/certificado', verifyToken, incentivosController.getCertificado);
+
   return router;
 };
 

@@ -362,6 +362,18 @@ const repo = {
       numeroReporte++;
     }
 
+    // Aprovechamos reportesOrdenados declarado anteriormente
+    let indiceSlot = 0;
+    for (const rep of reportesOrdenados) {
+      while (indiceSlot < fechas.length && fechas[indiceSlot].estado === 'VALIDADO') {
+        indiceSlot++;
+      }
+      if (indiceSlot >= fechas.length) break;
+      fechas[indiceSlot].reporte = rep;
+      fechas[indiceSlot].estado = rep.estado;
+      if (rep.estado === 'VALIDADO') indiceSlot++;
+    }
+
     return fechas;
   },
 

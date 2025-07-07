@@ -151,6 +151,11 @@ export const useMisIncentivos = () => {
   // Verificar si puede subir reporte para un incentivo específico
   const puedeSubirReporte = (incentivo) => {
     if (!incentivo || incentivo.estado !== 'VIGENTE') return false;
+
+    // Si el incentivo ya alcanzó el 100 % de progreso, no permitir más envíos
+    const progreso = incentivo.progreso || {};
+    if (progreso.porcentaje >= 100) return false;
+
     return incentivo.puede_subir_reporte || false;
   };
 

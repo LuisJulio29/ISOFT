@@ -1,5 +1,6 @@
 const constants = require('../../../constants');
 const { Usuario, Interface, Rol_Interface, Usuario_Docente, DocenteIncentivo, Cualificacion, Rol } = require('../../Models');
+const { Op } = require('sequelize');
 
 const repo = {
 
@@ -34,7 +35,7 @@ const repo = {
 
       // Si es administrador, mostrar todo
       const esAdmin = usuario.rol?.nombre?.toLowerCase().includes('admin') || 
-                     usuario.rol?.nombre?.toLowerCase().includes('administrador');
+                     usuario.rol?.nombre?.includes('administrador');
 
       if (esAdmin) {
         return {
@@ -56,7 +57,7 @@ const repo = {
         const tieneIncentivos = await DocenteIncentivo.count({
           where: { 
             id_docente,
-            estado: 'VIGENTE'
+            estado: { [Op.in]: ['VIGENTE', 'FINALIZADO'] }
           }
         }) > 0;
 
