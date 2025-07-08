@@ -203,6 +203,12 @@ const MisIncentivos = () => {
               <Typography variant="body1" color="textSecondary">
                 Actualmente no tienes incentivos profesorales asignados. 
                 Contacta con la administración si crees que esto es un error.
+                <br />
+                <br />
+                <Typography variant="body1" color="textSecondary">
+                  Si tienes incentivos asignados, pero no los ves en esta lista, es posible que estén en proceso de validación.
+                  Espera unos minutos y recarga la página.
+                </Typography>
               </Typography>
             </CardContent>
           </Card>
