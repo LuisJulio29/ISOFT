@@ -254,6 +254,7 @@ const MisIncentivos = () => {
                     • Los reportes se habilitan cuando el anterior es validado
                     • Un reporte por vez hasta que se valide el enviado
                     • Recibirás notificación del resultado de validación
+                    • Si el reporte es rechazado, deberás subir un nuevo reporte
                   </Typography>
                 </Box>
               </Grid>
