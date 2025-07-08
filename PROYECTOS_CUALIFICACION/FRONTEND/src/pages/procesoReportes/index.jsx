@@ -197,6 +197,8 @@ const ProcesoReportes = () => {
         setObservaciones('');
         setMensajeAdministrador('');
         await cargarDatos();
+        // Recalcular el progreso inmediatamente para actualizar la barra
+        await cargarProgreso(id_docente_incentivo);
       } else {
         Swal.fire('Error', data.message || 'No se pudo validar el reporte', 'error');
       }
@@ -317,6 +319,33 @@ const ProcesoReportes = () => {
     window.open(url, '_blank');
   };
 
+  const handleRecordarPlazo = async () => {
+    const confirm = await Swal.fire({
+      title: 'Enviar recordatorio',
+      text: 'Se enviará un correo al docente recordándole su próximo reporte. ¿Desea continuar?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, enviar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const resp = await fetch(`${gsUrlApi}/incentivos/docente-incentivo/${id_docente_incentivo}/recordar-plazo`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        Swal.fire('Éxito', data.message || 'Recordatorio enviado correctamente', 'success');
+      } else {
+        Swal.fire('Error', data.message || 'No se pudo enviar el recordatorio', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', err.message, 'error');
+    }
+  };
+
   if (loading) {
     return (
       <Box component="main" sx={{ flexGrow: 1 }}>
@@ -377,17 +406,29 @@ const ProcesoReportes = () => {
                   <Typography variant="h6" color="primary">
                     Información del Incentivo
                   </Typography>
-                  {docenteIncentivo.resolucion && (
+                  <Box display="flex" gap={1}>
+                    {docenteIncentivo.resolucion && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<DescriptionIcon />}
+                        onClick={() => window.open(`${gsUrlApi}/uploads/resoluciones/${docenteIncentivo.resolucion}`, '_blank')}
+                        sx={{ textTransform: 'none' }}
+                      >
+                        Ver Resolución
+                      </Button>
+                    )}
                     <Button
                       size="small"
                       variant="outlined"
-                      startIcon={<DescriptionIcon />}
-                      onClick={() => window.open(`${gsUrlApi}/uploads/resoluciones/${docenteIncentivo.resolucion}`, '_blank')}
+                      color="secondary"
+                      startIcon={<ScheduleIcon />}
+                      onClick={handleRecordarPlazo}
                       sx={{ textTransform: 'none' }}
                     >
-                      Ver Resolución
+                      Recordar Plazo
                     </Button>
-                  )}
+                  </Box>
                 </Box>
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={3}>

@@ -128,6 +128,8 @@ router.post('/incentivos/reportes/:id_docente_incentivo/extender-plazo', verifyT
   // Incentivos - Aprobación / Desaprobación final
   router.put('/incentivos/docente-incentivo/:id_docente_incentivo/aprobar', verifyToken, incentivosController.aprobarIncentivo);
   router.put('/incentivos/docente-incentivo/:id_docente_incentivo/desaprobar', verifyToken, incentivosController.desaprobarIncentivo);
+  // Recordar plazo manual
+  router.post('/incentivos/docente-incentivo/:id_docente_incentivo/recordar-plazo', verifyToken, incentivosController.recordarPlazo);
 
   // Ver certificado generado
   router.get('/incentivos/docente-incentivo/:id_docente_incentivo/certificado', verifyToken, incentivosController.getCertificado);

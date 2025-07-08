@@ -230,6 +230,121 @@ class NotificationService {
   }
 
   /**
+   * Notificar incentivo completado con logging y certificado adjunto
+   */
+  async notifyIncentivoCompletado(datosCompletos) {
+    const {
+      emailDocente,
+      nombreDocente,
+      nombreIncentivo,
+      fechaInicio,
+      fechaFin,
+      observaciones,
+      rutaCertificado,
+      idIncentivo
+    } = datosCompletos;
+
+    // Crear registro en EmailLog
+    const logEntry = await this.logEmailAttempt({
+      recipient_email: emailDocente,
+      recipient_name: nombreDocente,
+      subject: `Incentivo Completado - ${nombreIncentivo}`,
+      email_type: 'INCENTIVO_COMPLETADO',
+      related_entity_id: idIncentivo,
+      related_entity_type: 'INCENTIVO'
+    });
+
+    if (!logEntry) {
+      console.error('No se pudo crear el registro de log para el email');
+      return { success: false, error: 'Error en el sistema de logging' };
+    }
+
+    try {
+      const result = await emailService.notifyIncentivoCompletado({
+        emailDocente,
+        nombreDocente,
+        nombreIncentivo,
+        fechaInicio,
+        fechaFin,
+        observaciones,
+        rutaCertificado
+      });
+
+      if (result.success) {
+        await this.updateEmailStatus(logEntry.id_email_log, 'ENVIADO', result.messageId);
+        console.log(`Notificación de incentivo completado enviada a ${emailDocente}`);
+        return { success: true, logId: logEntry.id_email_log };
+      } else {
+        await this.updateEmailStatus(logEntry.id_email_log, 'FALLIDO', null, result.error);
+        console.error(`Error al enviar notificación de incentivo completado a ${emailDocente}:`, result.error);
+        return { success: false, error: result.error, logId: logEntry.id_email_log };
+      }
+    } catch (error) {
+      await this.updateEmailStatus(logEntry.id_email_log, 'FALLIDO', null, error.message);
+      console.error('Error inesperado al enviar notificación de incentivo completado:', error.message);
+      return { success: false, error: error.message, logId: logEntry.id_email_log };
+    }
+  }
+
+  /**
+   * Notificar incentivo denegado con logging y certificado adjunto
+   */
+  async notifyIncentivoDenegado(datosCompletos) {
+    const {
+      emailDocente,
+      nombreDocente,
+      nombreIncentivo,
+      fechaInicio,
+      fechaFin,
+      observaciones,
+      mensajeAdministrador,
+      rutaCertificado,
+      idIncentivo
+    } = datosCompletos;
+
+    const logEntry = await this.logEmailAttempt({
+      recipient_email: emailDocente,
+      recipient_name: nombreDocente,
+      subject: `Incentivo Rechazado - ${nombreIncentivo}`,
+      email_type: 'INCENTIVO_DENEGADO',
+      related_entity_id: idIncentivo,
+      related_entity_type: 'INCENTIVO'
+    });
+
+    if (!logEntry) {
+      console.error('No se pudo crear el registro de log para el email');
+      return { success: false, error: 'Error en el sistema de logging' };
+    }
+
+    try {
+      const result = await emailService.notifyIncentivoDenegado({
+        emailDocente,
+        nombreDocente,
+        nombreIncentivo,
+        fechaInicio,
+        fechaFin,
+        observaciones,
+        mensajeAdministrador,
+        rutaCertificado
+      });
+
+      if (result.success) {
+        await this.updateEmailStatus(logEntry.id_email_log, 'ENVIADO', result.messageId);
+        console.log(`Notificación de incentivo denegado enviada a ${emailDocente}`);
+        return { success: true, logId: logEntry.id_email_log };
+      } else {
+        await this.updateEmailStatus(logEntry.id_email_log, 'FALLIDO', null, result.error);
+        console.error(`Error al enviar notificación de incentivo denegado a ${emailDocente}:`, result.error);
+        return { success: false, error: result.error, logId: logEntry.id_email_log };
+      }
+    } catch (error) {
+      await this.updateEmailStatus(logEntry.id_email_log, 'FALLIDO', null, error.message);
+      console.error('Error inesperado al enviar notificación de incentivo denegado:', error.message);
+      return { success: false, error: error.message, logId: logEntry.id_email_log };
+    }
+  }
+
+  /**
    * Obtener estadísticas de emails enviados
    */
   async getEmailStats(startDate, endDate) {

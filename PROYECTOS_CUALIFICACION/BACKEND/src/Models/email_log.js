@@ -30,9 +30,14 @@ const EmailLog = sequelize.define('EmailLog', {
   email_type: {
     type: DataTypes.ENUM(
       'INCENTIVO_ASIGNADO',
+      'INCENTIVO_COMPLETADO',
+      'INCENTIVO_DENEGADO',
       'REPORTE_VALIDADO', 
       'REPORTE_RECHAZADO',
       'RECORDATORIO_REPORTE',
+      'RECORDATORIO_30_DIAS',
+      'RECORDATORIO_10_DIAS',
+      'RECORDATORIO_1_DIAS',
       'EXTENSION_PLAZO'
     ),
     allowNull: false,
@@ -60,7 +65,7 @@ const EmailLog = sequelize.define('EmailLog', {
     comment: 'ID de la entidad relacionada (incentivo, reporte, etc.)'
   },
   related_entity_type: {
-    type: DataTypes.ENUM('INCENTIVO', 'REPORTE', 'USUARIO'),
+    type: DataTypes.ENUM('INCENTIVO', 'REPORTE', 'USUARIO', 'DOCENTE_INCENTIVO'),
     allowNull: true,
     comment: 'Tipo de entidad relacionada'
   },

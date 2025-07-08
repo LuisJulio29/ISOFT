@@ -12,6 +12,7 @@ const calcularFechasReporte = require('./calcularFechasReporte');
 const obtenerMiProgreso = require('./obtenerMiProgreso');
 const aprobarIncentivo = require('./aprobarIncentivo');
 const desaprobarIncentivo = require('./desaprobarIncentivo');
+const recordarPlazo = require('./recordarPlazo');
 const getCertificado = require('./getCertificado');
 
 module.exports = {
@@ -29,5 +30,6 @@ module.exports = {
   obtenerMiProgreso,
   aprobarIncentivo,
   desaprobarIncentivo,
+  recordarPlazo,
   getCertificado,
 }; 

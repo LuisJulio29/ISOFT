@@ -732,7 +732,13 @@ const repo = {
       // Actualizar estado
       await asignacion.update({ estado: 'FINALIZADO', ruta_certificado: rutaCertificado });
 
-      return { status: constants.SUCCEEDED_MESSAGE, certificado: rutaCertificado };
+      return { 
+        status: constants.SUCCEEDED_MESSAGE, 
+        certificado: rutaCertificado,
+        datosDocente: asignacion.docente,
+        datosIncentivo: asignacion.incentivo,
+        asignacion
+      };
     } catch (error) {
       return { status: constants.INTERNAL_ERROR_MESSAGE, failure_code: 500, failure_message: error.message };
     }
@@ -765,7 +771,13 @@ const repo = {
       // Marcar como FINALIZADO igualmente (o podríamos usar otro estado si se desea)
       await asignacion.update({ estado: 'FINALIZADO', ruta_certificado: rutaCertificado });
 
-      return { status: constants.SUCCEEDED_MESSAGE, certificado: rutaCertificado };
+      return { 
+        status: constants.SUCCEEDED_MESSAGE, 
+        certificado: rutaCertificado,
+        datosDocente: asignacion.docente,
+        datosIncentivo: asignacion.incentivo,
+        asignacion
+      };
     } catch (error) {
       return { status: constants.INTERNAL_ERROR_MESSAGE, failure_code: 500, failure_message: error.message };
     }

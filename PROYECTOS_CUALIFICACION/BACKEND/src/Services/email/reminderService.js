@@ -177,6 +177,10 @@ class ReminderService {
         return { success: false, error: 'Error en el sistema de logging' };
       }
 
+      // Calcular días restantes de forma dinámica
+      const hoy = new Date();
+      const diasRestantes = Math.ceil((fechaLimite - hoy) / (1000 * 60 * 60 * 24));
+
       // Preparar datos para el email
       const datosEmail = {
         emailDocente: docente.email_institucional,
@@ -184,6 +188,7 @@ class ReminderService {
         nombreIncentivo: incentivo.nombre,
         fechaLimite: fechaLimite,
         diasAntes: diasAntes,
+        diasRestantes: diasRestantes,
         numeroReporte: numeroReporte,
         frecuenciaReporte: incentivo.frecuencia_informe_dias
       };

@@ -3,6 +3,11 @@ const fs = require('fs').promises;
 const path = require('path');
 const { createTransporter, defaultSender } = require('./emailConfig');
 
+// Registrar helper "eq" para usar comparaciones en plantillas
+handlebars.registerHelper('eq', function (a, b) {
+  return a === b;
+});
+
 class EmailService {
   constructor() {
     this.transporter = null;
@@ -32,7 +37,9 @@ class EmailService {
       'incentivoAsignado.html',
       'reporteValidado.html',
       'reporteRechazado.html',
-      'recordatorioReporte.html'
+      'recordatorioReporte.html',
+      'incentivoCompletado.html',
+      'incentivoDenegado.html'
     ];
 
     for (const file of templateFiles) {
@@ -204,27 +211,21 @@ class EmailService {
       nombreIncentivo,
       fechaLimite,
       diasAntes,
+      diasRestantes,
       numeroReporte,
       frecuenciaReporte
     } = datosRecordatorio;
 
     let subject;
-    let priority = 'normal';
-    
-    switch (diasAntes) {
-      case 30:
-        subject = `📅 Recordatorio: Reporte de ${nombreIncentivo} vence en 30 días`;
-        break;
-      case 10:
-        subject = `⏰ Recordatorio: Reporte de ${nombreIncentivo} vence en 10 días`;
-        priority = 'high';
-        break;
-      case 1:
-        subject = `🚨 URGENTE: Reporte de ${nombreIncentivo} vence mañana`;
-        priority = 'high';
-        break;
-      default:
-        subject = `Recordatorio: Reporte de ${nombreIncentivo} próximo a vencer`;
+    // Usar los días restantes reales para construir el título
+    if (diasRestantes === 1) {
+      subject = `🚨 URGENTE: Reporte de ${nombreIncentivo} vence mañana`;
+    } else if (diasRestantes === 10) {
+      subject = `⏰ Recordatorio: Reporte de ${nombreIncentivo} vence en 10 días`;
+    } else if (diasRestantes === 30) {
+      subject = `📅 Recordatorio: Reporte de ${nombreIncentivo} vence en 30 días`;
+    } else {
+      subject = `📅 Recordatorio: Reporte de ${nombreIncentivo} vence en ${diasRestantes} días`;
     }
 
     const templateData = {
@@ -232,6 +233,7 @@ class EmailService {
       nombreIncentivo,
       fechaLimite: this.formatDate(fechaLimite),
       diasAntes,
+      diasRestantes: typeof diasRestantes === 'number' ? diasRestantes : diasAntes,
       numeroReporte,
       frecuenciaReporte,
       fechaActual: this.formatDate(new Date()),
@@ -242,8 +244,96 @@ class EmailService {
       emailDocente,
       subject,
       'recordatorioReporte',
+      templateData
+    );
+  }
+
+  /**
+   * Notificar finalización exitosa de un incentivo (certificado de aprobación)
+   */
+  async notifyIncentivoCompletado(datos) {
+    const {
+      emailDocente,
+      nombreDocente,
+      nombreIncentivo,
+      fechaInicio,
+      fechaFin,
+      observaciones,
+      rutaCertificado
+    } = datos;
+
+    const subject = `¡Felicidades! Incentivo ${nombreIncentivo} completado`;
+
+    const templateData = {
+      nombreDocente,
+      nombreIncentivo,
+      fechaInicio: this.formatDate(fechaInicio),
+      fechaFin: this.formatDate(fechaFin),
+      observaciones
+    };
+
+    // Construir ruta absoluta del certificado
+    const absoluteCertPath = path.join(__dirname, '..', '..', '..', rutaCertificado);
+
+    const attachments = [
+      {
+        filename: `Certificado_${nombreIncentivo.replace(/\s+/g, '_')}.pdf`,
+        path: absoluteCertPath,
+        contentType: 'application/pdf'
+      }
+    ];
+
+    return await this.sendEmail(
+      emailDocente,
+      subject,
+      'incentivoCompletado',
       templateData,
-      priority
+      attachments
+    );
+  }
+
+  /**
+   * Notificar denegación de incentivo (certificado de denegación)
+   */
+  async notifyIncentivoDenegado(datos) {
+    const {
+      emailDocente,
+      nombreDocente,
+      nombreIncentivo,
+      fechaInicio,
+      fechaFin,
+      observaciones,
+      mensajeAdministrador,
+      rutaCertificado
+    } = datos;
+
+    const subject = `Resultado de incentivo ${nombreIncentivo}: Rechazado`;
+
+    const templateData = {
+      nombreDocente,
+      nombreIncentivo,
+      fechaInicio: this.formatDate(fechaInicio),
+      fechaFin: this.formatDate(fechaFin),
+      observaciones,
+      mensajeAdministrador
+    };
+
+    const absoluteCertPath = path.join(__dirname, '..', '..', '..', rutaCertificado);
+
+    const attachments = [
+      {
+        filename: `CertificadoDenegacion_${nombreIncentivo.replace(/\s+/g, '_')}.pdf`,
+        path: absoluteCertPath,
+        contentType: 'application/pdf'
+      }
+    ];
+
+    return await this.sendEmail(
+      emailDocente,
+      subject,
+      'incentivoDenegado',
+      templateData,
+      attachments
     );
   }
 
