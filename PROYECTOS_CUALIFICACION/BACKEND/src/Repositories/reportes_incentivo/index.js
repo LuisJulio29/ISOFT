@@ -475,12 +475,32 @@ const repo = {
         reportesExistentes
       );
 
-      // Buscar el próximo slot que necesita extensión (sin reporte o vencido)
+      // Identificar el primer slot vencido que aún no cuenta con reporte
+      // Ya no requerimos que "puede_enviar" sea true, pues la extensión de plazo
+      // puede ser necesaria aunque el reporte previo no se haya validado todavía.
+      const hoy = new Date();
+
+      // Buscar el primer slot cuya fecha límite ya pasó y todavía no tiene reporte
       const slotParaExtender = fechasPrograma.find(fecha => {
-        return fecha.puede_enviar && !fecha.reporte && fecha.vencido;
+        return !fecha.reporte && hoy > new Date(fecha.fecha_limite);
       });
 
-      if (!slotParaExtender) {
+      let slotObjetivo = slotParaExtender;
+
+      // Fallback: si no hay slot vencido sin reporte, verificar la próxima fecha calculada
+      if (!slotObjetivo) {
+        const proximaFecha = require('../incentivos').calcularProximaFechaReporte(
+          docenteIncentivo.fecha_inicio,
+          docenteIncentivo.frecuencia_informe_dias,
+          reportesExistentes
+        );
+
+        if (proximaFecha && hoy > new Date(proximaFecha)) {
+          slotObjetivo = { fecha_limite: proximaFecha };
+        }
+      }
+
+      if (!slotObjetivo) {
         return { 
           status: constants.INVALID_PARAMETER_SENDED, 
           failure_code: 400, 
@@ -489,7 +509,7 @@ const repo = {
       }
 
       // Calcular nueva fecha límite
-      const fechaOriginal = new Date(slotParaExtender.fecha_limite);
+      const fechaOriginal = new Date(slotObjetivo.fecha_limite);
       const nuevaFechaLimite = new Date(fechaOriginal);
       nuevaFechaLimite.setDate(nuevaFechaLimite.getDate() + dias_extension);
 

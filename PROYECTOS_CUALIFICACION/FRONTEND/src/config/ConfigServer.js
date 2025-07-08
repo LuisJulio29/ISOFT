@@ -7,6 +7,9 @@ switch (sAmbiente) {
     case "PRODUCCION":
         gsUrlApi = 'https://isoft.onrender.com';//<----Cambiar por ruta real
         break;
+    case "dev":
+        gsUrlApi = 'http://localhost:3001';
+        break;
     default:
         gsUrlApi = 'https://isoft.onrender.com';
         break;

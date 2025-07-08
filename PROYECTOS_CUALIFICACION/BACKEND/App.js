@@ -16,8 +16,14 @@ app.use('/uploads', (req, res, next) => {
   next();
 });
 
-// Servir archivos estáticos de la carpeta uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Servir archivos estáticos de la carpeta uploads (tanto desde la raíz del proyecto como desde BACKEND/uploads)
+const uploadsDirRoot = path.join(__dirname, '..', 'uploads');
+const uploadsDirBackend = path.join(__dirname, 'uploads');
+
+// Primero intentamos servir desde la carpeta raíz (para archivos guardados de forma relativa)
+app.use('/uploads', express.static(uploadsDirRoot));
+// Luego, si no se encuentra, intentará en la carpeta dentro de BACKEND
+app.use('/uploads', express.static(uploadsDirBackend));
 
 app.use('/', routes);
 

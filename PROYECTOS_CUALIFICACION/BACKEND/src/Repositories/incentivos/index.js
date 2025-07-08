@@ -146,22 +146,45 @@ const repo = {
       const { estado, tipo_incentivo, busqueda, page, limit } = filtros;
       const offset = (page - 1) * limit;
 
-      let whereClause = {
-        estado: { [Op.ne]: 'ELIMINADO' } // Excluir registros eliminados
+      // Filtro principal sobre la entidad DocenteIncentivo (asignaciones)
+      const whereClause = {
+        estado: { [Op.ne]: 'ELIMINADO' } // Siempre excluir registros eliminados
       };
-      let includeClause = [
+
+      // Si viene un estado concreto ("VIGENTE", "FINALIZADO", etc.), lo aplicamos.
+      // Cuando es cadena vacía o null, se asume que se quieren todos los estados.
+      if (estado) {
+        whereClause.estado = { [Op.and]: [estado, { [Op.ne]: 'ELIMINADO' }] };
+      }
+
+      // Construcción dinámica del where para Docente permitiendo búsqueda en nombre + apellidos
+      const docenteWhere = {};
+      if (busqueda && busqueda.trim().length > 0) {
+        const termino = busqueda.trim();
+        docenteWhere[Op.or] = [
+          { nombre: { [Op.iLike]: `%${termino}%` } },
+          { apellidos: { [Op.iLike]: `%${termino}%` } },
+          { numero_identificacion: { [Op.iLike]: `%${termino}%` } },
+          // Búsqueda concatenada "nombre apellidos"
+          // Sequelize.where(fn('concat', col('docente.nombre'), ' ', col('docente.apellidos')), { [Op.iLike]: `%${termino}%` })
+        ];
+
+        // Agregamos la condición con concat usando funciones de Sequelize
+        const { fn, col, where: wh } = require('sequelize');
+        docenteWhere[Op.or].push(
+          wh(fn('concat', col('docente.nombre'), ' ', col('docente.apellidos')), {
+            [Op.iLike]: `%${termino}%`
+          })
+        );
+      }
+
+      const includeClause = [
         {
           model: Docente,
           as: 'docente',
           required: true,
           attributes: ['id', 'nombre', 'apellidos', 'numero_identificacion', 'email_institucional'],
-          where: busqueda ? {
-            [Op.or]: [
-              { nombre: { [Op.iLike]: `%${busqueda}%` } },
-              { apellidos: { [Op.iLike]: `%${busqueda}%` } },
-              { numero_identificacion: { [Op.iLike]: `%${busqueda}%` } }
-            ]
-          } : {}
+          where: docenteWhere
         },
         {
           model: Incentivo,
@@ -169,10 +192,6 @@ const repo = {
           where: tipo_incentivo ? { nombre: { [Op.iLike]: `%${tipo_incentivo}%` } } : {}
         }
       ];
-
-      if (estado) {
-        whereClause.estado = { [Op.and]: [estado, { [Op.ne]: 'ELIMINADO' }] };
-      }
 
       const { count, rows } = await DocenteIncentivo.findAndCountAll({
         where: whereClause,
@@ -558,22 +577,33 @@ const repo = {
   },
 
   calcularProximaFechaReporte: (fechaInicio, frecuenciaDias, reportes) => {
+    // 1. Revisar si existe una extensión de plazo aún vigente
+    const ultimaExtension = reportes
+      .filter(r => r.estado === 'EXTENSION_PLAZO' && r.fecha_limite_extendida)
+      .sort((a, b) => new Date(b.fecha_envio) - new Date(a.fecha_envio))[0];
+
+    const hoy = new Date();
+    if (ultimaExtension) {
+      const fechaExt = new Date(ultimaExtension.fecha_limite_extendida);
+      if (fechaExt > hoy) {
+        return fechaExt; // La extensión define la próxima fecha
+      }
+    }
+
+    // 2. Cálculo estándar basado en reportes validados
     const reportesValidados = reportes
       .filter(r => r.estado === 'VALIDADO')
       .sort((a, b) => new Date(a.fecha_envio) - new Date(b.fecha_envio));
 
     const inicio = new Date(fechaInicio);
     let proximaFecha = new Date(inicio);
-    
-    // Si no hay reportes validados, la próxima fecha es la primera
+
     if (reportesValidados.length === 0) {
       proximaFecha.setDate(proximaFecha.getDate() + frecuenciaDias);
       return proximaFecha;
     }
 
-    // La próxima fecha se calcula basándose en reportes VALIDADOS
     proximaFecha.setDate(proximaFecha.getDate() + (frecuenciaDias * (reportesValidados.length + 1)));
-    
     return proximaFecha;
   },
 

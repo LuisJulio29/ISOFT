@@ -7,9 +7,9 @@ async function handler(req, res) {
     const { dias_extension, mensaje_administrador } = req.body;
 
     // Validaciones
-    if (!dias_extension || dias_extension < 1 || dias_extension > 10) {
+    if (!dias_extension || dias_extension < 1 || dias_extension > 15) {
       return res.status(400).json({ 
-        message: 'Los días de extensión deben estar entre 1 y 10 días' 
+        message: 'Los días de extensión deben estar entre 1 y 15 días' 
       });
     }
 

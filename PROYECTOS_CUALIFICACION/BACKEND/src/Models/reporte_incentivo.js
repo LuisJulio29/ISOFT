@@ -47,9 +47,9 @@ const ReporteIncentivo = sequelize.define('ReporteIncentivo', {
     allowNull: true,
     validate: {
       min: 1,
-      max: 10
+      max: 15
     },
-    comment: 'Días de extensión otorgados (máximo 10)'
+    comment: 'Días de extensión otorgados (máximo 15)'
   },
   mensaje_administrador: {
     type: DataTypes.TEXT,

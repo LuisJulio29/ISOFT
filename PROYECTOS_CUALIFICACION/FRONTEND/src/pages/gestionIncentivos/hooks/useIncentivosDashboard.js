@@ -196,6 +196,31 @@ export const useIncentivosDashboard = () => {
     }
   };
 
+  // Extender plazo para el próximo reporte de un docente
+  const extenderPlazo = async (id_docente_incentivo, dias_extension, mensaje_administrador) => {
+    try {
+      const resp = await fetch(`${gsUrlApi}/incentivos/reportes/${id_docente_incentivo}/extender-plazo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ dias_extension, mensaje_administrador })
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        // Recargar datos relevantes
+        await cargarDocentesAsignados();
+        await cargarEstadisticas();
+        await cargarReportesPendientes();
+        return { success: true, extension: data.extension };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
   // Manejar cambios de filtros
   const actualizarFiltros = (nuevosFiltros) => {
     const filtrosActualizados = { ...filtros, ...nuevosFiltros, page: 1 };
@@ -246,6 +271,7 @@ export const useIncentivosDashboard = () => {
     actualizarAsignacion,
     eliminarAsignacion,
     obtenerReportesDocente,
+    extenderPlazo,
     actualizarFiltros,
     cambiarPagina,
     

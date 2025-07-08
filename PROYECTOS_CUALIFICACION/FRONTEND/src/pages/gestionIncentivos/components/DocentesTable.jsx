@@ -57,8 +57,11 @@ const DocentesTable = ({
   onFiltroChange, 
   onVerProceso,
   onEditarIncentivo,
+  onExtenderPlazo,
   totalDocentes,
-  onPaginaChange
+  onPaginaChange,
+  tiposIncentivos = [],
+  cargandoTipos = false
 }) => {
   const handleChangePage = (event, newPage) => {
     onPaginaChange(newPage + 1);
@@ -102,13 +105,21 @@ const DocentesTable = ({
             </FormControl>
           </Grid>
           <Grid item xs={12} md={3}>
-            <TextField
-              fullWidth
-              label="Tipo de Incentivo"
-              placeholder="Año sabático, comisión..."
-              value={filtros.tipo_incentivo}
-              onChange={(e) => onFiltroChange({ tipo_incentivo: e.target.value })}
-            />
+            <FormControl fullWidth disabled={cargandoTipos}>
+              <InputLabel>Tipo de Incentivo</InputLabel>
+              <Select
+                value={filtros.tipo_incentivo}
+                label="Tipo de Incentivo"
+                onChange={(e) => onFiltroChange({ tipo_incentivo: e.target.value })}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                {tiposIncentivos.map((tipo) => (
+                  <MenuItem key={tipo.id_incentivo || tipo.id} value={tipo.nombre}>
+                    {tipo.nombre}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12} md={2}>
             <Button
@@ -145,13 +156,13 @@ const DocentesTable = ({
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={9} align="center">
                     Cargando...
                   </TableCell>
                 </TableRow>
               ) : docentes.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={9} align="center">
                     No se encontraron docentes con los filtros aplicados
                   </TableCell>
                 </TableRow>
@@ -159,6 +170,7 @@ const DocentesTable = ({
                 docentes.map((row) => {
                   const docente = row.docente || {};
                   const incentivo = row.incentivo || {};
+                  const plazoVencido = row.proxima_fecha_reporte && new Date(row.proxima_fecha_reporte) < new Date();
                   
                   return (
                     <TableRow key={row.id_docente_incentivo}>
@@ -250,6 +262,17 @@ const DocentesTable = ({
                               <EditIcon />
                             </IconButton>
                           </Tooltip>
+                          {plazoVencido && (
+                            <Tooltip title="Extender plazo">
+                              <IconButton
+                                color="warning"
+                                size="small"
+                                onClick={() => onExtenderPlazo(row)}
+                              >
+                                <DateRangeIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                         </Box>
                       </TableCell>
                     </TableRow>

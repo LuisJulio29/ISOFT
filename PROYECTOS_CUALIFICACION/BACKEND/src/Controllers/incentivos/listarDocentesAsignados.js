@@ -5,8 +5,14 @@ async function handler(req, res) {
   try {
     const { estado, tipo_incentivo, busqueda, page = 1, limit = 10 } = req.query;
     
+    /*
+     * Si el parámetro "estado" viene como cadena vacía («»), significa que el usuario
+     * desea ver todos los estados. Por ello solo se asigna el valor por defecto
+     * 'VIGENTE' cuando el parámetro viene **indefinido**. De esta manera la cadena
+     * vacía se conserva y el repositorio no aplicará ningún filtro sobre este campo.
+     */
     const filtros = {
-      estado: estado || 'VIGENTE',
+      estado: estado === undefined ? 'VIGENTE' : estado,
       tipo_incentivo,
       busqueda,
       page: parseInt(page),
